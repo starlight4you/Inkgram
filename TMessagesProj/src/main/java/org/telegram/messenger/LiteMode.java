@@ -96,25 +96,11 @@ public class LiteMode {
     private static boolean loaded;
 
     public static int getValue() {
-        return getValue(false);
+        return PRESET_POWER_SAVER;
     }
 
     public static int getValue(boolean ignorePowerSaving) {
-        if (!loaded) {
-            loadPreference();
-        }
-        if (!ignorePowerSaving && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (getBatteryLevel() <= powerSaverLevel && powerSaverLevel > 0) {
-                if (!lastPowerSaverApplied) {
-                    onPowerSaverApplied(lastPowerSaverApplied = true);
-                }
-                return PRESET_POWER_SAVER;
-            }
-            if (lastPowerSaverApplied) {
-                onPowerSaverApplied(lastPowerSaverApplied = false);
-            }
-        }
-        return value;
+        return PRESET_POWER_SAVER;
     }
 
     private static int lastBatteryLevelCached = -1;
@@ -151,7 +137,7 @@ public class LiteMode {
             // always enabled for tablets
             return true;
         }
-        return (getValue() & preprocessFlag(flag)) > 0;
+        return false;
     }
 
     public static boolean isEnabledSetting(int flag) {

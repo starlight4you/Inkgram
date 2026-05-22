@@ -9,6 +9,7 @@
 package org.telegram.ui.ActionBar;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
+import org.telegram.messenger.SharedConfig;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -199,7 +200,7 @@ public class BottomSheet extends Dialog implements BaseFragment.AttachedSheet {
     private boolean canDismissWithTouchOutside = true;
 
     private boolean allowCustomAnimation = true;
-    private boolean showWithoutAnimation;
+    private boolean showWithoutAnimation = !SharedConfig.animationsEnabled();
     boolean showing;
 
     private int statusBarHeight = AndroidUtilities.statusBarHeight;
@@ -252,7 +253,7 @@ public class BottomSheet extends Dialog implements BaseFragment.AttachedSheet {
     private AnimationNotificationsLocker notificationsLocker = new AnimationNotificationsLocker();
     protected int playingImagesLayerNum;
     protected int openedLayerNum;
-    private boolean skipDismissAnimation;
+    private boolean skipDismissAnimation = !SharedConfig.animationsEnabled();
 
     public void setDisableScroll(boolean b) {
         disableScroll = b;

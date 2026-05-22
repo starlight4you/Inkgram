@@ -1658,13 +1658,7 @@ public class SharedConfig {
 
     @PerformanceClass
     public static int getDevicePerformanceClass() {
-        if (overrideDevicePerformanceClass != -1) {
-            return overrideDevicePerformanceClass;
-        }
-        if (devicePerformanceClass == -1) {
-            devicePerformanceClass = measureDevicePerformanceClass();
-        }
-        return devicePerformanceClass;
+        return PERFORMANCE_CLASS_LOW;
     }
 
     public static int measureDevicePerformanceClass() {
@@ -1797,14 +1791,11 @@ public class SharedConfig {
     private static Boolean animationsEnabled;
 
     public static void setAnimationsEnabled(boolean b) {
-        animationsEnabled = b;
+        animationsEnabled = false;
     }
 
     public static boolean animationsEnabled() {
-        if (animationsEnabled == null) {
-            animationsEnabled = MessagesController.getGlobalMainSettings().getBoolean("view_animations", true);
-        }
-        return animationsEnabled;
+        return false;
     }
 
     public static SharedPreferences getPreferences() {
