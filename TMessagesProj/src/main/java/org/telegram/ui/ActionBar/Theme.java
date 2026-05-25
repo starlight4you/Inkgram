@@ -9466,6 +9466,38 @@ public class Theme {
         if (context == null) {
             return null;
         }
+        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            if (resId == R.drawable.greydivider || resId == R.drawable.greydivider_bottom || resId == R.drawable.greydivider_top) {
+                final boolean hasTop = (resId == R.drawable.greydivider || resId == R.drawable.greydivider_top);
+                final boolean hasBottom = (resId == R.drawable.greydivider || resId == R.drawable.greydivider_bottom);
+                
+                return new Drawable() {
+                    private final android.graphics.Paint paint = new android.graphics.Paint();
+                    {
+                        paint.setColor(android.graphics.Color.BLACK);
+                        paint.setStrokeWidth(org.telegram.messenger.AndroidUtilities.dp(1));
+                    }
+                    @Override
+                    public void draw(android.graphics.Canvas canvas) {
+                        android.graphics.Rect bounds = getBounds();
+                        if (hasTop) {
+                            canvas.drawLine(bounds.left, bounds.top, bounds.right, bounds.top, paint);
+                        }
+                        if (hasBottom) {
+                            canvas.drawLine(bounds.left, bounds.bottom - 1, bounds.right, bounds.bottom - 1, paint);
+                        }
+                    }
+                    @Override
+                    public void setAlpha(int alpha) {}
+                    @Override
+                    public void setColorFilter(android.graphics.ColorFilter colorFilter) {}
+                    @Override
+                    public int getOpacity() {
+                        return android.graphics.PixelFormat.TRANSLUCENT;
+                    }
+                };
+            }
+        }
         Drawable drawable = context.getResources().getDrawable(resId).mutate();
         drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
         return drawable;
@@ -10233,6 +10265,9 @@ public class Theme {
     }
 
     public static Drawable getThemedWallpaper(boolean thumb, View ownerView) {
+        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            return new ColorDrawable(0xFFFFFFFF);
+        }
         int backgroundColor = currentColors.get(key_chat_wallpaper);
         File file = null;
         MotionBackgroundDrawable motionBackgroundDrawable = null;
@@ -10370,6 +10405,9 @@ public class Theme {
     }
 
     public static Drawable getCachedWallpaper() {
+        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            return new ColorDrawable(0xFFFFFFFF);
+        }
         Drawable drawable = getCachedWallpaperNonBlocking();
         if (drawable == null && wallpaperLoadTask != null) {
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -10385,6 +10423,9 @@ public class Theme {
     }
 
     public static Drawable getCachedWallpaperNonBlocking() {
+        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            return new ColorDrawable(0xFFFFFFFF);
+        }
         if (themedWallpaper != null) {
             return themedWallpaper;
         } else {
@@ -10393,15 +10434,24 @@ public class Theme {
     }
 
     public static boolean isWallpaperMotion() {
+        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            return false;
+        }
         return isWallpaperMotion;
     }
 
     public static boolean isPatternWallpaper() {
+        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            return false;
+        }
         String selectedBgSlug = getSelectedBackgroundSlug();
         return isPatternWallpaper || "CJz3BZ6YGEYBAAAABboWp6SAv04".equals(selectedBgSlug) || "qeZWES8rGVIEAAAARfWlK1lnfiI".equals(selectedBgSlug);
     }
 
     public static BackgroundGradientDrawable getCurrentGradientWallpaper() {
+        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            return null;
+        }
         if (currentTheme.overrideWallpaper != null && currentTheme.overrideWallpaper.color != 0 && currentTheme.overrideWallpaper.gradientColor1 != 0) {
             final int[] colors = {currentTheme.overrideWallpaper.color, currentTheme.overrideWallpaper.gradientColor1};
             final GradientDrawable.Orientation orientation = BackgroundGradientDrawable.getGradientOrientation(currentTheme.overrideWallpaper.rotation);

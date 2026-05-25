@@ -10816,4 +10816,35 @@
     <string name="AIEditorStyleSharedToManyChats_other">Sent AI Style link to **%1$d chats**.</string>
 
     <string name="GuestBotFor"> for </string>
+
+    <!-- Inkgram -->
+    <string name="InkgramSettings">Inkgram</string>
+    <string name="InkgramUiMode">Interface Mode</string>
+    <string name="InkgramUiModeClassic">Classic</string>
+    <string name="InkgramUiModeClassicDesc">Telegram interface optimized for e-ink displays</string>
+    <string name="InkgramUiModeEink">E-Ink</string>
+    <string name="InkgramUiModeEinkDesc">Interface redesigned for e-ink displays</string>
+    <string name="InkgramUiModeInfo">Choose an interface style for your e-ink device</string>
+    <string name="InkgramRestartRequired">Restart Required</string>
+    <string name="InkgramRestartMessage">Please restart the app to apply the new interface mode.</string>
+    <string name="InkgramRestartNow">Restart Now</string>
+    <string name="InkgramRestartLater">Later</string>
+
+    <!-- Inkgram E-Ink UI Strings -->
+    <string name="InkgramVolumePageFlip">音量键翻页</string>
+    <string name="InkgramVolumePageFlipDesc">在聊天界面使用音量键进行翻页</string>
+    <string name="InkgramPrevPage">上一页</string>
+    <string name="InkgramNextPage">下一页</string>
+    <string name="InkgramPageOf">第 %1$d 页 / 共 %2$d 页</string>
+    <string name="InkgramSearchPlaceholder">搜索聊天...</string>
+    <string name="InkgramGroup">群组</string>
+    <string name="InkgramChannel">频道</string>
+    <string name="InkgramUser">用户</string>
+    <string name="InkgramSticker">[贴纸 %1$s]</string>
+    <string name="InkgramPhoto">[图片]</string>
+    <string name="InkgramClose">关闭</string>
+    <string name="InkgramSend">发送</string>
+    <string name="InkgramAccountInfo">账号信息</string>
+    <string name="InkgramLogOut">退出登录</string>
+    <string name="InkgramSettingsTitle">墨水屏设置</string>
 </resources>

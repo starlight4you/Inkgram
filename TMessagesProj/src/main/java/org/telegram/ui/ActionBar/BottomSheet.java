@@ -162,6 +162,9 @@ public class BottomSheet extends Dialog implements BaseFragment.AttachedSheet {
 
         @Override
         public void draw(@NonNull Canvas canvas) {
+            if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                return;
+            }
             if (boundsWithInsets.isEmpty() || getAlpha() == 0 || AndroidUtilities.makingGlobalBlurBitmap) {
                 return;
             }
@@ -1340,6 +1343,11 @@ public class BottomSheet extends Dialog implements BaseFragment.AttachedSheet {
 
         if (containerView == null) {
             containerView = new FrameLayout(getContext()) {
+                private final android.graphics.Paint inkgramPaint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+                private final android.graphics.Paint inkgramBorderPaint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+                private final android.graphics.RectF inkgramRect = new android.graphics.RectF();
+                private final android.graphics.Path inkgramPath = new android.graphics.Path();
+
                 @Override
                 public boolean hasOverlappingRendering() {
                     return false;
@@ -1353,8 +1361,49 @@ public class BottomSheet extends Dialog implements BaseFragment.AttachedSheet {
                     }
                     onContainerTranslationYChanged(translationY);
                 }
+
+                @Override
+                public void draw(android.graphics.Canvas canvas) {
+                    if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                        inkgramPaint.setColor(internalBackgroundColor == 0 ? 0xFFFFFFFF : internalBackgroundColor);
+                        inkgramPaint.setStyle(android.graphics.Paint.Style.FILL);
+                        
+                        inkgramBorderPaint.setColor(0xFF000000);
+                        inkgramBorderPaint.setStyle(android.graphics.Paint.Style.STROKE);
+                        inkgramBorderPaint.setStrokeWidth(org.telegram.messenger.AndroidUtilities.dp(1.5f));
+                        
+                        float rx = org.telegram.messenger.AndroidUtilities.dp(12);
+                        float ry = org.telegram.messenger.AndroidUtilities.dp(12);
+                        
+                        float left = backgroundPaddingLeft;
+                        float top = backgroundPaddingTop;
+                        float right = getWidth() - backgroundPaddingLeft;
+                        float bottom = getHeight();
+                        
+                        inkgramRect.set(left, top, right, bottom);
+                        canvas.drawRoundRect(inkgramRect, rx, ry, inkgramPaint);
+                        canvas.drawRect(left, top + ry, right, bottom, inkgramPaint);
+                        
+                        inkgramPath.reset();
+                        inkgramPath.moveTo(left, bottom);
+                        inkgramPath.lineTo(left, top + ry);
+                        inkgramRect.set(left, top, left + rx * 2, top + ry * 2);
+                        inkgramPath.arcTo(inkgramRect, 180, 90, false);
+                        inkgramPath.lineTo(right - rx, top);
+                        inkgramRect.set(right - rx * 2, top, right, top + ry * 2);
+                        inkgramPath.arcTo(inkgramRect, 270, 90, false);
+                        inkgramPath.lineTo(right, bottom);
+                        
+                        canvas.drawPath(inkgramPath, inkgramBorderPaint);
+                    }
+                    super.draw(canvas);
+                }
             };
-            containerView.setBackgroundDrawable(shadowDrawable);
+            if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                containerView.setBackground(null);
+            } else {
+                containerView.setBackgroundDrawable(shadowDrawable);
+            }
             containerView.setPadding(backgroundPaddingLeft, (applyTopPadding ? dp(8) : 0) + backgroundPaddingTop - 1, backgroundPaddingLeft, (applyBottomPadding ? dp(8) : 0));
         }
         containerView.setVisibility(View.INVISIBLE);
@@ -1562,6 +1611,7 @@ public class BottomSheet extends Dialog implements BaseFragment.AttachedSheet {
         );
         if (showWithoutAnimation) {
             backDrawable.setAlpha(dimBehind ? dimBehindAlpha : 0);
+            containerView.setVisibility(View.VISIBLE);
             containerView.setTranslationY(0);
             onContainerViewTranslation();
             return;

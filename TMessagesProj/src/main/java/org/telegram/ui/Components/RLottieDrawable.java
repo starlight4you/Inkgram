@@ -904,6 +904,11 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
 
     @Override
     public void start() {
+        if (isEink()) {
+            scheduleNextGetFrame();
+            invalidateInternal();
+            return;
+        }
         if (isRunning || autoRepeat >= 2 && autoRepeatPlayCount != 0 || customEndFrame == currentFrame) {
             return;
         }
@@ -987,7 +992,11 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
     }
 
     protected boolean scheduleNextGetFrame() {
-        if (loadFrameTask != null || nextRenderingBitmap != null || !canLoadFrames() || loadingInBackground || destroyWhenDone || !isRunning && (!decodeSingleFrame || decodeSingleFrame && singleFrameDecoded)) {
+        boolean isClassic = isEink();
+        boolean localDecodeSingleFrame = decodeSingleFrame || isClassic;
+        boolean localIsRunning = isRunning && !isClassic;
+
+        if (loadFrameTask != null || nextRenderingBitmap != null || !canLoadFrames() || loadingInBackground || destroyWhenDone || !localIsRunning && (!localDecodeSingleFrame || localDecodeSingleFrame && singleFrameDecoded)) {
             return false;
         }
         if (generatingCache && !allowDrawFramesWhileCacheGenerating) {
@@ -1101,6 +1110,9 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
 
     @Override
     public boolean isRunning() {
+        if (isEink()) {
+            return false;
+        }
         return isRunning;
     }
 
@@ -1238,13 +1250,17 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
                 }
             }
 
-            if (isRunning && !drawInBackground) {
+            if (isRunning && !isEink() && !drawInBackground) {
                 invalidateInternal();
             }
         }
     }
 
     public void updateCurrentFrame(long time, boolean updateInBackground) {
+        boolean isClassic = isEink();
+        boolean localDecodeSingleFrame = decodeSingleFrame || isClassic;
+        boolean localIsRunning = isRunning && !isClassic;
+
         long now = time == 0 ? System.currentTimeMillis() : time;
         long timeDiff = now - lastFrameTime;
         int timeCheck;
@@ -1255,7 +1271,7 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
         } else {
             timeCheck = timeBetweenFrames;
         }
-        if (isRunning) {
+        if (localIsRunning) {
             if (renderingBitmap == null && nextRenderingBitmap == null) {
                 scheduleNextGetFrame();
             } else if (nextRenderingBitmap != null && (renderingBitmap == null || (timeDiff >= timeCheck && !skipFrameUpdate))) {
@@ -1271,7 +1287,7 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
                 }
                 setCurrentFrame(now, timeDiff, timeCheck, false);
             }
-        } else if ((forceFrameRedraw || decodeSingleFrame && timeDiff >= timeCheck) && nextRenderingBitmap != null) {
+        } else if ((forceFrameRedraw || localDecodeSingleFrame && timeDiff >= timeCheck) && nextRenderingBitmap != null) {
             setCurrentFrame(now, timeDiff, timeCheck, true);
         }
     }
@@ -1465,6 +1481,10 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
                 });
             });
         }
+    }
+
+    private boolean isEink() {
+        return org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode();
     }
 
     public void setAllowDrawFramesWhileCacheGenerating(boolean allow) {

@@ -601,15 +601,33 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
         @Override
         protected void dispatchDraw(Canvas canvas) {
             if (drawBackground && !blurredBackground) {
-                shadowDrawable.setBounds(0, 0, getMeasuredWidth(), getMeasuredHeight());
-                if (topView != null && notDrawBackgroundOnTopView) {
-                    int clipTop = topView.getBottom();
-                    canvas.save();
-                    canvas.clipRect(0, clipTop, getMeasuredWidth(), getMeasuredHeight());
-                    shadowDrawable.draw(canvas);
-                    canvas.restore();
+                if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+                    android.graphics.Rect rect = new android.graphics.Rect(0, 0, getMeasuredWidth(), getMeasuredHeight());
+                    rect.left += backgroundPaddings.left;
+                    rect.top += backgroundPaddings.top;
+                    rect.right -= backgroundPaddings.right;
+                    rect.bottom -= backgroundPaddings.bottom;
+                    
+                    android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+                    paint.setStyle(android.graphics.Paint.Style.FILL);
+                    paint.setColor(backgroundColor);
+                    canvas.drawRect(rect, paint);
+                    
+                    paint.setStyle(android.graphics.Paint.Style.STROKE);
+                    paint.setColor(android.graphics.Color.BLACK);
+                    paint.setStrokeWidth(org.telegram.messenger.AndroidUtilities.dp(1.5f));
+                    canvas.drawRect(rect, paint);
                 } else {
-                    shadowDrawable.draw(canvas);
+                    shadowDrawable.setBounds(0, 0, getMeasuredWidth(), getMeasuredHeight());
+                    if (topView != null && notDrawBackgroundOnTopView) {
+                        int clipTop = topView.getBottom();
+                        canvas.save();
+                        canvas.clipRect(0, clipTop, getMeasuredWidth(), getMeasuredHeight());
+                        shadowDrawable.draw(canvas);
+                        canvas.restore();
+                    } else {
+                        shadowDrawable.draw(canvas);
+                    }
                 }
             }
             super.dispatchDraw(canvas);
@@ -650,7 +668,11 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
             }
             drawBackground = false;
         } else {
-            if (notDrawBackgroundOnTopView) {
+            if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+                containerView.setBackground(null);
+                containerView.setPadding(backgroundPaddings.left, backgroundPaddings.top, backgroundPaddings.right, backgroundPaddings.bottom);
+                drawBackground = true;
+            } else if (notDrawBackgroundOnTopView) {
                 Rect rect = new Rect();
                 shadowDrawable.getPadding(rect);
                 containerView.setPadding(rect.left, rect.top, rect.right, rect.bottom);
@@ -825,12 +847,27 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
                 protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
                     boolean result = super.drawChild(canvas, child, drawingTime);
                     if (shadow[0].getPaint().getAlpha() != 0) {
-                        shadow[0].setBounds(0, getScrollY(), getMeasuredWidth(), getScrollY() + dp(3));
-                        shadow[0].draw(canvas);
+                        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+                            android.graphics.Paint paint = new android.graphics.Paint();
+                            paint.setColor(android.graphics.Color.BLACK);
+                            paint.setStrokeWidth(org.telegram.messenger.AndroidUtilities.dp(1));
+                            canvas.drawLine(0, getScrollY(), getMeasuredWidth(), getScrollY(), paint);
+                        } else {
+                            shadow[0].setBounds(0, getScrollY(), getMeasuredWidth(), getScrollY() + dp(3));
+                            shadow[0].draw(canvas);
+                        }
                     }
                     if (shadow[1].getPaint().getAlpha() != 0) {
-                        shadow[1].setBounds(0, getScrollY() + getMeasuredHeight() - dp(3), getMeasuredWidth(), getScrollY() + getMeasuredHeight());
-                        shadow[1].draw(canvas);
+                        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+                            android.graphics.Paint paint = new android.graphics.Paint();
+                            paint.setColor(android.graphics.Color.BLACK);
+                            paint.setStrokeWidth(org.telegram.messenger.AndroidUtilities.dp(1));
+                            int lineY = getScrollY() + getMeasuredHeight();
+                            canvas.drawLine(0, lineY, getMeasuredWidth(), lineY, paint);
+                        } else {
+                            shadow[1].setBounds(0, getScrollY() + getMeasuredHeight() - dp(3), getMeasuredWidth(), getScrollY() + getMeasuredHeight());
+                            shadow[1].draw(canvas);
+                        }
                     }
                     return result;
                 }
@@ -1238,12 +1275,15 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
         } else if (progressViewStyle == ALERT_TYPE_SPINNER) {
             params.width = WindowManager.LayoutParams.MATCH_PARENT;
         } else {
-            if (dimEnabled && !dimCustom) {
+            if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                params.dimAmount = 0f;
+                params.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+            } else if (dimEnabled && !dimCustom) {
                 params.dimAmount = dimAlpha;
                 params.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
             } else {
                 params.dimAmount = 0f;
-                params.flags ^= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                params.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
             }
 
             lastScreenWidth = AndroidUtilities.displaySize.x;

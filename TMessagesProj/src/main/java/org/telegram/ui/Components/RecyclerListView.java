@@ -183,6 +183,12 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
 
     private boolean scrollEnabled = true;
 
+    // Inkgram Page Flipping gesture tracking variables
+    private float inkgramTouchStartY;
+    private float inkgramTouchStartX;
+    private boolean inkgramIsSwiping;
+    private int inkgramMinSwipeDistance = -1;
+
     private IntReturnCallback pendingHighlightPosition;
     private Runnable removeHighlighSelectionRunnable;
 
@@ -2149,6 +2155,41 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
         if (!isEnabled()) {
             return false;
         }
+
+        if (org.telegram.messenger.InkgramConfig.isPageFlippingEnabled() && 
+            (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) &&
+            !isInsideBottomSheet()) {
+            
+            androidx.recyclerview.widget.RecyclerView.LayoutManager lm = getLayoutManager();
+            boolean isVertical = true;
+            if (lm instanceof androidx.recyclerview.widget.LinearLayoutManager) {
+                isVertical = ((androidx.recyclerview.widget.LinearLayoutManager) lm).getOrientation() == androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
+            }
+            
+            if (isVertical && (fastScroll == null || !fastScroll.pressed)) {
+                int action = e.getActionMasked();
+                if (action == MotionEvent.ACTION_DOWN) {
+                    inkgramTouchStartY = e.getY();
+                    inkgramTouchStartX = e.getX();
+                    inkgramIsSwiping = false;
+                    if (inkgramMinSwipeDistance == -1) {
+                        inkgramMinSwipeDistance = android.view.ViewConfiguration.get(getContext()).getScaledTouchSlop() * 2;
+                    }
+                } else if (action == MotionEvent.ACTION_MOVE) {
+                    float dy = e.getY() - inkgramTouchStartY;
+                    float dx = e.getX() - inkgramTouchStartX;
+                    if (Math.abs(dy) > inkgramMinSwipeDistance && Math.abs(dy) > Math.abs(dx)) {
+                        inkgramIsSwiping = true;
+                        android.view.ViewParent parent = getParent();
+                        if (parent != null) {
+                            parent.requestDisallowInterceptTouchEvent(true);
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+
         if (disallowInterceptTouchEvents) {
             requestDisallowInterceptTouchEvent(this, true);
         }
@@ -2921,6 +2962,31 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
         if (fastScroll != null && fastScroll.pressed) {
             return false;
         }
+
+        if (org.telegram.messenger.InkgramConfig.isPageFlippingEnabled() && inkgramIsSwiping &&
+            (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) &&
+            !isInsideBottomSheet()) {
+            
+            int action = e.getActionMasked();
+            if (action == MotionEvent.ACTION_MOVE) {
+                // Keep the view perfectly static during gesture move to prevent screen ghosting
+                return true;
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                float totalDy = e.getY() - inkgramTouchStartY;
+                inkgramIsSwiping = false;
+                if (Math.abs(totalDy) > inkgramMinSwipeDistance) {
+                    if (totalDy < 0) {
+                        // Swipe UP -> Scroll DOWN -> Page Down
+                        inkgramPageDown();
+                    } else {
+                        // Swipe DOWN -> Scroll UP -> Page Up
+                        inkgramPageUp();
+                    }
+                }
+                return true;
+            }
+        }
+
         if (multiSelectionGesture && e.getAction() != MotionEvent.ACTION_DOWN && e.getAction() != MotionEvent.ACTION_UP && e.getAction() != MotionEvent.ACTION_CANCEL) {
             if (lastX == Float.MAX_VALUE && lastY == Float.MAX_VALUE) {
                 lastX = e.getX();
@@ -3893,5 +3959,72 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
 
             return new float[]{drawFrom, drawTo, topRadius, bottomRadius, alpha};
         }
+    }
+
+    public void inkgramPageDown() {
+        int listHeight = getHeight() - getPaddingTop() - getPaddingBottom();
+        if (listHeight <= 0) {
+            return;
+        }
+        int overlap = Math.max(org.telegram.messenger.AndroidUtilities.dp(48), (int) (listHeight * 0.10));
+        int scrollAmount = listHeight - overlap;
+        if (scrollAmount <= 0) {
+            scrollAmount = listHeight;
+        }
+        scrollBy(0, scrollAmount);
+    }
+
+    public void inkgramPageUp() {
+        int listHeight = getHeight() - getPaddingTop() - getPaddingBottom();
+        if (listHeight <= 0) {
+            return;
+        }
+        int overlap = Math.max(org.telegram.messenger.AndroidUtilities.dp(48), (int) (listHeight * 0.10));
+        int scrollAmount = listHeight - overlap;
+        if (scrollAmount <= 0) {
+            scrollAmount = listHeight;
+        }
+        scrollBy(0, -scrollAmount);
+    }
+
+    @Override
+    public boolean fling(int velocityX, int velocityY) {
+        if (org.telegram.messenger.InkgramConfig.isPageFlippingEnabled() && 
+            (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) &&
+            !isInsideBottomSheet()) {
+            return false;
+        }
+        return super.fling(velocityX, velocityY);
+    }
+
+    private boolean isInsideBottomSheet() {
+        android.view.ViewParent parent = getParent();
+        while (parent != null) {
+            String className = parent.getClass().getName();
+            if (className.contains("BottomSheet") || className.contains("ChatAttachAlert")) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
+    }
+
+    public static RecyclerListView findActiveRecyclerListView(android.view.View view) {
+        if (view == null) {
+            return null;
+        }
+        if (view instanceof RecyclerListView && view.getVisibility() == android.view.View.VISIBLE) {
+            return (RecyclerListView) view;
+        }
+        if (view instanceof android.view.ViewGroup) {
+            android.view.ViewGroup vg = (android.view.ViewGroup) view;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                RecyclerListView found = findActiveRecyclerListView(vg.getChildAt(i));
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 }

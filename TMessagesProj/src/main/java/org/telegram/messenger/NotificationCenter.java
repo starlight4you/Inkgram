@@ -371,6 +371,9 @@ public class NotificationCenter {
     public static final int callTabsVisibleToggled = totalEvents++;
     public static final int contactsPermissionBadgeCheck = totalEvents++;
 
+    // Inkgram
+    public static final int inkgramUiModeChanged = totalEvents++;
+
     public static boolean alreadyLogged;
 
     private final SparseArray<ArrayList<NotificationCenterDelegate>> observers = new SparseArray<>();

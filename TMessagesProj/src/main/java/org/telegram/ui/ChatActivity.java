@@ -4425,7 +4425,16 @@ public class ChatActivity extends BaseFragment implements
         selectedMessagesCountTextView = null;
         checkActionBarMenu(false);
 
-        scrimPaint = new Paint();
+        scrimPaint = new Paint() {
+            @Override
+            public void setAlpha(int a) {
+                if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                    super.setAlpha(0);
+                } else {
+                    super.setAlpha(a);
+                }
+            }
+        };
 
         if (chatListThanosEffect != null) {
             AndroidUtilities.removeFromParent(chatListThanosEffect);
@@ -10444,6 +10453,9 @@ public class ChatActivity extends BaseFragment implements
     }
 
     private void dimBehindView(float value, boolean blur, boolean hidePagedownButtons) {
+        if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+            blur = false;
+        }
         boolean enable = value > 0;
         if (scrimView instanceof ChatMessageCell) {
             ChatMessageCell cell = (ChatMessageCell) scrimView;
@@ -42529,6 +42541,9 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public Drawable getWallpaperDrawable() {
+            if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+                return new ColorDrawable(0xFFFFFFFF);
+            }
             return backgroundDrawable != null ? backgroundDrawable : Theme.getCachedWallpaperNonBlocking();
         }
 

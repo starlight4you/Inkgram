@@ -79,6 +79,7 @@ import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.MessagesStorage;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
+import org.telegram.messenger.InkgramConfig;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.UserObject;
@@ -680,6 +681,16 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             items.add(UItem.asShadow(null));
         }
 
+        // Inkgram UI Mode
+        items.add(UItem.asHeader(getString(R.string.InkgramSettings)));
+        UItem classicItem = UItem.asRadio(100, getString(R.string.InkgramUiModeClassic), getString(R.string.InkgramUiModeClassicDesc));
+        classicItem.checked = InkgramConfig.isClassicMode();
+        items.add(classicItem);
+        UItem einkItem = UItem.asRadio(101, getString(R.string.InkgramUiModeEink), getString(R.string.InkgramUiModeEinkDesc));
+        einkItem.checked = InkgramConfig.isEinkMode();
+        items.add(einkItem);
+        items.add(UItem.asShadow(getString(R.string.InkgramUiModeInfo)));
+
         items.add(SettingCell.Factory.of(1, IconBackgroundColors.BLUE.top, IconBackgroundColors.BLUE.bottom, R.drawable.settings_account, getString(R.string.SettingsAccount), getString(R.string.SettingsAccountInfo)));
         items.add(SettingCell.Factory.of(2, IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom, R.drawable.settings_chat, getString(R.string.SettingsChat), getString(R.string.SettingsChatInfo)));
         items.add(SettingCell.Factory.of(3, IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom, R.drawable.settings_privacy, getString(R.string.SettingsPrivacySecurity), getString(R.string.SettingsPrivacySecurityInfo)));
@@ -856,7 +867,43 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                 }
                 break;
             }
+
+            // Inkgram UI Mode
+            case 100: {
+                if (!InkgramConfig.isClassicMode()) {
+                    InkgramConfig.setUiMode(InkgramConfig.UI_MODE_CLASSIC);
+                    listView.adapter.update(true);
+                    showInkgramRestartDialog();
+                }
+                break;
+            }
+            case 101: {
+                if (!InkgramConfig.isEinkMode()) {
+                    InkgramConfig.setUiMode(InkgramConfig.UI_MODE_EINK);
+                    listView.adapter.update(true);
+                    showInkgramRestartDialog();
+                }
+                break;
+            }
         }
+    }
+
+    private void showInkgramRestartDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), resourceProvider);
+        builder.setTitle(getString(R.string.InkgramRestartRequired));
+        builder.setMessage(getString(R.string.InkgramRestartMessage));
+        builder.setPositiveButton(getString(R.string.InkgramRestartNow), (dialog, which) -> {
+            // Kill and restart the app process
+            Intent intent = getParentActivity().getPackageManager()
+                    .getLaunchIntentForPackage(getParentActivity().getPackageName());
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                getParentActivity().startActivity(intent);
+            }
+            Runtime.getRuntime().exit(0);
+        });
+        builder.setNegativeButton(getString(R.string.InkgramRestartLater), null);
+        showDialog(builder.create());
     }
 
     private boolean onLongClick(UItem item, View view, int position, float x, float y) {

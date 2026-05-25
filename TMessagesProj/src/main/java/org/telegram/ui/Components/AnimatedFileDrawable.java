@@ -783,6 +783,11 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
 
     @Override
     public void start() {
+        if (isEink()) {
+            scheduleNextGetFrame();
+            AndroidUtilities.runOnUIThread(mStartTask);
+            return;
+        }
         if (isRunning || parents.size() == 0 && !ignoreNoParent) {
             return;
         }
@@ -821,7 +826,11 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
     }
     private boolean scheduledForSeek;
     private void scheduleNextGetFrame(boolean wait, boolean cancel) {
-        if (loadFrameTask != null && !cancel || ((!PRERENDER_FRAME || nextRenderingBitmap2 != null && !(!scheduledForSeek && pendingSeekToUI >= 0)) && nextRenderingBitmap != null) || !canLoadFrames() || destroyWhenDone || !isRunning && (!decodeSingleFrame || decodeSingleFrame && singleFrameDecoded) || parents.size() == 0 && !ignoreNoParent || generatingCache) {
+        boolean isClassic = isEink();
+        boolean localDecodeSingleFrame = decodeSingleFrame || isClassic;
+        boolean localIsRunning = isRunning && !isClassic;
+
+        if (loadFrameTask != null && !cancel || ((!PRERENDER_FRAME || nextRenderingBitmap2 != null && !(!scheduledForSeek && pendingSeekToUI >= 0)) && nextRenderingBitmap != null) || !canLoadFrames() || destroyWhenDone || !localIsRunning && (!localDecodeSingleFrame || localDecodeSingleFrame && singleFrameDecoded) || parents.size() == 0 && !ignoreNoParent || generatingCache) {
             return;
         }
         long ms = 0;
@@ -860,6 +869,9 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
 
     @Override
     public boolean isRunning() {
+        if (isEink()) {
+            return false;
+        }
         return isRunning;
     }
 
@@ -1301,7 +1313,11 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
     }
 
     public void updateCurrentFrame(long now, boolean b) {
-        if (isRunning) {
+        boolean isClassic = isEink();
+        boolean localIsRunning = isRunning && !isClassic;
+        boolean localDecodeSingleFrame = decodeSingleFrame || isClassic;
+
+        if (localIsRunning) {
             if (renderingBitmap == null && nextRenderingBitmap == null) {
                 scheduleNextGetFrame();
             } else if (nextRenderingBitmap != null && (renderingBitmap == null || (Math.abs(now - lastFrameTime) >= invalidateAfter && !skipFrameUpdate && pendingSeekToUI < 0))) {
@@ -1323,7 +1339,7 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
             } else {
                 invalidateInternal();
             }
-        } else if (!isRunning && decodeSingleFrame && Math.abs(now - lastFrameTime) >= invalidateAfter && nextRenderingBitmap != null) {
+        } else if (!localIsRunning && localDecodeSingleFrame && Math.abs(now - lastFrameTime) >= invalidateAfter && nextRenderingBitmap != null) {
             unusedBitmaps.add(renderingBitmap);
             renderingBitmap = nextRenderingBitmap;
             renderingBitmapTime = nextRenderingBitmapTime;
@@ -1352,5 +1368,9 @@ public class AnimatedFileDrawable extends BitmapDrawable implements Animatable, 
 
     public int getRenderingHeight() {
         return renderingHeight;
+    }
+
+    private boolean isEink() {
+        return org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode();
     }
 }

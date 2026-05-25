@@ -528,8 +528,28 @@ public class ActionBarPopupWindow extends PopupWindow {
                         rect.set(AndroidUtilities.rectTmp2.right, AndroidUtilities.rectTmp2.top, AndroidUtilities.rectTmp2.right, AndroidUtilities.rectTmp2.top);
                         AndroidUtilities.lerp(rect, AndroidUtilities.rectTmp2, reactionsEnterProgress, AndroidUtilities.rectTmp2);
                     }
-                    backgroundDrawable.setBounds(AndroidUtilities.rectTmp2);
-                    backgroundDrawable.draw(canvas);
+                    if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+                        android.graphics.Rect rect = new android.graphics.Rect(AndroidUtilities.rectTmp2);
+                        rect.left += bgPaddings.left;
+                        rect.top += bgPaddings.top;
+                        rect.right -= bgPaddings.right;
+                        rect.bottom -= bgPaddings.bottom;
+                        
+                        android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+                        paint.setStyle(android.graphics.Paint.Style.FILL);
+                        paint.setColor(getThemedColor(Theme.key_actionBarDefaultSubmenuBackground));
+                        canvas.drawRect(rect, paint);
+                        
+                        paint.setStyle(android.graphics.Paint.Style.STROKE);
+                        paint.setColor(android.graphics.Color.BLACK);
+                        paint.setStrokeWidth(dp(1.5f));
+                        canvas.drawRect(rect, paint);
+
+                        backgroundDrawable.setBounds(AndroidUtilities.rectTmp2);
+                    } else {
+                        backgroundDrawable.setBounds(AndroidUtilities.rectTmp2);
+                        backgroundDrawable.draw(canvas);
+                    }
                     if (clipChildren) {
                         AndroidUtilities.rectTmp2.left += bgPaddings.left;
                         AndroidUtilities.rectTmp2.top += bgPaddings.top;

@@ -222,6 +222,7 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
     private boolean allReactionsIsDefault;
     private final Paint selectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint starSelectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint inkgramBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     ChatScrimPopupContainerLayout parentLayout;
     private boolean animatePopup;
     public final AnimationNotificationsLocker notificationsLocker = new AnimationNotificationsLocker();
@@ -244,6 +245,10 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
         this.resourcesProvider = resourcesProvider;
         this.currentAccount = currentAccount;
         this.fragment = fragment;
+
+        inkgramBorderPaint.setStyle(Paint.Style.STROKE);
+        inkgramBorderPaint.setStrokeWidth(dp(1.5f));
+        inkgramBorderPaint.setColor(0xFF000000);
 
         nextRecentReaction = new ReactionHolderView(context, false);
         nextRecentReaction.setVisibility(View.GONE);
@@ -684,9 +689,11 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
         radius = ((rect.height() - hintHeight) - expandSize * 2f) / 2f;
 
         if (type != TYPE_STORY) {
-            shadow.setAlpha((int) (Utilities.clamp(1f - (customEmojiReactionsEnterProgress / 0.05f), 1f, 0f) * 255));
-            shadow.setBounds((int) (getPaddingLeft() + (getWidth() - getPaddingRight() + shadowPad.right) * lt - shadowPad.left), getPaddingTop() - shadowPad.top - (int) expandSize, (int) ((getWidth() - getPaddingRight() + shadowPad.right) * rt), getHeight() - getPaddingBottom() + shadowPad.bottom + (int) expandSize);
-            shadow.draw(canvas);
+            if (!org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                shadow.setAlpha((int) (Utilities.clamp(1f - (customEmojiReactionsEnterProgress / 0.05f), 1f, 0f) * 255));
+                shadow.setBounds((int) (getPaddingLeft() + (getWidth() - getPaddingRight() + shadowPad.right) * lt - shadowPad.left), getPaddingTop() - shadowPad.top - (int) expandSize(), (int) ((getWidth() - getPaddingRight() + shadowPad.right) * rt), getHeight() - getPaddingBottom() + shadowPad.bottom + (int) expandSize());
+                shadow.draw(canvas);
+            }
         }
 
         canvas.restoreToCount(s);
@@ -701,6 +708,9 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
                 delegate.drawRoundRect(canvas, rect, radius, getX(), getY(), 255, false);
             } else {
                 canvas.drawRoundRect(rect, radius, radius, bgPaint);
+            }
+            if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                canvas.drawRoundRect(rect, radius, radius, inkgramBorderPaint);
             }
 
             if (hasStar) {
@@ -879,13 +889,19 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
         int sPad = dp(3);
         shadow.setAlpha(alpha);
         bgPaint.setAlpha(alpha);
-        shadow.setBounds((int) (cx - br - sPad * cPr), (int) (cy - br - sPad * cPr), (int) (cx + br + sPad * cPr), (int) (cy + br + sPad * cPr));
-        shadow.draw(canvas);
+        if (!org.telegram.messenger.InkgramConfig.isClassicMode()) {
+            shadow.setBounds((int) (cx - br - sPad * cPr), (int) (cy - br - sPad * cPr), (int) (cx + br + sPad * cPr), (int) (cy + br + sPad * cPr));
+            shadow.draw(canvas);
+        }
         if (delegate.drawBackground()) {
             rectF.set(cx - br, cy - br, cx + br, cy + br);
             delegate.drawRoundRect(canvas, rectF, br, getX(), getY(), alpha, false);
         } else {
             canvas.drawCircle(cx, cy, br, bgPaint);
+        }
+        if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+            inkgramBorderPaint.setAlpha(alpha);
+            canvas.drawCircle(cx, cy, br, inkgramBorderPaint);
         }
 
         cx = LocaleController.isRTL || mirrorX ? bigCircleOffset - bigCircleRadius : getWidth() - bigCircleOffset + bigCircleRadius;
@@ -893,18 +909,27 @@ public class ReactionsContainerLayout extends FrameLayout implements Notificatio
         cy = isTop ? getPaddingTop() - expandSize() - dp(16) : getHeight() - smallCircleRadius - sPad + expandSize();
         cy = AndroidUtilities.lerp(cy, smallCircleRadius + sPad - expandSize(), CubicBezierInterpolator.DEFAULT.getInterpolation(flipVerticalProgress));
         sPad = -dp(1);
-        shadow.setBounds((int) (cx - br - sPad * cPr), (int) (cy - br - sPad * cPr), (int) (cx + br + sPad * cPr), (int) (cy + br + sPad * cPr));
-        shadow.draw(canvas);
+        if (!org.telegram.messenger.InkgramConfig.isClassicMode()) {
+            shadow.setBounds((int) (cx - br - sPad * cPr), (int) (cy - br - sPad * cPr), (int) (cx + br + sPad * cPr), (int) (cy + br + sPad * cPr));
+            shadow.draw(canvas);
+        }
         if (delegate.drawBackground()) {
             rectF.set(cx - sr, cy - sr, cx + sr, cy + sr);
             delegate.drawRoundRect(canvas, rectF, sr, getX(), getY(), alpha, false);
         } else {
             canvas.drawCircle(cx, cy, sr, bgPaint);
         }
+        if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+            inkgramBorderPaint.setAlpha(alpha);
+            canvas.drawCircle(cx, cy, sr, inkgramBorderPaint);
+        }
         canvas.restore();
 
         shadow.setAlpha(255);
         bgPaint.setAlpha(255);
+        if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+            inkgramBorderPaint.setAlpha(255);
+        }
     }
 
     public void setMiniBubblesOffset(float miniBubblesOffset) {

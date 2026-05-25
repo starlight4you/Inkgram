@@ -2602,6 +2602,33 @@ public class ChatActivityEnterView extends FrameLayout implements
         addView(textFieldContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 0, 1, 0, 0));
 
         FrameLayout frameLayout = messageEditTextContainer = new FrameLayout(context) {
+            private final Paint inkgramFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private final Paint inkgramStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private final RectF inkgramRect = new RectF();
+
+            {
+                inkgramFillPaint.setColor(0xFFFFFFFF);
+                inkgramFillPaint.setStyle(Paint.Style.FILL);
+
+                inkgramStrokePaint.setColor(0xFF000000);
+                inkgramStrokePaint.setStyle(Paint.Style.STROKE);
+                inkgramStrokePaint.setStrokeWidth(dp(1.5f));
+            }
+
+            @Override
+            public void draw(Canvas canvas) {
+                if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                    float strokeWidth = dp(1.5f);
+                    inkgramStrokePaint.setStrokeWidth(strokeWidth);
+                    float offset = strokeWidth / 2f;
+                    inkgramRect.set(offset, offset, getWidth() - offset, getHeight() - offset);
+                    float radius = getHeight() / 2f;
+                    canvas.drawRoundRect(inkgramRect, radius, radius, inkgramFillPaint);
+                    canvas.drawRoundRect(inkgramRect, radius, radius, inkgramStrokePaint);
+                }
+                super.draw(canvas);
+            }
+
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -4598,9 +4625,9 @@ public class ChatActivityEnterView extends FrameLayout implements
         if (topView != null && topView.getVisibility() == View.VISIBLE) {
             top += (1f - getTopViewEnterProgress()) * topView.getLayoutParams().height;
         }
-        int bottom = top + Theme.chat_composeShadowDrawable.getIntrinsicHeight();
+        int bottom = top + (org.telegram.messenger.InkgramConfig.isClassicMode() ? 0 : Theme.chat_composeShadowDrawable.getIntrinsicHeight());
 
-        if (withComposeShadowDrawable) {
+        if (withComposeShadowDrawable && !org.telegram.messenger.InkgramConfig.isClassicMode()) {
             Theme.chat_composeShadowDrawable.setAlpha((int) (composeShadowAlpha * 0xFF));
             Theme.chat_composeShadowDrawable.setBounds(0, top, getMeasuredWidth(), bottom);
             Theme.chat_composeShadowDrawable.draw(canvas);

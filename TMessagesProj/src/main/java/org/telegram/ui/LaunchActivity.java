@@ -571,6 +571,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         if (actionBarLayout.getFragmentStack().isEmpty() && (layersActionBarLayout == null || layersActionBarLayout.getFragmentStack().isEmpty())) {
             if (!UserConfig.getInstance(currentAccount).isClientActivated()) {
                 actionBarLayout.addFragmentToStack(getClientNotActivatedFragment());
+            } else if (org.telegram.messenger.InkgramConfig.isEinkMode()) {
+                org.telegram.ui.eink.EinkDialogsActivity einkDialogsActivity = new org.telegram.ui.eink.EinkDialogsActivity();
+                actionBarLayout.addFragmentToStack(einkDialogsActivity);
             } else {
                 MainTabsActivity mainTabsActivity = new MainTabsActivity();
                 actionBarLayout.addFragmentToStack(mainTabsActivity);
@@ -1211,8 +1214,13 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         } else {
             actionBarLayout.removeFragmentFromStack(0);
         }
-        MainTabsActivity mainTabsActivity = dialogsActivityProvider.provide(null);
-        actionBarLayout.addFragmentToStack(mainTabsActivity, INavigationLayout.FORCE_ATTACH_VIEW_AS_FIRST);
+        BaseFragment dialogsActivity;
+        if (org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            dialogsActivity = new org.telegram.ui.eink.EinkDialogsActivity();
+        } else {
+            dialogsActivity = dialogsActivityProvider.provide(null);
+        }
+        actionBarLayout.addFragmentToStack(dialogsActivity, INavigationLayout.FORCE_ATTACH_VIEW_AS_FIRST);
         actionBarLayout.rebuildFragments(INavigationLayout.REBUILD_FLAG_REBUILD_LAST);
         if (AndroidUtilities.isTablet()) {
             layersActionBarLayout.rebuildFragments(INavigationLayout.REBUILD_FLAG_REBUILD_LAST);
@@ -8391,6 +8399,51 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int keyCode = event.getKeyCode();
+        
+        // Inkgram E-Ink volume key page flipping
+        if (org.telegram.messenger.InkgramConfig.isPageFlippingEnabled() && 
+            (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode())) {
+            
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                BaseFragment baseFragment = getLastFragment();
+                if (baseFragment != null) {
+                    if (baseFragment.getLastStoryViewer() != null) {
+                        baseFragment.getLastStoryViewer().dispatchKeyEvent(event);
+                        return true;
+                    }
+                    
+                    if (baseFragment instanceof org.telegram.ui.eink.EinkChatActivity) {
+                        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                            org.telegram.ui.eink.EinkChatActivity chatActivity = (org.telegram.ui.eink.EinkChatActivity) baseFragment;
+                            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                                chatActivity.flipPageUp();
+                            } else {
+                                chatActivity.flipPageDown();
+                            }
+                        }
+                        return true;
+                    }
+                    
+                    View fragmentView = baseFragment.getFragmentView();
+                    if (fragmentView != null) {
+                        org.telegram.ui.Components.RecyclerListView listView = 
+                            org.telegram.ui.Components.RecyclerListView.findActiveRecyclerListView(fragmentView);
+                        
+                        if (listView != null) {
+                            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                                    listView.inkgramPageUp();
+                                } else {
+                                    listView.inkgramPageDown();
+                                }
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
             BaseFragment baseFragment = getLastFragment();
             if (baseFragment != null && baseFragment.getLastStoryViewer() != null) {

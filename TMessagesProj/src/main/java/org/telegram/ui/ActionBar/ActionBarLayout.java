@@ -233,12 +233,20 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
                     }
                 }
                 boolean result = super.drawChild(canvas, child, drawingTime);
-                if (actionBarHeight != 0 && headerShadowDrawable != null) {
-                    int wasAlpha = headerShadowDrawable.getAlpha();
-                    headerShadowDrawable.setBounds(0, actionBarY + actionBarHeight, getMeasuredWidth(), actionBarY + actionBarHeight + headerShadowDrawable.getIntrinsicHeight());
-                    headerShadowDrawable.setAlpha(actionBarShadowAlpha);
-                    headerShadowDrawable.draw(canvas);
-                    headerShadowDrawable.setAlpha(wasAlpha);
+                if (actionBarHeight != 0) {
+                    if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+                        android.graphics.Paint paint = new android.graphics.Paint();
+                        paint.setColor(android.graphics.Color.BLACK);
+                        paint.setStrokeWidth(org.telegram.messenger.AndroidUtilities.dp(1));
+                        int lineY = actionBarY + actionBarHeight;
+                        canvas.drawLine(0, lineY, getMeasuredWidth(), lineY, paint);
+                    } else if (headerShadowDrawable != null) {
+                        int wasAlpha = headerShadowDrawable.getAlpha();
+                        headerShadowDrawable.setBounds(0, actionBarY + actionBarHeight, getMeasuredWidth(), actionBarY + actionBarHeight + headerShadowDrawable.getIntrinsicHeight());
+                        headerShadowDrawable.setAlpha(actionBarShadowAlpha);
+                        headerShadowDrawable.draw(canvas);
+                        headerShadowDrawable.setAlpha(wasAlpha);
+                    }
                 }
                 drawNavigationBarGradient(canvas, lastFragment);
                 return result;
@@ -882,7 +890,12 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
 
     @Override
     public void drawHeaderShadow(Canvas canvas, int alpha, int y) {
-        if (headerShadowDrawable != null && SharedConfig.drawActionBarShadow) {
+        if (org.telegram.messenger.InkgramConfig.isClassicMode() || org.telegram.messenger.InkgramConfig.isEinkMode()) {
+            android.graphics.Paint paint = new android.graphics.Paint();
+            paint.setColor(android.graphics.Color.BLACK);
+            paint.setStrokeWidth(org.telegram.messenger.AndroidUtilities.dp(1));
+            canvas.drawLine(0, y, getMeasuredWidth(), y, paint);
+        } else if (headerShadowDrawable != null && SharedConfig.drawActionBarShadow) {
             alpha = alpha / 2;
             if (headerShadowDrawable.getAlpha() != alpha) {
                 headerShadowDrawable.setAlpha(alpha);

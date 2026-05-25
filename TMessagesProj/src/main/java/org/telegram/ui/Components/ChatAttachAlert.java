@@ -2667,6 +2667,9 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
 
             @Override
             public void draw(@NonNull Canvas canvas) {
+                if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+                    return;
+                }
                 super.draw(canvas);
                 bottomFadeDrawable.draw(canvas);
             }
@@ -2679,10 +2682,19 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
 
         containerView.addView(bottomFadeView, LayoutHelper.createFrameMatchParent());
 
-        BlurredBackgroundDrawable tabsViewBackground = iBlur3FactoryLiquidGlass.create(buttonsRecyclerViewWrapper, BlurredBackgroundProviderImpl.mainTabs(resourcesProvider));
-        tabsViewBackground.setRadius(dp(56 / 2f));
-        tabsViewBackground.setPadding(dp(7));
-        buttonsRecyclerViewWrapper.setBackground(tabsViewBackground);
+        if (org.telegram.messenger.InkgramConfig.isClassicMode()) {
+            android.graphics.drawable.GradientDrawable inkgramTabsBg = new android.graphics.drawable.GradientDrawable();
+            inkgramTabsBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            inkgramTabsBg.setColor(0xFFFFFFFF);
+            inkgramTabsBg.setStroke(dp(1.5f), 0xFF000000);
+            inkgramTabsBg.setCornerRadius(dp(56 / 2f));
+            buttonsRecyclerViewWrapper.setBackground(inkgramTabsBg);
+        } else {
+            BlurredBackgroundDrawable tabsViewBackground = iBlur3FactoryLiquidGlass.create(buttonsRecyclerViewWrapper, BlurredBackgroundProviderImpl.mainTabs(resourcesProvider));
+            tabsViewBackground.setRadius(dp(56 / 2f));
+            tabsViewBackground.setPadding(dp(7));
+            buttonsRecyclerViewWrapper.setBackground(tabsViewBackground);
+        }
         buttonsRecyclerView.setPadding(dp(11), dp(11), dp(11), dp(11));
         buttonsRecyclerView.setClipToOutline(true);
         buttonsRecyclerView.setOutlineProvider(ViewOutlineProviderImpl.boundsWithPaddingRoundRect(dp(11), dp(56 / 2f)));
