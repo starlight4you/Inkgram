@@ -120,6 +120,9 @@ android {
                 arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21' //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
             }
         }
+
+        buildConfigField "int", "APP_ID", getProps("APP_ID", "0")
+        buildConfigField "String", "APP_HASH", "\"" + getProps("APP_HASH", "") + "\""
     }
 
     buildTypes {
@@ -226,14 +229,15 @@ android {
 }
 
 
-def getProps(String propName) {
+def getProps(String propName, String defaultValue = "") {
     def propsFile = rootProject.file('local.properties')
     if (propsFile.exists()) {
         def props = new Properties()
         props.load(new FileInputStream(propsFile))
-        return props[propName]
+        def val = props[propName]
+        return val != null ? val : defaultValue
     } else {
-        return "";
+        return defaultValue;
     }
 }
 apply plugin: 'com.google.gms.google-services'

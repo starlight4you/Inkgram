@@ -28,8 +28,8 @@ public class BuildVars {
 
     // IMPORTANT: Register and obtain your own api_id and api_hash at https://my.telegram.org/apps
     // Set your custom API credentials below:
-    public static int APP_ID = 0; // REPLACE WITH YOUR OWN API_ID
-    public static String APP_HASH = "PLACEHOLDER"; // REPLACE WITH YOUR OWN API_HASH
+    public static int APP_ID = BuildConfig.APP_ID;
+    public static String APP_HASH = BuildConfig.APP_HASH;
 
     // SafetyNet key for Google Identity SDK, set it to empty to disable
     public static String SAFETYNET_KEY = "AIzaSyDqt8P-7F7CPCseMkOiVRgb1LY8RN1bvH8";
