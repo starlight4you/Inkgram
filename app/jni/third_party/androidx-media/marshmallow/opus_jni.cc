@@ -15,7 +15,7 @@
  */
 
 #ifdef __ANDROID__
-#include <log.h>
+#include <android/log.h>
 #endif
 #include <jni.h>
 
@@ -26,8 +26,9 @@
 #include "opus_multistream.h"  // NOLINT
 
 #ifdef __ANDROID__
+#define LOG_TAG "opus_jni"
 #define LOGE(...) \
-  ((void)loge(TAG_NDK, __VA_ARGS__))
+  ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 #else  //  __ANDROID__
 #define LOGE(...) \
   do {            \

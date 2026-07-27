@@ -42,6 +42,25 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1037154859800:android:683d617a5fe76437",
+        "android_client_info": {
+          "package_name": "com.inkgram.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_eeOn-j16lB49kGu_SnTujJwYNvMcWu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

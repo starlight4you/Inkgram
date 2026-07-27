@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <log.h>
+#include <android/log.h>
 #include <jni.h>
 #include <stdlib.h>
 
@@ -32,8 +32,9 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
+#define LOG_TAG "ffmpeg_jni"
 #define LOGE(...) \
-  ((void)loge(TAG_NDK, __VA_ARGS__))
+  ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 
 #define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                                   \
   extern "C" {                                                                 \

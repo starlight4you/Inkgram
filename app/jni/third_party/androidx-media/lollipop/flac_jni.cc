@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <log.h>
+#include <android/log.h>
 #include <jni.h>
 
 #include <array>
@@ -23,10 +23,11 @@
 
 #include "include/flac_parser.h"
 
+#define LOG_TAG "flac_jni"
 #define ALOGE(...) \
-  ((void)loge(TAG_NDK, __VA_ARGS__))
+  ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 #define ALOGV(...) \
-  ((void)logv(TAG_NDK, __VA_ARGS__))
+  ((void)__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__))
 
 #define DECODER_FUNC(RETURN_TYPE, NAME, ...)                              \
   extern "C" {                                                            \

@@ -16,20 +16,21 @@
 
 #include "include/flac_parser.h"
 
-#include <log.h>
+#include <android/log.h>
 #include <jni.h>
 
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 
+#define LOG_TAG "FLACParser"
 #define ALOGE(...) \
-  ((void)loge(TAG_NDK, __VA_ARGS__))
+  ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 #define ALOGV(...) \
-  ((void)logv(TAG_NDK, __VA_ARGS__))
+  ((void)__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__))
 
 #define LOG_ALWAYS_FATAL(...) \
-  (loga(TAG_NDK, __VA_ARGS__))
+  (__android_log_assert(NULL, LOG_TAG, ##__VA_ARGS__))
 
 #define LITERAL_TO_STRING_INTERNAL(x) #x
 #define LITERAL_TO_STRING(x) LITERAL_TO_STRING_INTERNAL(x)

@@ -18,7 +18,7 @@
 #ifdef __ARM_NEON__
 #include <arm_neon.h>
 #endif
-#include <log.h>
+#include <android/log.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include <jni.h>
@@ -34,8 +34,9 @@
 #include "vpx/vp8dx.h"
 #include "vpx/vpx_decoder.h"
 
+#define LOG_TAG "vpx_jni"
 #define LOGE(...) \
-  ((void)loge(TAG_NDK, __VA_ARGS__))
+  ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
 
 #define DECODER_FUNC(RETURN_TYPE, NAME, ...)                                \
   extern "C" {                                                              \
