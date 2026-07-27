@@ -1983,6 +1983,7 @@
   <string name="ThemePink">Pink</string>
   <string name="ThemeOrange">Orange</string>
   <string name="ThemeWhiteBlack">White-black</string>
+  <string name="ThemeEink" translatable="false">EInk</string>
   <string name="ThemeGreen">Green</string>
   <string name="VideoMessages">Video messages</string>
   <string name="NoVideoMessages">No Video messages</string>

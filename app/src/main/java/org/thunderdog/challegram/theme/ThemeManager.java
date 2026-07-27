@@ -111,6 +111,8 @@ public class ThemeManager implements FactorAnimator.Target, GlobalAccountListene
         return R.string.ThemePink;
       case ThemeId.WHITE_BLACK:
         return R.string.ThemeWhiteBlack;
+      case ThemeId.EINK:
+        return R.string.ThemeEink;
     }
     throw Theme.newError(themeId, "themeId");
   }
