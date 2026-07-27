@@ -244,6 +244,10 @@ public abstract class ViewPagerController<T> extends TelegramViewController<T> i
     addAttachStateListener(attachListener);
     addFocusListener(focusListener);
     pager = new RtlViewPager(context);
+    // InkGram: disable finger-swipe paging (e-ink); tabs switch instantly on click.
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      pager.setPagingEnabled(false);
+    }
     pager.setLayoutParams(params);
     pager.setOverScrollMode(Config.HAS_NICE_OVER_SCROLL_EFFECT ? View.OVER_SCROLL_IF_CONTENT_SCROLLS : View.OVER_SCROLL_NEVER);
     pager.addOnPageChangeListener(new androidx.viewpager.widget.ViewPager.OnPageChangeListener() {
@@ -615,6 +619,10 @@ public abstract class ViewPagerController<T> extends TelegramViewController<T> i
   }
 
   protected void setCurrentPagerPosition (int position, boolean animated) {
+    // InkGram: pager tab switches are instant (e-ink).
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      animated = false;
+    }
     if (headerCell != null && animated) {
       headerCell.getTopView().setFromTo(pager.getCurrentItem(), position);
     }

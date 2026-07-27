@@ -337,7 +337,8 @@ public class ImageFile {
   }
 
   public boolean shouldUseBlur () {
-    return (flags & FLAG_NO_BLUR) == 0;
+    // InkGram: blurred load placeholders disabled (e-ink).
+    return false;
   }
 
   public void setNeedHiRes () {
