@@ -998,7 +998,8 @@ public class NavigationController implements Future<View>, ThemeChangeListener, 
       }
     };
 
-    if (!isAttachedToWindow) {
+    // InkGram: navigation transitions complete instantly (e-ink), same safe path as !isAttachedToWindow.
+    if (!isAttachedToWindow || me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       onDone.run();
       return;
     }

@@ -1462,7 +1462,8 @@ public class Settings {
 
     /*autoplayGIFs = true;
     autoplayGIFs = (settings & FLAG_OTHER_AUTOPLAY_GIFS) != 0;*/
-    defaultSettings |= FLAG_OTHER_AUTOPLAY_GIFS;
+    // InkGram: GIF autoplay disabled by default (e-ink).
+    // defaultSettings |= FLAG_OTHER_AUTOPLAY_GIFS;
 
     /*saveEditedMediaToGallery = false;
     saveEditedMediaToGallery = (settings & FLAG_OTHER_SAVE_TO_GALLERY) != 0;*/
@@ -2753,7 +2754,8 @@ public class Settings {
   }
 
   public boolean needAutoplayGIFs () {
-    return checkSetting(FLAG_OTHER_AUTOPLAY_GIFS);
+    // InkGram: GIF autoplay permanently disabled (e-ink).
+    return false;
   }
 
   public void setAutoplayGIFs (boolean autoplayGIFs) {

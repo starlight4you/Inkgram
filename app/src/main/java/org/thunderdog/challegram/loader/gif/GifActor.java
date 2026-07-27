@@ -892,8 +892,12 @@ public class GifActor implements GifState.Callback, TGPlayerController.TrackChan
     }
   }
 
+  // InkGram: all GIF/sticker animations are frozen unless explicitly whitelisted
+  // (full-screen sticker preview still animates).
+  private static final boolean FORCE_FREEZE_ALL = true;
+
   private static boolean isFrozenImpl (GifFile file) {
-    return file.isStill() || (mFreezeReasonCount != 0 && !isWhiteListed(freezeWhiteList, file));
+    return file.isStill() || (FORCE_FREEZE_ALL || mFreezeReasonCount != 0) && !isWhiteListed(freezeWhiteList, file);
   }
 
   private static boolean isWhiteListed (List<GifFile> whiteList, GifFile file) {

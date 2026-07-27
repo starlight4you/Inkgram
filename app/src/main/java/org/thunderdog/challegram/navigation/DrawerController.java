@@ -1074,6 +1074,12 @@ public class DrawerController extends ViewController<Void> implements View.OnCli
 
     setIsAnimating(true);
 
+    // InkGram: drawer opens instantly (e-ink).
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      forceOpen();
+      return;
+    }
+
     ValueAnimator animator = AnimatorUtils.simpleValueAnimator();
     final float startFactor = getFactor();
     final float diffFactor = 1f - startFactor;
@@ -1105,8 +1111,12 @@ public class DrawerController extends ViewController<Void> implements View.OnCli
     if (isAnimating || ignoreClose) return;
     setIsAnimating(true);
 
-    if (factor == 0f) {
+    if (factor == 0f || me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      // InkGram: drawer closes instantly (e-ink).
       forceClose();
+      if (after != null) {
+        after.run();
+      }
     } else {
       ValueAnimator animator = AnimatorUtils.simpleValueAnimator();
       final float startFactor = getFactor();

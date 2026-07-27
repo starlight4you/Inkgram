@@ -95,6 +95,10 @@ public class CustomItemAnimator extends SimpleItemAnimator {
 
   public CustomItemAnimator (Interpolator customInterpolator, long defaultDuration) {
     this.customInterpolator = customInterpolator;
+    // InkGram: item animations complete instantly (e-ink).
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      defaultDuration = 0;
+    }
     setMoveDuration(defaultDuration);
     setAddDuration(defaultDuration);
     setChangeDuration(defaultDuration);
