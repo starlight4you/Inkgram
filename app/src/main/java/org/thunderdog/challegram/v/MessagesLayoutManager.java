@@ -41,6 +41,11 @@ public class MessagesLayoutManager extends LinearLayoutManager {
 
   @Override
   public void smoothScrollToPosition (RecyclerView recyclerView, RecyclerView.State state, int position) {
+    // InkGram: no smooth scrolling on e-ink; jump instantly.
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      scrollToPosition(position);
+      return;
+    }
     final long distance = manager.calculateScrollingDistance();
     if (distance <= recyclerView.getMeasuredHeight()) {
       super.smoothScrollToPosition(recyclerView, state, position);

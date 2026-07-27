@@ -95,7 +95,7 @@ public class MessagesRecyclerView extends RecyclerView implements FactorAnimator
   private MessagesItemDecoration itemDecoration;
 
   private void init () {
-    setOverScrollMode(Config.HAS_NICE_OVER_SCROLL_EFFECT ? OVER_SCROLL_IF_CONTENT_SCROLLS : OVER_SCROLL_NEVER);
+    setOverScrollMode(FactorAnimator.FORCE_INSTANT ? OVER_SCROLL_NEVER : (Config.HAS_NICE_OVER_SCROLL_EFFECT ? OVER_SCROLL_IF_CONTENT_SCROLLS : OVER_SCROLL_NEVER));
     itemAnimator = new CustomItemAnimator(AnimatorUtils.DECELERATE_INTERPOLATOR, ITEM_ANIMATOR_DURATION);
     itemAnimator.setSupportsChangeAnimations(false);
     setItemAnimator(null);
@@ -263,8 +263,22 @@ public class MessagesRecyclerView extends RecyclerView implements FactorAnimator
     return topOffset;
   }
 
+  private final PageFlipTouchController pageFlip = new PageFlipTouchController(this);
+
+  @Override
+  public boolean fling (int velocityX, int velocityY) {
+    // InkGram: no inertia scrolling on e-ink.
+    if (pageFlip.fling(velocityX, velocityY)) {
+      return true;
+    }
+    return super.fling(velocityX, velocityY);
+  }
+
   @Override
   public boolean onInterceptTouchEvent (MotionEvent e) {
+    if (pageFlip.onIntercept(e)) {
+      return true;
+    }
     boolean res = super.onInterceptTouchEvent(e);
     if (scrollFactor > 0f && e.getAction() == MotionEvent.ACTION_DOWN && isInsideDate(e.getX(), e.getY())) {
       return true;
@@ -277,6 +291,9 @@ public class MessagesRecyclerView extends RecyclerView implements FactorAnimator
 
   @Override
   public boolean onTouchEvent (MotionEvent e) {
+    if (pageFlip.onTouch(e)) {
+      return true;
+    }
     switch (e.getAction()) {
       case MotionEvent.ACTION_DOWN: {
         float x = e.getX();

@@ -3525,14 +3525,34 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
 
   @Override
   public boolean onKeyDown (int keyCode, KeyEvent event) {
+    // InkGram: volume keys flip pages (e-ink devices).
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && org.thunderdog.challegram.util.PageFlipHelper.pageDown(getPagingRecyclerView())) {
+        return true;
+      }
+      if (keyCode == KeyEvent.KEYCODE_VOLUME_UP && org.thunderdog.challegram.util.PageFlipHelper.pageUp(getPagingRecyclerView())) {
+        return true;
+      }
+    }
     // override in children
     return false;
   }
 
   @Override
   public boolean onKeyUp (int keyCode, KeyEvent event) {
+    // InkGram: consume the key-up as well, so the system volume panel does not show.
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) && getPagingRecyclerView() != null) {
+      return true;
+    }
     // override in children
     return false;
+  }
+
+  /**
+   * InkGram: RecyclerView that receives volume-key page flips. Null means "let the system handle volume keys".
+   */
+  protected @Nullable androidx.recyclerview.widget.RecyclerView getPagingRecyclerView () {
+    return org.thunderdog.challegram.util.PageFlipHelper.findPagingRecyclerView(getValue());
   }
 
   public boolean allowPopupInterruption () {

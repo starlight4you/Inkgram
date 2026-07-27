@@ -1860,6 +1860,12 @@ public class MessagesController extends ViewController<MessagesController.Argume
     return messagesView;
   }
 
+  @Override
+  protected @Nullable androidx.recyclerview.widget.RecyclerView getPagingRecyclerView () {
+    // InkGram: volume-key page flips target the message list.
+    return messagesView;
+  }
+
   private boolean isInputLess () {
     return tdlib.isChannel(getChatId()) && !tdlib.canSendBasicMessage(chat);
   }

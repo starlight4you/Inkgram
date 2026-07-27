@@ -100,10 +100,24 @@ public class CustomRecyclerView extends RecyclerView implements Animated {
     this.touchInterceptor = touchInterceptor;
   }
 
+  private final PageFlipTouchController pageFlip = new PageFlipTouchController(this);
+
+  @Override
+  public boolean fling (int velocityX, int velocityY) {
+    // InkGram: no inertia scrolling on e-ink.
+    if (pageFlip.fling(velocityX, velocityY)) {
+      return true;
+    }
+    return super.fling(velocityX, velocityY);
+  }
+
   @Override
   public boolean onInterceptTouchEvent (MotionEvent e) {
     if (scrollDisabled) {
       return interceptEvents;
+    }
+    if (pageFlip.onIntercept(e)) {
+      return true;
     }
     if (touchDisabled) {
       switch (e.getAction()) {
@@ -130,6 +144,9 @@ public class CustomRecyclerView extends RecyclerView implements Animated {
   public boolean onTouchEvent (MotionEvent e) {
     if (scrollDisabled) {
       return false;
+    }
+    if (pageFlip.onTouch(e)) {
+      return true;
     }
     if (touchDisabled) {
       switch (e.getAction()) {
