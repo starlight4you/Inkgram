@@ -189,9 +189,8 @@ public class CustomItemAnimator extends SimpleItemAnimator {
 
   @Override
   public boolean animateRemove(final RecyclerView.ViewHolder holder) {
-    if (getRemoveDuration() <= 0) {
-      return false;
-    }
+    // InkGram: do not decline on zero duration; run the animation with duration 0 so
+    // dispatchRemoveFinished is guaranteed to fire (declining leaves stale views attached).
     resetAnimation(holder);
     mPendingRemovals.add(holder);
     return true;
@@ -221,9 +220,7 @@ public class CustomItemAnimator extends SimpleItemAnimator {
 
   @Override
   public boolean animateAdd(final RecyclerView.ViewHolder holder) {
-    if (getAddDuration() <= 0) {
-      return false;
-    }
+    // InkGram: see animateRemove.
     resetAnimation(holder);
     setAlpha(holder.itemView, 0);
     mPendingAdditions.add(holder);
@@ -258,9 +255,7 @@ public class CustomItemAnimator extends SimpleItemAnimator {
   @Override
   public boolean animateMove(final RecyclerView.ViewHolder holder, int fromX, int fromY,
                              int toX, int toY) {
-    if (getMoveDuration() <= 0) {
-      return false;
-    }
+    // InkGram: see animateRemove.
     final View view = holder.itemView;
     fromX += getTranslationX(holder.itemView);
     fromY += getTranslationY(holder.itemView);
@@ -323,9 +318,7 @@ public class CustomItemAnimator extends SimpleItemAnimator {
   @Override
   public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
                                int fromX, int fromY, int toX, int toY) {
-    if (getChangeDuration() <= 0) {
-      return false;
-    }
+    // InkGram: see animateRemove.
     if (oldHolder == newHolder) {
       // Don't know how to run change animations when the same view holder is re-used.
       // run a move animation to handle position changes.
