@@ -460,7 +460,8 @@ public class Settings {
   public static final int NIGHT_MODE_AUTO = 1;
   public static final int NIGHT_MODE_SCHEDULED = 2;
   public static final int NIGHT_MODE_SYSTEM = 3;
-  public static final int NIGHT_MODE_DEFAULT = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? NIGHT_MODE_SYSTEM : NIGHT_MODE_NONE;
+  // InkGram: night mode is permanently disabled (EInk theme is always light).
+  public static final int NIGHT_MODE_DEFAULT = NIGHT_MODE_NONE;
 
   @Nullable
   private Integer _nightMode;
@@ -3124,25 +3125,8 @@ public class Settings {
   }
 
   public int getNightMode () {
-    if (_nightMode == null) {
-      int nightMode = pmc.getInt(KEY_NIGHT_MODE, NIGHT_MODE_DEFAULT);
-      if (nightMode == NIGHT_MODE_AUTO) {
-        try {
-          SensorManager sensorManager = (SensorManager) UI.getAppContext().getSystemService(Context.SENSOR_SERVICE);
-          if (sensorManager != null) {
-            if (sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) == null) {
-              Log.e("Disabling night mode, because light sensor is unavailable");
-              nightMode = NIGHT_MODE_DEFAULT;
-              remove(KEY_NIGHT_MODE);
-            }
-          }
-        } catch (Throwable t) {
-          Log.w(t);
-        }
-      }
-      _nightMode = nightMode;
-    }
-    return _nightMode;
+    // InkGram: night mode is permanently disabled.
+    return NIGHT_MODE_NONE;
   }
 
   private List<VideoLimit> defaultLimits;

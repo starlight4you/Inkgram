@@ -394,100 +394,12 @@ public class SettingsThemeController extends RecyclerViewController<SettingsThem
       items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
       items.add(new ListItem(ListItem.TYPE_VALUED_SETTING_COMPACT, R.id.btn_chatListStyle, 0, R.string.ChatListStyle));
 
-      items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-      items.add(new ListItem(ListItem.TYPE_SETTING, R.id.btn_chatBackground, 0, R.string.Wallpaper));
+      // InkGram: wallpaper entry removed (wallpapers are disabled).
       items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
       items.add(new ListItem(ListItem.TYPE_SETTING, R.id.btn_chatFontSize, 0, R.string.TextSize));
       items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
 
-      items.add(new ListItem(ListItem.TYPE_HEADER, 0, 0, R.string.ColorTheme));
-
-      this.builtinThemes = ThemeManager.instance().getBuiltinThemes();
-      addThemeGroup(items, builtinThemes, false);
-
-      List<ThemeInfo> customThemes = Settings.instance().getCustomThemes();
-      Collections.sort(customThemes, themeComparator);
-      this.installedThemes = new ArrayList<>();
-      this.myThemes = new ArrayList<>();
-      for (ThemeInfo theme : customThemes) {
-        if (theme.isInstalled()) {
-          installedThemes.add(theme);
-        } else {
-          myThemes.add(theme);
-        }
-      }
-
-      addThemeGroup(items, installedThemes, false);
-      addThemeGroup(items, myThemes, true);
-
-      lightSensorAvailable = false;
-      maxSensorValue = SensorManager.LIGHT_CLOUDY / 5;
-      try {
-        SensorManager sensorManager = (SensorManager) UI.getContext().getSystemService(Context.SENSOR_SERVICE);
-        if (sensorManager != null) {
-          Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-          lightSensorAvailable = sensor != null;
-          if (lightSensorAvailable) {
-            lightSensorAvailable = (maxSensorValue = Math.min(maxSensorValue, sensor.getMaximumRange())) > 0f;
-            if (lightSensorAvailable) {
-              maxSensorValue = Math.max(maxSensorValue, Settings.MAX_NIGHT_LUX_DEFAULT * 1.5f);
-            }
-          }
-        }
-      } catch (Throwable t) {
-        Log.i("Cannot access light sensor", t);
-      }
-
-      currentNightMode = Settings.instance().getNightMode();
-      float value = maxSensorValue != 0f ? MathUtils.clamp(Settings.instance().getMaxNightLux() / maxSensorValue) : 0f;
-      currentNightPercentage = (int) (100f * value);
-
-      items.add(new ListItem(ListItem.TYPE_HEADER, 0, 0, R.string.AutoNightMode));
-      items.add(new ListItem(ListItem.TYPE_SHADOW_TOP));
-      items.add(new ListItem(ListItem.TYPE_RADIO_OPTION, R.id.btn_autoNightModeNone, 0, R.string.AutoNightDisabled, R.id.btn_autoNightMode, currentNightMode == Settings.NIGHT_MODE_NONE));
-      if (Settings.NIGHT_MODE_DEFAULT == Settings.NIGHT_MODE_SYSTEM || (currentNightMode == Settings.NIGHT_MODE_SYSTEM || context().hasSystemNightMode())) {
-        items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-        items.add(new ListItem(ListItem.TYPE_RADIO_OPTION, R.id.btn_autoNightModeSystem, 0, Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? R.string.AutoNightSystemQ : R.string.AutoNightSystem, R.id.btn_autoNightMode, currentNightMode == Settings.NIGHT_MODE_SYSTEM));
-      }
-
-      if (lightSensorAvailable) {
-        adapter.setSliderChangeListener(this);
-        items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-        items.add(new ListItem(ListItem.TYPE_RADIO_OPTION, R.id.btn_autoNightModeAuto, 0, R.string.AutoNightAutomatic, R.id.btn_autoNightMode, currentNightMode == Settings.NIGHT_MODE_AUTO));
-      }
-
-      items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-      items.add(new ListItem(ListItem.TYPE_RADIO_OPTION, R.id.btn_autoNightModeScheduled, 0, R.string.AutoNightScheduled, R.id.btn_autoNightMode, currentNightMode == Settings.NIGHT_MODE_SCHEDULED));
-      items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
-
-      switch (currentNightMode) {
-        case Settings.NIGHT_MODE_NONE: {
-          items.add(new ListItem(ListItem.TYPE_DESCRIPTION, R.id.btn_autoNightMode_description, 0, lightSensorAvailable ? R.string.AutoNightModeDescription : R.string.AutoNightModeDescriptionScheduled));
-          break;
-        }
-        case Settings.NIGHT_MODE_SYSTEM: {
-          items.add(new ListItem(ListItem.TYPE_DESCRIPTION, R.id.btn_autoNightMode_description, 0, Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? R.string.AutoNightModeDescriptionSystemQ : R.string.AutoNightModeDescriptionSystem));
-          break;
-        }
-        case Settings.NIGHT_MODE_AUTO: {
-          items.add(new ListItem(ListItem.TYPE_SHADOW_TOP));
-          items.add(newBrightnessItem());
-          items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
-          items.add(new ListItem(ListItem.TYPE_DESCRIPTION, R.id.btn_autoNightMode_description, 0, Lang.getString(R.string.AutoNightModeDescriptionAuto, currentNightPercentage), false));
-          break;
-        }
-        case Settings.NIGHT_MODE_SCHEDULED: {
-          items.add(new ListItem(ListItem.TYPE_SHADOW_TOP));
-          items.add(newScheduleItem(true));
-          items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-          items.add(newScheduleItem(false));
-          items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-          items.add(newScheduleLocationItem());
-          items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
-          items.add(new ListItem(ListItem.TYPE_DESCRIPTION, R.id.btn_autoNightMode_description, 0, Lang.getString(R.string.AutoNightModeDescriptionScheduled), false));
-          break;
-        }
-      }
+      // InkGram: theme list, custom themes and auto night mode sections removed (theme is locked to EInk).
 
       RemoveHelper.attach(recyclerView, new RemoveHelper.Callback() {
         @Override

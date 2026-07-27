@@ -45,8 +45,8 @@ import me.vkryl.core.MathUtils;
 import me.vkryl.core.reference.ReferenceList;
 
 public class ThemeManager implements FactorAnimator.Target, GlobalAccountListener {
-  public static final int DEFAULT_DARK_THEME = ThemeId.NIGHT_BLUE;
-  public static final int DEFAULT_LIGHT_THEME = ThemeId.CLASSIC;
+  public static final int DEFAULT_DARK_THEME = ThemeId.EINK;
+  public static final int DEFAULT_LIGHT_THEME = ThemeId.EINK;
   public static final int DEFAULT_THEME = DEFAULT_DARK_THEME;
 
   public static final int CHAT_STYLE_UNKNOWN = 0;
@@ -495,33 +495,8 @@ public class ThemeManager implements FactorAnimator.Target, GlobalAccountListene
   }
 
   public static int saveThemeId (@ThemeId int themeId) {
-    switch (themeId) {
-      case ThemeId.BLACK_WHITE:
-      case ThemeId.NIGHT_BLUE:
-      case ThemeId.BLUE:
-      case ThemeId.CYAN:
-      case ThemeId.GREEN:
-      case ThemeId.NIGHT_BLACK:
-      case ThemeId.ORANGE:
-      case ThemeId.PINK:
-      case ThemeId.RED:
-      case ThemeId.WHITE_BLACK:
-      case ThemeId.CLASSIC:
-        return themeId;
-
-      case ThemeId.TEMPORARY:
-      case ThemeId.NONE:
-        break;
-        
-      case ThemeId.CUSTOM:
-      default: {
-        int customThemeId = resolveCustomThemeId(themeId);
-        if (customThemeId != ThemeId.NONE && Settings.instance().hasCustomTheme(customThemeId)) {
-          return themeId;
-        }
-      }
-    }
-    return ThemeId.NIGHT_BLUE;
+    // InkGram: theme is locked to EInk, any attempt to save another theme resolves to EInk.
+    return ThemeId.EINK;
   }
 
   public static int resolveCustomThemeId (int themeId) {
@@ -622,29 +597,8 @@ public class ThemeManager implements FactorAnimator.Target, GlobalAccountListene
 
   @ThemeId
   public static int restoreThemeId (Settings prefs, int savedThemeId, boolean allowCustom) {
-    switch (savedThemeId) {
-      case ThemeId.BLUE:
-      case ThemeId.NIGHT_BLACK:
-      case ThemeId.NIGHT_BLUE:
-      case ThemeId.BLACK_WHITE:
-      case ThemeId.WHITE_BLACK:
-      case ThemeId.RED:
-      case ThemeId.ORANGE:
-      case ThemeId.GREEN:
-      case ThemeId.PINK:
-      case ThemeId.CYAN:
-      case ThemeId.CLASSIC:
-        return savedThemeId;
-      default: {
-        if (allowCustom) {
-          int customThemeId = resolveCustomThemeId(savedThemeId);
-          if (customThemeId != ThemeId.NONE && prefs.hasCustomTheme(customThemeId)) {
-            return savedThemeId;
-          }
-        }
-      }
-    }
-    return DEFAULT_THEME;
+    // InkGram: theme is locked to EInk.
+    return ThemeId.EINK;
   }
 
   @ThemeId

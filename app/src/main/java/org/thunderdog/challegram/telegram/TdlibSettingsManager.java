@@ -546,13 +546,8 @@ public class TdlibSettingsManager implements CleanupStartupDelegate {
   }
 
   public @Nullable TGBackground getWallpaper (int usageIdentifier, boolean allowEmpty) {
-    int i = wallpapers.indexOfKey(usageIdentifier);
-    TGBackground wallpaper = i >= 0 ? wallpapers.valueAt(i) : null;
-    if (i < 0) {
-      wallpaper = TGBackground.restore(tdlib, usageIdentifier);
-      wallpapers.put(usageIdentifier, wallpaper);
-    }
-    return wallpaper != null && (allowEmpty || !wallpaper.isEmpty()) ? wallpaper : null;
+    // InkGram: wallpapers are disabled entirely.
+    return null;
   }
 
   public boolean useBubbles () {

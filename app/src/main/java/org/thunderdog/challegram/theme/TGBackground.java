@@ -245,6 +245,7 @@ public class TGBackground {
       case ThemeId.BLACK_WHITE:
       case ThemeId.NIGHT_BLACK:
       case ThemeId.NIGHT_BLUE:
+      case ThemeId.EINK: // InkGram: wallpaper always disabled
         return 0; // Disabled by default
 
       case ThemeId.BLUE:
