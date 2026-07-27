@@ -1206,7 +1206,8 @@ public class DrawerController extends ViewController<Void> implements View.OnCli
 
   @Override
   public void onSystemBackProgressed (@NonNull BackEventCompat backEvent) {
-    if (!isAnimating) {
+    // InkGram: no follow-finger tracking for the drawer back gesture (e-ink).
+    if (!isAnimating && !me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       setFactor(1f - backEvent.getProgress());
     }
   }

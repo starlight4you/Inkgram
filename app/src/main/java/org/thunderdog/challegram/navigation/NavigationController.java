@@ -1523,7 +1523,9 @@ public class NavigationController implements Future<View>, ThemeChangeListener, 
 
   @Override
   public void onSystemBackProgressed (@NonNull BackEventCompat backEvent) {
-    if (isAnimating) {
+    // InkGram: no follow-finger tracking for the back gesture (e-ink);
+    // the back navigation itself still applies instantly on release.
+    if (isAnimating && !me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       setFactor(backEvent.getProgress());
     }
   }

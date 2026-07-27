@@ -421,6 +421,9 @@ public class GifActor implements GifState.Callback, TGPlayerController.TrackChan
       thread.prepareNextFrame(this);
       scheduleNext(false);
     } else {
+      // InkGram: decode & display the first frame even when playback is frozen (e-ink),
+      // otherwise receivers show the loading spinner forever.
+      thread.prepareNextFrame(this);
       GifBridge.instance().dispatchGifFrameChanged(file, gif, false);
     }
   }
