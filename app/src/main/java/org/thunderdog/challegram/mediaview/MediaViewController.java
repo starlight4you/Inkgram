@@ -3631,7 +3631,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
     fromSlideRotation = mediaView.getRotation();
     fromSlideSourceX = lastSlideSourceX;
 
-    if (fromSlideX == 0f && fromSlideY == 0f) {
+    if (fromSlideX == 0f && fromSlideY == 0f && !(FactorAnimator.FORCE_INSTANT && apply)) {
       return;
     }
 
@@ -5087,7 +5087,10 @@ public class MediaViewController extends ViewController<MediaViewController.Args
             if (inSlideMode) {
               float x = e.getX();
               float y = e.getY();
-              setSlide(x - slideStartX, y - slideStartY, slideStartX, false, true);
+              // InkGram: no follow-finger (e-ink); dismiss decision happens on release.
+              if (!FactorAnimator.FORCE_INSTANT) {
+                setSlide(x - slideStartX, y - slideStartY, slideStartX, false, true);
+              }
               return true;
             }
             break;
@@ -5099,7 +5102,20 @@ public class MediaViewController extends ViewController<MediaViewController.Args
               return true;
             }
             if (inSlideMode) {
-              dropSlideMode(0f, 0f, false);
+              if (FactorAnimator.FORCE_INSTANT) {
+                // InkGram: no follow-finger, decide by total displacement on release.
+                float dy = e.getY() - slideStartY;
+                float dx = e.getX() - slideStartX;
+                if (Math.max(Math.abs(dy), Math.abs(dx)) > Screen.dp(60f)) {
+                  lastSlideX = dx;
+                  lastSlideY = dy;
+                  dropSlideMode(0f, dy, true);
+                } else {
+                  dropSlideMode(0f, 0f, false);
+                }
+              } else {
+                dropSlideMode(0f, 0f, false);
+              }
             }
             break;
           }

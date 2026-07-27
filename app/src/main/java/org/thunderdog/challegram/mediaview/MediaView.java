@@ -747,7 +747,10 @@ public class MediaView extends FrameLayoutFix {
             factor = factor * .5f;
           }
 
-          translate(factor);
+          // InkGram: no follow-finger (e-ink); the photo switch happens on release.
+          if (!me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+            translate(factor);
+          }
         }
         break;
       }
@@ -758,7 +761,14 @@ public class MediaView extends FrameLayoutFix {
         }
 
         if (isMoving) {
-          dropPreview(DIRECTION_AUTO, 0f);
+          if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+            float directionFactor = (x - startX) / (float) currentWidth * (Lang.rtl() ? 1f : -1f);
+            if (Math.abs(directionFactor) > .15f) {
+              dropPreview(directionFactor > 0f ? DIRECTION_FORWARD : DIRECTION_BACKWARD, 0f);
+            }
+          } else {
+            dropPreview(DIRECTION_AUTO, 0f);
+          }
           isMoving = false;
         }
 
@@ -766,7 +776,9 @@ public class MediaView extends FrameLayoutFix {
       }
       case MotionEvent.ACTION_CANCEL: {
         if (isMoving) {
-          dropPreview(DIRECTION_AUTO, 0f);
+          if (!me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+            dropPreview(DIRECTION_AUTO, 0f);
+          }
           isMoving = false;
         }
         break;
