@@ -48,7 +48,14 @@ public class ComplexRecyclerView extends CustomRecyclerView implements Runnable 
       public void onScrolled (@NonNull RecyclerView recyclerView, int dx, int dy) {
         totalY += dy;
         if (headerView != null && !factorLocked) {
-          updateScrollFactor(true);
+          if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+            // InkGram: after an instant page jump the layout pass has not run yet and
+            // findViewByPosition(0) is stale; recompute the factor post-layout.
+            recyclerView.removeCallbacks(ComplexRecyclerView.this);
+            recyclerView.post(ComplexRecyclerView.this);
+          } else {
+            updateScrollFactor(true);
+          }
         }
       }
     });

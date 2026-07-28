@@ -80,7 +80,29 @@ public class PageFlipTouchController {
 
   /** @return true when the event was fully handled (super.onTouchEvent must be skipped) */
   public boolean onTouch (MotionEvent e) {
-    if (!enabled() || state != STATE_PAGING) {
+    if (!enabled()) {
+      return false;
+    }
+    // Events may also be injected via dispatchTouchEvent, skipping onInterceptTouchEvent.
+    if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
+      state = STATE_UNDECIDED;
+      startX = e.getX();
+      startY = lastY = e.getY();
+      return false;
+    }
+    if (state == STATE_UNDECIDED && e.getActionMasked() == MotionEvent.ACTION_MOVE) {
+      float dx = e.getX() - startX;
+      float dy = e.getY() - startY;
+      float slop = Screen.getTouchSlop();
+      if (Math.abs(dy) > slop && Math.abs(dy) > Math.abs(dx)) {
+        state = STATE_PAGING;
+      } else if (Math.abs(dx) > slop) {
+        state = STATE_PASSTHROUGH;
+      } else {
+        return false;
+      }
+    }
+    if (state != STATE_PAGING) {
       return false;
     }
     switch (e.getActionMasked()) {
