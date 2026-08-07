@@ -104,7 +104,7 @@ public class CustomRecyclerView extends RecyclerView implements Animated {
 
   @Override
   public boolean fling (int velocityX, int velocityY) {
-    // InkGram: no inertia scrolling on e-ink.
+    // Inkgram: no inertia scrolling on e-ink.
     if (pageFlip.fling(velocityX, velocityY)) {
       return true;
     }

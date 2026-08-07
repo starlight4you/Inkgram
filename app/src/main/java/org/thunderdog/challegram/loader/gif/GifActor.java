@@ -421,7 +421,7 @@ public class GifActor implements GifState.Callback, TGPlayerController.TrackChan
       thread.prepareNextFrame(this);
       scheduleNext(false);
     } else {
-      // InkGram: decode & display the first frame even when playback is frozen (e-ink),
+      // Inkgram: decode & display the first frame even when playback is frozen (e-ink),
       // otherwise receivers show the loading spinner forever.
       thread.prepareNextFrame(this);
       GifBridge.instance().dispatchGifFrameChanged(file, gif, false);
@@ -895,7 +895,7 @@ public class GifActor implements GifState.Callback, TGPlayerController.TrackChan
     }
   }
 
-  // InkGram: all GIF/sticker animations are frozen unless explicitly whitelisted
+  // Inkgram: all GIF/sticker animations are frozen unless explicitly whitelisted
   // (full-screen sticker preview still animates).
   private static final boolean FORCE_FREEZE_ALL = true;
 

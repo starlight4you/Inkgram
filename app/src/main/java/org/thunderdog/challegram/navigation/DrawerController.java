@@ -297,7 +297,7 @@ public class DrawerController extends ViewController<Void> implements View.OnCli
     }
     items.add(new ListItem(ListItem.TYPE_DRAWER_ITEM, R.id.btn_help, R.drawable.baseline_help_24, R.string.Help));
     items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-    // InkGram: night mode drawer toggle removed (theme is locked to light EInk).
+    // Inkgram: night mode drawer toggle removed (theme is locked to light EInk).
     if (Test.NEED_CLICK) {
       items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
       items.add(new ListItem(ListItem.TYPE_DRAWER_ITEM, R.id.btn_reportBug, R.drawable.baseline_bug_report_24, Test.CLICK_NAME, false));
@@ -1074,7 +1074,7 @@ public class DrawerController extends ViewController<Void> implements View.OnCli
 
     setIsAnimating(true);
 
-    // InkGram: drawer opens instantly (e-ink).
+    // Inkgram: drawer opens instantly (e-ink).
     if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       forceOpen();
       return;
@@ -1112,7 +1112,7 @@ public class DrawerController extends ViewController<Void> implements View.OnCli
     setIsAnimating(true);
 
     if (factor == 0f || me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
-      // InkGram: drawer closes instantly (e-ink).
+      // Inkgram: drawer closes instantly (e-ink).
       forceClose();
       if (after != null) {
         after.run();
@@ -1206,7 +1206,7 @@ public class DrawerController extends ViewController<Void> implements View.OnCli
 
   @Override
   public void onSystemBackProgressed (@NonNull BackEventCompat backEvent) {
-    // InkGram: no follow-finger tracking for the drawer back gesture (e-ink).
+    // Inkgram: no follow-finger tracking for the drawer back gesture (e-ink).
     if (!isAnimating && !me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       setFactor(1f - backEvent.getProgress());
     }

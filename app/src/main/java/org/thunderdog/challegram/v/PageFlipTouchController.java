@@ -1,5 +1,5 @@
 /*
- * InkGram: converts vertical drag gestures into whole-page flips for e-ink.
+ * Inkgram: converts vertical drag gestures into whole-page flips for e-ink.
  */
 package org.thunderdog.challegram.v;
 

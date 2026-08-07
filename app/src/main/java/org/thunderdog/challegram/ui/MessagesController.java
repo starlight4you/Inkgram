@@ -1862,7 +1862,7 @@ public class MessagesController extends ViewController<MessagesController.Argume
 
   @Override
   protected @Nullable androidx.recyclerview.widget.RecyclerView getPagingRecyclerView () {
-    // InkGram: volume-key page flips target the message list.
+    // Inkgram: volume-key page flips target the message list.
     return messagesView;
   }
 

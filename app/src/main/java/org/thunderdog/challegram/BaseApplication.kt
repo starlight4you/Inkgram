@@ -39,13 +39,13 @@ class BaseApplication : TgxApplication(), Configuration.Provider {
     super.onCreate()
     scope = MainScope()
 
-    // InkGram: globally force all ValueAnimator-based animations to zero duration (e-ink).
+    // Inkgram: globally force all ValueAnimator-based animations to zero duration (e-ink).
     try {
       val method = android.animation.ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.javaPrimitiveType)
       method.isAccessible = true
       method.invoke(null, 0f)
     } catch (t: Throwable) {
-      Log.w("InkGram: cannot set ValueAnimator duration scale", t)
+      Log.w("Inkgram: cannot set ValueAnimator duration scale", t)
     }
 
     PushManagerBridge.initialize(

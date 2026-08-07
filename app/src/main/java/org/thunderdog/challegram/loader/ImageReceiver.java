@@ -87,7 +87,7 @@ public class ImageReceiver implements Watcher, ValueAnimator.AnimatorUpdateListe
     if (handler == null) {
       handler = new ImageHandler();
       float density = UI.getResources().getDisplayMetrics().density;
-      // InkGram: image load fade-in disabled (e-ink).
+      // Inkgram: image load fade-in disabled (e-ink).
       ANIMATION_ENABLED = false; //density >= 2.0f; //(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && density >= 2f) || (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP && density > 2f);
     }
     this.metadataPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG | Paint.FILTER_BITMAP_FLAG);

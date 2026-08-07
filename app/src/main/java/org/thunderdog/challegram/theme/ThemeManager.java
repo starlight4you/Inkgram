@@ -497,7 +497,7 @@ public class ThemeManager implements FactorAnimator.Target, GlobalAccountListene
   }
 
   public static int saveThemeId (@ThemeId int themeId) {
-    // InkGram: theme is locked to EInk, any attempt to save another theme resolves to EInk.
+    // Inkgram: theme is locked to EInk, any attempt to save another theme resolves to EInk.
     return ThemeId.EINK;
   }
 
@@ -599,7 +599,7 @@ public class ThemeManager implements FactorAnimator.Target, GlobalAccountListene
 
   @ThemeId
   public static int restoreThemeId (Settings prefs, int savedThemeId, boolean allowCustom) {
-    // InkGram: theme is locked to EInk.
+    // Inkgram: theme is locked to EInk.
     return ThemeId.EINK;
   }
 

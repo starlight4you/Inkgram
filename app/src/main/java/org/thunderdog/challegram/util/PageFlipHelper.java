@@ -1,5 +1,5 @@
 /*
- * InkGram: page-flip scrolling helpers for e-ink.
+ * Inkgram: page-flip scrolling helpers for e-ink.
  */
 package org.thunderdog.challegram.util;
 

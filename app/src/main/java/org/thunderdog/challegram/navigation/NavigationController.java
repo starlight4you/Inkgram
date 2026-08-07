@@ -998,7 +998,7 @@ public class NavigationController implements Future<View>, ThemeChangeListener, 
       }
     };
 
-    // InkGram: navigation transitions complete instantly (e-ink), same safe path as !isAttachedToWindow.
+    // Inkgram: navigation transitions complete instantly (e-ink), same safe path as !isAttachedToWindow.
     if (!isAttachedToWindow || me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       onDone.run();
       return;
@@ -1523,7 +1523,7 @@ public class NavigationController implements Future<View>, ThemeChangeListener, 
 
   @Override
   public void onSystemBackProgressed (@NonNull BackEventCompat backEvent) {
-    // InkGram: no follow-finger tracking for the back gesture (e-ink);
+    // Inkgram: no follow-finger tracking for the back gesture (e-ink);
     // the back navigation itself still applies instantly on release.
     if (isAnimating && !me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       setFactor(backEvent.getProgress());

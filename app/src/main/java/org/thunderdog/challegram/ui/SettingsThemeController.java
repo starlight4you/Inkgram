@@ -394,12 +394,12 @@ public class SettingsThemeController extends RecyclerViewController<SettingsThem
       items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
       items.add(new ListItem(ListItem.TYPE_VALUED_SETTING_COMPACT, R.id.btn_chatListStyle, 0, R.string.ChatListStyle));
 
-      // InkGram: wallpaper entry removed (wallpapers are disabled).
+      // Inkgram: wallpaper entry removed (wallpapers are disabled).
       items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
       items.add(new ListItem(ListItem.TYPE_SETTING, R.id.btn_chatFontSize, 0, R.string.TextSize));
       items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
 
-      // InkGram: theme list, custom themes and auto night mode sections removed (theme is locked to EInk).
+      // Inkgram: theme list, custom themes and auto night mode sections removed (theme is locked to EInk).
 
       RemoveHelper.attach(recyclerView, new RemoveHelper.Callback() {
         @Override

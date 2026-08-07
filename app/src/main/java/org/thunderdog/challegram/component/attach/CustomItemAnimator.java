@@ -95,7 +95,7 @@ public class CustomItemAnimator extends SimpleItemAnimator {
 
   public CustomItemAnimator (Interpolator customInterpolator, long defaultDuration) {
     this.customInterpolator = customInterpolator;
-    // InkGram: item animations complete instantly (e-ink).
+    // Inkgram: item animations complete instantly (e-ink).
     if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       defaultDuration = 0;
     }
@@ -189,7 +189,7 @@ public class CustomItemAnimator extends SimpleItemAnimator {
 
   @Override
   public boolean animateRemove(final RecyclerView.ViewHolder holder) {
-    // InkGram: do not decline on zero duration; run the animation with duration 0 so
+    // Inkgram: do not decline on zero duration; run the animation with duration 0 so
     // dispatchRemoveFinished is guaranteed to fire (declining leaves stale views attached).
     resetAnimation(holder);
     mPendingRemovals.add(holder);
@@ -220,7 +220,7 @@ public class CustomItemAnimator extends SimpleItemAnimator {
 
   @Override
   public boolean animateAdd(final RecyclerView.ViewHolder holder) {
-    // InkGram: see animateRemove.
+    // Inkgram: see animateRemove.
     resetAnimation(holder);
     setAlpha(holder.itemView, 0);
     mPendingAdditions.add(holder);
@@ -255,7 +255,7 @@ public class CustomItemAnimator extends SimpleItemAnimator {
   @Override
   public boolean animateMove(final RecyclerView.ViewHolder holder, int fromX, int fromY,
                              int toX, int toY) {
-    // InkGram: see animateRemove.
+    // Inkgram: see animateRemove.
     final View view = holder.itemView;
     fromX += getTranslationX(holder.itemView);
     fromY += getTranslationY(holder.itemView);
@@ -318,7 +318,7 @@ public class CustomItemAnimator extends SimpleItemAnimator {
   @Override
   public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
                                int fromX, int fromY, int toX, int toY) {
-    // InkGram: see animateRemove.
+    // Inkgram: see animateRemove.
     if (oldHolder == newHolder) {
       // Don't know how to run change animations when the same view holder is re-used.
       // run a move animation to handle position changes.

@@ -5087,7 +5087,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
             if (inSlideMode) {
               float x = e.getX();
               float y = e.getY();
-              // InkGram: no follow-finger (e-ink); dismiss decision happens on release.
+              // Inkgram: no follow-finger (e-ink); dismiss decision happens on release.
               if (!FactorAnimator.FORCE_INSTANT) {
                 setSlide(x - slideStartX, y - slideStartY, slideStartX, false, true);
               }
@@ -5103,7 +5103,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
             }
             if (inSlideMode) {
               if (FactorAnimator.FORCE_INSTANT) {
-                // InkGram: no follow-finger, decide by total displacement on release.
+                // Inkgram: no follow-finger, decide by total displacement on release.
                 float dy = e.getY() - slideStartY;
                 float dx = e.getX() - slideStartX;
                 if (Math.max(Math.abs(dy), Math.abs(dx)) > Screen.dp(60f)) {

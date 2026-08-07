@@ -337,7 +337,7 @@ public class ImageFile {
   }
 
   public boolean shouldUseBlur () {
-    // InkGram: blurred load placeholders disabled (e-ink).
+    // Inkgram: blurred load placeholders disabled (e-ink).
     return false;
   }
 

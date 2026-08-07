@@ -172,7 +172,7 @@ public abstract class RecyclerViewController<T> extends TelegramViewController<T
 
   protected CustomRecyclerView onCreateRecyclerView () {
     CustomRecyclerView recyclerView = (CustomRecyclerView) Views.inflate(context(), R.layout.recycler_custom, null);
-    // InkGram: no overscroll glow on e-ink.
+    // Inkgram: no overscroll glow on e-ink.
     if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       recyclerView.setOverScrollMode(View.OVER_SCROLL_NEVER);
     }
@@ -261,7 +261,7 @@ public abstract class RecyclerViewController<T> extends TelegramViewController<T
           scrollTop -= view.getTop();
         }
         if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
-          // InkGram: instant scroll-to-top (e-ink).
+          // Inkgram: instant scroll-to-top (e-ink).
           getRecyclerView().scrollBy(0, -scrollTop);
         } else {
           getRecyclerView().smoothScrollBy(0, -scrollTop);

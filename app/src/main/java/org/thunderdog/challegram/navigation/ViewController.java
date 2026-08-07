@@ -3525,7 +3525,7 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
 
   @Override
   public boolean onKeyDown (int keyCode, KeyEvent event) {
-    // InkGram: volume keys flip pages (e-ink devices).
+    // Inkgram: volume keys flip pages (e-ink devices).
     if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && org.thunderdog.challegram.util.PageFlipHelper.pageDown(getPagingRecyclerView())) {
         return true;
@@ -3540,7 +3540,7 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
 
   @Override
   public boolean onKeyUp (int keyCode, KeyEvent event) {
-    // InkGram: consume the key-up as well, so the system volume panel does not show.
+    // Inkgram: consume the key-up as well, so the system volume panel does not show.
     if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) && getPagingRecyclerView() != null) {
       return true;
     }
@@ -3549,7 +3549,7 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
   }
 
   /**
-   * InkGram: RecyclerView that receives volume-key page flips. Null means "let the system handle volume keys".
+   * Inkgram: RecyclerView that receives volume-key page flips. Null means "let the system handle volume keys".
    */
   protected @Nullable androidx.recyclerview.widget.RecyclerView getPagingRecyclerView () {
     return org.thunderdog.challegram.util.PageFlipHelper.findPagingRecyclerView(getValue());

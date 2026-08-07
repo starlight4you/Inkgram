@@ -460,7 +460,7 @@ public class Settings {
   public static final int NIGHT_MODE_AUTO = 1;
   public static final int NIGHT_MODE_SCHEDULED = 2;
   public static final int NIGHT_MODE_SYSTEM = 3;
-  // InkGram: night mode is permanently disabled (EInk theme is always light).
+  // Inkgram: night mode is permanently disabled (EInk theme is always light).
   public static final int NIGHT_MODE_DEFAULT = NIGHT_MODE_NONE;
 
   @Nullable
@@ -1462,7 +1462,7 @@ public class Settings {
 
     /*autoplayGIFs = true;
     autoplayGIFs = (settings & FLAG_OTHER_AUTOPLAY_GIFS) != 0;*/
-    // InkGram: GIF autoplay disabled by default (e-ink).
+    // Inkgram: GIF autoplay disabled by default (e-ink).
     // defaultSettings |= FLAG_OTHER_AUTOPLAY_GIFS;
 
     /*saveEditedMediaToGallery = false;
@@ -2754,7 +2754,7 @@ public class Settings {
   }
 
   public boolean needAutoplayGIFs () {
-    // InkGram: GIF autoplay permanently disabled (e-ink).
+    // Inkgram: GIF autoplay permanently disabled (e-ink).
     return false;
   }
 
@@ -3127,7 +3127,7 @@ public class Settings {
   }
 
   public int getNightMode () {
-    // InkGram: night mode is permanently disabled.
+    // Inkgram: night mode is permanently disabled.
     return NIGHT_MODE_NONE;
   }
 

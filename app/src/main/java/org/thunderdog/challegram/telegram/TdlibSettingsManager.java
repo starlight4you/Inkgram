@@ -546,7 +546,7 @@ public class TdlibSettingsManager implements CleanupStartupDelegate {
   }
 
   public @Nullable TGBackground getWallpaper (int usageIdentifier, boolean allowEmpty) {
-    // InkGram: wallpapers are disabled entirely.
+    // Inkgram: wallpapers are disabled entirely.
     return null;
   }
 

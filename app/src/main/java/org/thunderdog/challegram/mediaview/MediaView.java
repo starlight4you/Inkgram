@@ -747,7 +747,7 @@ public class MediaView extends FrameLayoutFix {
             factor = factor * .5f;
           }
 
-          // InkGram: no follow-finger (e-ink); the photo switch happens on release.
+          // Inkgram: no follow-finger (e-ink); the photo switch happens on release.
           if (!me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
             translate(factor);
           }
