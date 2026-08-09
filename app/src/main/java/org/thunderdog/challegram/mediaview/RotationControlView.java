@@ -98,12 +98,12 @@ public class RotationControlView extends View implements FactorAnimator.Target {
 
     numberPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
     numberPaint.setTextSize(Screen.dp(14f));
-    numberPaint.setColor(0xffffffff);
+    numberPaint.setColor(org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.text)); // Inkgram: black on white (e-ink)
     numberPaint.setTypeface(Fonts.getRobotoRegular());
 
     numberSmallPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
     numberSmallPaint.setTextSize(Screen.dp(12f));
-    numberSmallPaint.setColor(0xffffffff);
+    numberSmallPaint.setColor(org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.text)); // Inkgram: black on white (e-ink)
     numberSmallPaint.setTypeface(Fonts.getRobotoRegular());
 
     degreeWidth = U.measureText("°", numberSmallPaint);
@@ -115,7 +115,7 @@ public class RotationControlView extends View implements FactorAnimator.Target {
     minusWidth = U.measureText("-", numberSmallPaint);
 
     triangleView = new TriangleView();
-    triangleView.setColor(0xffffffff);
+    triangleView.setColor(org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.text)); // Inkgram: black on white (e-ink)
 
     this.radius = Screen.dp(1.5f);
     this.spacing = Screen.dp(6.5f);

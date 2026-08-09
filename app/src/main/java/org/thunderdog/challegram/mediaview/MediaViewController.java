@@ -3055,7 +3055,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
       timerPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
       timerPaint.setTypeface(Fonts.getRobotoMedium());
       timerPaint.setTextSize(Screen.dp(19f));
-      timerPaint.setColor(0xffffffff);
+      timerPaint.setColor(0xff000000); // Inkgram: black on white (e-ink)
     }
 
     public void setSecretPhoto (TGMessageMedia photo) {
@@ -3108,7 +3108,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
       c.drawRoundRect(rectF, radius2, radius2, Paints.fillingPaint(0x4c000000));*/
 
       rectF.set(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
-      c.drawArc(rectF, -90f, -360f * secretPhoto.getHotExpiresFactor(), true, Paints.fillingPaint(0xffffffff));
+      c.drawArc(rectF, -90f, -360f * secretPhoto.getHotExpiresFactor(), true, Paints.fillingPaint(0xff000000)); // Inkgram: black on white (e-ink)
       c.drawText(text, offset + radius + radius + offset2, Screen.dp(35.5f), timerPaint);
     }
   }
@@ -6229,7 +6229,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
           });
           undoButton.setScaleType(ImageView.ScaleType.CENTER);
           undoButton.setImageResource(R.drawable.baseline_undo_24);
-          undoButton.setColorFilter(0xffffffff);
+          undoButton.setColorFilter(Theme.getColor(ColorId.headerButtonIcon)); // Inkgram: black on white (e-ink)
           Views.setClickable(undoButton);
           undoButton.setBackgroundResource(R.drawable.bg_btn_header);
           undoButton.setLayoutParams(params);
@@ -9182,8 +9182,8 @@ public class MediaViewController extends ViewController<MediaViewController.Args
     captionView.setId(R.id.input);
     captionView.setPadding(Screen.dp(55f), Screen.dp(15f), Screen.dp(55f), Screen.dp(14f));
     captionView.setTranslationX(-(Screen.dp(55f) - Screen.dp(14f)));
-    captionView.setHintTextColor(0xbaffffff);
-    captionView.setTextColor(0xffffffff);
+    captionView.setHintTextColor(Theme.getColor(ColorId.textPlaceholder)); // Inkgram: black on white (e-ink)
+    captionView.setTextColor(Theme.getColor(ColorId.text)); // Inkgram: black on white (e-ink)
     captionView.setTypeface(Fonts.getRobotoRegular());
     captionView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
     captionView.setInputType(captionView.getInputType() | EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES | EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE);
@@ -9196,7 +9196,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
     captionDoneButton.setOnClickListener(this);
     captionDoneButton.setScaleType(ImageView.ScaleType.CENTER);
     captionDoneButton.setImageResource(R.drawable.baseline_check_24);
-    captionDoneButton.setColorFilter(0xffffffff);
+    captionDoneButton.setColorFilter(Theme.getColor(ColorId.headerButtonIcon)); // Inkgram: black on white (e-ink)
     captionDoneButton.setAlpha(0f);
     captionDoneButton.setEnabled(false);
     captionDoneButton.setLayoutParams(FrameLayoutFix.newParams(Screen.dp(55f), Screen.dp(52f), Gravity.RIGHT | Gravity.BOTTOM));
@@ -9206,7 +9206,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
     captionEmojiButton.setOnClickListener(this);
     captionEmojiButton.setScaleType(ImageView.ScaleType.CENTER);
     captionEmojiButton.setImageResource(R.drawable.deproko_baseline_insert_emoticon_26);
-    captionEmojiButton.setColorFilter(0xffffffff);
+    captionEmojiButton.setColorFilter(Theme.getColor(ColorId.headerButtonIcon)); // Inkgram: black on white (e-ink)
     captionEmojiButton.setAlpha(0f);
     captionEmojiButton.setEnabled(false);
     captionEmojiButton.setLayoutParams(FrameLayoutFix.newParams(Screen.dp(55f), Screen.dp(52f), Gravity.LEFT | Gravity.BOTTOM));
@@ -9432,7 +9432,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
     ImageView imageView = new ImageView(context);
     imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
     imageView.setImageResource(icon);
-    imageView.setColorFilter(0xffffffff);
+    imageView.setColorFilter(Theme.getColor(ColorId.headerButtonIcon)); // Inkgram: black on white (e-ink)
     imageView.setAlpha((float) 0xaa / (float) 0xff);
     imageView.setLayoutParams(lp);
     receiverView.addView(imageView);
@@ -9442,7 +9442,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
 
     if (!StringUtils.isEmpty(text)) {
       TextView textView = new NoScrollTextView(context);
-      textView.setTextColor(0xaaffffff);
+      textView.setTextColor(Theme.getColor(ColorId.text)); // Inkgram: black on white (e-ink)
       textView.setSingleLine(true);
       textView.setEllipsize(TextUtils.TruncateAt.END);
       textView.setTypeface(Fonts.getRobotoMedium());

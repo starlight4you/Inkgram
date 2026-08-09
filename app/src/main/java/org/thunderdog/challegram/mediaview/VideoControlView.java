@@ -101,7 +101,7 @@ public class VideoControlView extends FrameLayoutFix implements FactorAnimator.T
 
     timelineView = new VideoTimelineView(getContext());
     timelineView.setShowSlider(true, false);
-    timelineView.setColors(ColorId.white, ColorId.black, ColorId.transparentEditor);
+    timelineView.setColors(ColorId.sliderActive, ColorId.black, ColorId.transparentEditor); // Inkgram: black trim bars on white (e-ink)
     timelineView.setPadding(Screen.dp(54f) + Screen.dp(32f), Screen.dp(6f), Screen.dp(54f), Screen.dp(6f));
     timelineView.setLayoutParams(params);
     timelineView.setDelegate(delegate);
@@ -175,7 +175,7 @@ public class VideoControlView extends FrameLayoutFix implements FactorAnimator.T
   }
 
   private static void styleText (TextView textView) {
-    textView.setTextColor(0xffffffff);
+    textView.setTextColor(Theme.getColor(ColorId.text)); // Inkgram: black on white (e-ink)
     textView.setPadding(Screen.dp(2f), 0, Screen.dp(2f), 0);
     textView.setGravity(Gravity.CENTER);
     textView.setSingleLine(true);

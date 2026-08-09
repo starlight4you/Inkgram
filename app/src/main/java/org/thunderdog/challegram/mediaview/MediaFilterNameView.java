@@ -88,7 +88,7 @@ public class MediaFilterNameView extends FrameLayoutFix implements FactorAnimato
     super(context);
 
     this.name = new AutoFitTextView(context);
-    this.name.setTextColor(0xffffffff);
+    this.name.setTextColor(Theme.getColor(ColorId.text)); // Inkgram: black on white (e-ink)
     this.name.setTypeface(Fonts.getRobotoRegular());
     this.name.setGravity(Gravity.RIGHT);
     this.name.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13f);

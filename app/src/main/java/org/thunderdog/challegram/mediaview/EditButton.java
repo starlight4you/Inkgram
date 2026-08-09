@@ -43,7 +43,8 @@ import me.vkryl.core.MathUtils;
 import me.vkryl.core.util.ColorChanger;
 
 public class EditButton extends View implements FactorAnimator.Target {
-  private static final ColorChanger changer = new ColorChanger(0xffffffff, 0xff63cefd);
+  // Inkgram: black icons on white bars (e-ink)
+  private static final ColorChanger changer = new ColorChanger(org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.icon), org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.icon));
 
   private int currentIcon;
   private boolean willBeActive;
@@ -56,7 +57,7 @@ public class EditButton extends View implements FactorAnimator.Target {
   public EditButton (Context context) {
     super(context);
     avatarReceiver = new AvatarReceiver(this);
-    setBackgroundResource(R.drawable.bg_btn_header_light);
+    setBackgroundResource(R.drawable.bg_btn_header); // Inkgram: light-background button style (e-ink)
   }
 
   @Override
@@ -181,7 +182,7 @@ public class EditButton extends View implements FactorAnimator.Target {
   private void drawSoundOn () {
     Canvas c = specialIconCanvas;
     specialIcon.eraseColor(0);
-    Drawables.draw(c, icon, 0, 0, Paints.whitePorterDuffPaint());
+    Drawables.draw(c, icon, 0, 0, Paints.createPorterDuffPaint(null, org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.icon))); // Inkgram: black icon (e-ink)
     if (activeFactor != 0f) {
       int width = Screen.dp(2f);
       int height = Screen.dp(24f);
@@ -190,7 +191,7 @@ public class EditButton extends View implements FactorAnimator.Target {
       c.save();
       c.rotate(-45f, icon.getMinimumWidth() / 2, icon.getMinimumHeight() / 2);
       c.drawRect(cx, cy, cx + width, cy + (int) ((float) height * activeFactor), Paints.getErasePaint());
-      c.drawRect(cx - width, cy, cx, cy + (int) ((float) height * activeFactor), Paints.fillingPaint(0xffffffff));
+      c.drawRect(cx - width, cy, cx, cy + (int) ((float) height * activeFactor), Paints.fillingPaint(org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.icon))); // Inkgram: black slash (e-ink)
       c.restore();
     }
   }

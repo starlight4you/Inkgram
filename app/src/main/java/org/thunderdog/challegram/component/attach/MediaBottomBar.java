@@ -464,7 +464,7 @@ public class MediaBottomBar extends FrameLayoutFix implements GestureDetector.On
           if (item.icon != null) {
             Drawables.draw(c, item.icon, itemCenterX - item.icon.getMinimumWidth() / 2, iconCenterY - (int) ((float) item.icon.getMinimumHeight() * .5f), bitmapPaint);
           } else {
-            c.drawCircle(itemCenterX, iconCenterY, Screen.dp(12f), Paints.fillingPaint(0xffffffff));
+            c.drawCircle(itemCenterX, iconCenterY, Screen.dp(12f), Paints.fillingPaint(color)); // Inkgram: black shutter on white bar (e-ink)
           }
 
           if (item.factor == 1f) {

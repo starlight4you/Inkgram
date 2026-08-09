@@ -68,9 +68,9 @@ public class MediaFiltersAdapter extends RecyclerView.Adapter<MediaFiltersAdapte
     this.state = state;
 
     int highlightsColorId = state.getValue(FiltersState.KEY_HIGHLIGHTS_COLOR_ID);
-    highlightsColorIdItem.setFillingColorId(highlightsColorId == 0 ? ColorId.white : highlightsColorId);
+    highlightsColorIdItem.setFillingColorId(highlightsColorId == 0 ? ColorId.sliderActive : highlightsColorId); // Inkgram: black slider on white (e-ink)
     int shadowsColorId = state.getValue(FiltersState.KEY_SHADOWS_COLOR_ID);
-    shadowsColorIdItem.setFillingColorId(shadowsColorId == 0 ? ColorId.white : shadowsColorId);
+    shadowsColorIdItem.setFillingColorId(shadowsColorId == 0 ? ColorId.sliderActive : shadowsColorId); // Inkgram: black slider on white (e-ink)
 
 
     U.notifyItemsReplaced(this, oldItemCount);
@@ -152,7 +152,7 @@ public class MediaFiltersAdapter extends RecyclerView.Adapter<MediaFiltersAdapte
     if (i != -1) {
       View view = manager.findViewByPosition(i + 1);
       if (view != null) {
-        ((SliderFilterWrapView) view).setColorId(newColorId == 0 ? ColorId.white : newColorId);
+        ((SliderFilterWrapView) view).setColorId(newColorId == 0 ? ColorId.sliderActive : newColorId); // Inkgram: black slider on white (e-ink)
       } else {
         notifyItemChanged(i + 1);
       }
@@ -254,7 +254,7 @@ public class MediaFiltersAdapter extends RecyclerView.Adapter<MediaFiltersAdapte
       this.type = type;
       this.key = key;
       this.stringRes = stringRes;
-      this.fillingColorId = ColorId.white;
+      this.fillingColorId = ColorId.sliderActive; // Inkgram: black slider on white (e-ink)
     }
 
     public boolean setFillingColorId (int colorId) {

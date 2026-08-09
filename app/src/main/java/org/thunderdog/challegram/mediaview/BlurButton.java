@@ -27,7 +27,7 @@ import me.vkryl.android.animator.FactorAnimator;
 import me.vkryl.core.util.ColorChanger;
 
 public class BlurButton extends NoScrollTextView implements FactorAnimator.Target {
-  private static final ColorChanger changer = new ColorChanger(0x77ffffff, 0xffffffff);
+  private static final ColorChanger changer = new ColorChanger(0x77000000, 0xff000000); // Inkgram: black on white (e-ink)
 
   public BlurButton (Context context) {
     super(context);

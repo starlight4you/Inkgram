@@ -47,7 +47,7 @@ public class StopwatchHeaderButton extends HeaderButton implements FactorAnimato
     this.circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
     this.circlePaint.setStrokeWidth(Screen.dp(2f));
     this.circlePaint.setStyle(Paint.Style.STROKE);
-    this.circlePaint.setColor(0xffffffff);
+    this.circlePaint.setColor(0xff000000); // Inkgram: black on white (e-ink)
 
     setId(R.id.menu_btn_stopwatch);
     setButtonBackground(ThemeDeprecated.headerSelector());
@@ -252,7 +252,7 @@ public class StopwatchHeaderButton extends HeaderButton implements FactorAnimato
       }
 
       if (value != null) {
-        final int textColor = ((int) (255f * transformFactor) << 24) | getColor(0xffffffff);
+        final int textColor = ((int) (255f * transformFactor) << 24) | getColor(0x00000000); // Inkgram: black on white (e-ink)
         TextPaint paint = getPaint(value.needFakeBold);
         paint.setColor(textColor);
         float textScale = Math.min(1f, (float) getMeasuredWidth() / (float) valueWidth);
@@ -287,7 +287,7 @@ public class StopwatchHeaderButton extends HeaderButton implements FactorAnimato
         transformFactor = stopwatchFactor;
       }
 
-      int sourceColor = getColor(0xffffffff);
+      int sourceColor = getColor(0x00000000); // Inkgram: black on white (e-ink)
       final int color = (Math.max(0, Math.min((int) (255f * visibilityFactor * (1f - Math.min(transformFactor, .5f) / .5f)), 255)) << 24) | sourceColor;
       final Paint fillingPaint = Paints.fillingPaint(color);
 
