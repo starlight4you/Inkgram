@@ -49,6 +49,7 @@ import org.thunderdog.challegram.navigation.RootDrawable;
 import org.thunderdog.challegram.navigation.TooltipOverlayView;
 import org.thunderdog.challegram.navigation.ViewController;
 import org.thunderdog.challegram.theme.Theme;
+import org.thunderdog.challegram.tool.DitherOverlay;
 import org.thunderdog.challegram.tool.Keyboard;
 import org.thunderdog.challegram.tool.Paints;
 import org.thunderdog.challegram.tool.Screen;
@@ -853,15 +854,25 @@ public class PopupLayout extends RootFrameLayout implements FactorAnimator.Targe
     public void draw (Canvas c) {
       super.draw(c);
       if (useStatusBar) {
-        final int color = ColorUtils.color((int) (255f * .3f), 0);
-        c.drawRect(0, 0, getMeasuredWidth(), HeaderView.getTopOffset(), Paints.fillingPaint(color));
+        if (FactorAnimator.FORCE_INSTANT) {
+          // Inkgram: Kindle-style dithered dim (e-ink)
+          DitherOverlay.draw(c, .3f, 0, 0, getMeasuredWidth(), HeaderView.getTopOffset());
+        } else {
+          final int color = ColorUtils.color((int) (255f * .3f), 0);
+          c.drawRect(0, 0, getMeasuredWidth(), HeaderView.getTopOffset(), Paints.fillingPaint(color));
+        }
       }
     }
 
     @Override
     protected void onDraw (Canvas c) {
-      final int color = ColorUtils.color((int) (255f * (Theme.getPopupOverlayAlpha())), 0);
       int offset = HeaderView.getTopOffset();
+      if (FactorAnimator.FORCE_INSTANT) {
+        // Inkgram: Kindle-style dithered dim (e-ink)
+        DitherOverlay.draw(c, Theme.getPopupOverlayAlpha(), 0, (useStatusBar && offset != 0) ? offset : 0, getMeasuredWidth(), getMeasuredHeight());
+        return;
+      }
+      final int color = ColorUtils.color((int) (255f * (Theme.getPopupOverlayAlpha())), 0);
       if (useStatusBar && offset != 0) {
         c.drawRect(0, offset, getMeasuredWidth(), getMeasuredHeight(), Paints.fillingPaint(color));
       } else {

@@ -152,6 +152,10 @@ public class DoubleImageReceiver implements Receiver {
   }
 
   public void requestFile (ImageFile preview, ImageFile image) {
+    // Inkgram: skip blurry minithumbnail placeholders, show plain placeholder color instead (e-ink)
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && preview instanceof ImageFileLocal) {
+      preview = null;
+    }
     this.preview.requestFile(preview);
     getImageReceiver().requestFile(image);
   }

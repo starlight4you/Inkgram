@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MediaRecyclerView extends RecyclerView {
+public class MediaRecyclerView extends CustomRecyclerView { // Inkgram: was plain RecyclerView; CustomRecyclerView adds e-ink page-flip
   public MediaRecyclerView (Context context) {
     super(context);
     init();

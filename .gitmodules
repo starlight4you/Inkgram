@@ -78,7 +78,7 @@
 	branch = main
 [submodule "vkryl/android"]
 	path = vkryl/android
-	url = https://github.com/TGX-Android/X-Android
+	url = https://github.com/starlight4you/X-Android
 	shallow = true
 	branch = main
 [submodule "usrsctp"]

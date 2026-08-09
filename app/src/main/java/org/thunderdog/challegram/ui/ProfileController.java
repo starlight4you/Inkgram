@@ -1382,6 +1382,85 @@ public class ProfileController extends ViewController<ProfileController.Args> im
   public void onFactorChangeFinished (int id, float finalFactor, FactorAnimator callee) {
   }
 
+  // Inkgram: volume keys flip the whole profile page as one unit (e-ink).
+  // A plain scrollBy on the base recycler would skip all the manual sync code
+  // (inner content list alignment, tab bar position, header collapse factor).
+
+  @Override
+  public boolean onKeyDown (int keyCode, android.view.KeyEvent event) {
+    if (dismissKeyboardByVolumeKey(keyCode)) {
+      return true;
+    }
+    if (FactorAnimator.FORCE_INSTANT && (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP)) {
+      if (pageByVolumeKey(keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN ? 1 : -1)) {
+        return true;
+      }
+    }
+    return super.onKeyDown(keyCode, event);
+  }
+
+  @Override
+  public boolean onKeyUp (int keyCode, android.view.KeyEvent event) {
+    if (FactorAnimator.FORCE_INSTANT && (keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP) && baseRecyclerView != null) {
+      return true; // swallow: prevent the system volume panel
+    }
+    return super.onKeyUp(keyCode, event);
+  }
+
+  private boolean pageByVolumeKey (int direction) {
+    if (baseRecyclerView == null || controllers.isEmpty()) {
+      return false; // plain list without pager tabs: default handling pages the base recycler
+    }
+    int viewport = baseRecyclerView.getHeight() - baseRecyclerView.getPaddingTop() - baseRecyclerView.getPaddingBottom();
+    if (viewport <= 0) {
+      return false;
+    }
+    int delta = direction * Math.max(Screen.dp(48f), viewport - Screen.dp(56f));
+    int baseScroll = calculateBaseScrollY();
+    int maxScroll = maxItemsScrollY();
+    ViewController<?> c = findCurrentCachedController();
+    RecyclerView contentRecycler = c != null && c.getValue() instanceof RecyclerView ? (RecyclerView) c.getValue() : null;
+    if (direction > 0 && baseScroll < maxScroll) {
+      // collapse the info rows first, further presses hand over to the content list
+      baseRecyclerView.scrollBy(0, Math.min(delta, maxScroll - baseScroll));
+      syncAfterInstantBaseScroll();
+      return true;
+    }
+    if (direction < 0 && baseScroll > 0 && !isContentScrolledPastAligned(contentRecycler)) {
+      baseRecyclerView.scrollBy(0, Math.max(delta, -baseScroll));
+      syncAfterInstantBaseScroll();
+      return true;
+    }
+    return contentRecycler != null && org.thunderdog.challegram.util.PageFlipHelper.pageBy(contentRecycler, direction);
+  }
+
+  private boolean isContentScrolledPastAligned (@Nullable RecyclerView contentRecycler) {
+    if (contentRecycler == null) {
+      return false;
+    }
+    LinearLayoutManager manager = (LinearLayoutManager) contentRecycler.getLayoutManager();
+    int pos = manager.findFirstVisibleItemPosition();
+    if (pos > 0) {
+      return true;
+    }
+    if (pos == 0) {
+      View view = manager.findViewByPosition(0);
+      // aligned state: item0 top == itemsBound - maxItemsScrollYOffset (see ensureMaxScrollY)
+      if (view != null && view.getTop() < getItemsBound() - maxItemsScrollYOffset() - Screen.dp(8f)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void syncAfterInstantBaseScroll () {
+    checkContentScrollY(findCurrentCachedController()); // realign the inner content list with the base offset
+    checkTopViewPosition(); // move the tab bar
+    if (baseRecyclerView instanceof ComplexRecyclerView) {
+      ((ComplexRecyclerView) baseRecyclerView).forceUpdate(); // recompute the header collapse factor right now
+    }
+  }
+
   /*protected int getTopSearchOffset () {
     return (int) ((float) -getPagerTopViewHeight() * getSearchTransformFactor());
   }*/
@@ -1512,6 +1591,11 @@ public class ProfileController extends ViewController<ProfileController.Args> im
         switch (touchingMode) {
           case TOUCH_MODE_BASE_RECYCLER: {
             baseRecyclerView.dispatchTouchEvent(e);
+            if (FactorAnimator.FORCE_INSTANT) {
+              // Inkgram: no follow-finger doubled scrolling on e-ink; each gesture flips one page
+              // and the next DOWN re-picks the target (base vs pager) based on the new scroll position.
+              break;
+            }
             if (USE_DOUBLED_EVENTS && !scrollingMembers && !disallowBaseIntercept) {
               dispatchPagerRecyclerEvent(e);
               /*if (isContentFrozen()) {
@@ -1575,6 +1659,10 @@ public class ProfileController extends ViewController<ProfileController.Args> im
     pager.setOverScrollMode(View.OVER_SCROLL_NEVER);
     pager.addOnPageChangeListener(this);
     pager.setAdapter(pagerAdapter = new ViewControllerPagerAdapter(this));
+    // Inkgram: disable finger-swipe paging (e-ink); tab clicks still work
+    if (FactorAnimator.FORCE_INSTANT) {
+      pager.setPagingEnabled(false);
+    }
     pager.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     contentView.addView(pager);
 
@@ -5386,7 +5474,7 @@ public class ProfileController extends ViewController<ProfileController.Args> im
     if (pager.getCurrentItem() != index) {
       topCellView.getTopView().setFromTo(pager.getCurrentItem(), index);
       checkContentScrollY(checkedBasePosition = index);
-      pager.setCurrentItem(index, true);
+      pager.setCurrentItem(index, !FactorAnimator.FORCE_INSTANT);
     }
   }
 

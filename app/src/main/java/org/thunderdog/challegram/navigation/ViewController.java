@@ -3527,6 +3527,9 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
   public boolean onKeyDown (int keyCode, KeyEvent event) {
     // Inkgram: volume keys flip pages (e-ink devices).
     if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      if (dismissKeyboardByVolumeKey(keyCode)) {
+        return true;
+      }
       if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && org.thunderdog.challegram.util.PageFlipHelper.pageDown(getPagingRecyclerView())) {
         return true;
       }
@@ -3538,10 +3541,25 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
     return false;
   }
 
+  // Inkgram: volume down dismisses the software keyboard instead of paging (e-ink devices).
+  private boolean keyboardDismissedByVolumeKey;
+
+  protected boolean dismissKeyboardByVolumeKey (int keyCode) {
+    // Note: InputMethodManager.isActive() is unreliable here (the input field keeps an active
+    // connection even when the keyboard is hidden); use the tracked visibility flag instead.
+    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && getKeyboardState()) {
+      keyboardDismissedByVolumeKey = true;
+      hideSoftwareKeyboard();
+      return true;
+    }
+    return false;
+  }
+
   @Override
   public boolean onKeyUp (int keyCode, KeyEvent event) {
     // Inkgram: consume the key-up as well, so the system volume panel does not show.
-    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) && getPagingRecyclerView() != null) {
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) && (keyboardDismissedByVolumeKey || getPagingRecyclerView() != null)) {
+      keyboardDismissedByVolumeKey = false;
       return true;
     }
     // override in children

@@ -722,8 +722,9 @@ public class Theme {
     }
   }
 
-  public static final int RIPPLE_COLOR = 0x50a0a0a0;
-  public static final int HALF_RIPPLE_COLOR = 0x28a0a0a0;
+  // Inkgram: click ripple/highlight effects disabled (e-ink)
+  public static final int RIPPLE_COLOR = 0x00000000;
+  public static final int HALF_RIPPLE_COLOR = 0x00000000;
 
   private static Drawable fillingSimpleSelector (@ColorId int backgroundColorId) {
     return fillingSimpleSelector(backgroundColorId, 0);
@@ -748,11 +749,11 @@ public class Theme {
   }
 
   public static Drawable transparentWhiteSelector () {
-    return transparentSelector(0x30ffffff);
+    return transparentSelector(0x00000000); // Inkgram: no click effect (e-ink)
   }
 
   public static Drawable transparentBlackSelector () {
-    return transparentSelector(0x40a0a0a0);
+    return transparentSelector(0x00000000); // Inkgram: no click effect (e-ink)
   }
 
   public static Drawable transparentRoundSelector (float radius) {
@@ -814,7 +815,7 @@ public class Theme {
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable customRippleSelector (Drawable drawable) {
     return new android.graphics.drawable.RippleDrawable(
-      new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x40a0a0a0}),
+      new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x00000000}), // Inkgram: no click effect (e-ink)
       drawable,
       null
     );
@@ -837,7 +838,7 @@ public class Theme {
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable circleRippleSelector (final float size, final @ColorId int colorId) {
     return new android.graphics.drawable.RippleDrawable(
-      new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x40a0a0a0}),
+      new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x00000000}), // Inkgram: no click effect (e-ink)
       new CircleDrawable(colorId, size, false),
       null
     );
@@ -860,7 +861,7 @@ public class Theme {
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable rectRippleSelector (final float size, final float padding, final @ColorId int colorId) {
     return new android.graphics.drawable.RippleDrawable(
-      new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x60a0a0a0}),
+      new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x00000000}), // Inkgram: no click effect (e-ink)
       new RectDrawable(colorId, size, padding, false),
       null
     );

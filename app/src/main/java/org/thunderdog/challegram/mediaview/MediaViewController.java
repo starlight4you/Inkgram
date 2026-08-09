@@ -174,6 +174,7 @@ import me.vkryl.android.ScrimUtil;
 import me.vkryl.android.ViewUtils;
 import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;
+import org.thunderdog.challegram.tool.DitherOverlay;
 import me.vkryl.android.util.ClickHelper;
 import me.vkryl.android.util.InvalidateContentProvider;
 import me.vkryl.android.widget.FrameLayoutFix;
@@ -1580,12 +1581,12 @@ public class MediaViewController extends ViewController<MediaViewController.Args
 
   @Override
   protected int getHeaderTextColorId () {
-    return ColorId.white;
+    return ColorId.headerText; // Inkgram: black text on white (e-ink)
   }
 
   @Override
   protected int getHeaderIconColorId () {
-    return ColorId.white;
+    return ColorId.headerButtonIcon; // Inkgram: black icons on white (e-ink)
   }
 
   @Override
@@ -1599,7 +1600,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
 
   @Override
   protected int getBackButtonResource () {
-    return R.drawable.bg_btn_header_light;
+    return R.drawable.bg_btn_header;
   }
 
   @Override
@@ -1628,28 +1629,28 @@ public class MediaViewController extends ViewController<MediaViewController.Args
   @Override
   public void fillMenuItems (int id, HeaderView header, LinearLayout menu) {
     if (Config.MASKS_TEXTS_AVAILABLE) {
-      HeaderButton masksButton = header.genButton(R.id.menu_btn_masks, R.drawable.deproko_baseline_masks_24, ColorId.white, null, Screen.dp(49f), header);
-      masksButton.setBackgroundResource(R.drawable.bg_btn_header_light);
+      HeaderButton masksButton = header.genButton(R.id.menu_btn_masks, R.drawable.deproko_baseline_masks_24, ColorId.headerButtonIcon, null, Screen.dp(49f), header);
+      masksButton.setBackgroundResource(R.drawable.bg_btn_header);
       masksButton.setVisibility(canViewMasks() ? View.VISIBLE : View.GONE);
       menu.addView(masksButton);
     }
 
-    HeaderButton pipButton = header.genButton(R.id.menu_btn_pictureInPicture, R.drawable.deproko_baseline_outinline_24, ColorId.white, null, Screen.dp(49f), header);
-    pipButton.setBackgroundResource(R.drawable.bg_btn_header_light);
+    HeaderButton pipButton = header.genButton(R.id.menu_btn_pictureInPicture, R.drawable.deproko_baseline_outinline_24, ColorId.headerButtonIcon, null, Screen.dp(49f), header);
+    pipButton.setBackgroundResource(R.drawable.bg_btn_header);
     pipButton.setVisibility(canGoPip() ? View.VISIBLE : View.GONE);
     menu.addView(pipButton);
 
-    HeaderButton shareButton = header.addForwardButton(menu, null, ColorId.white);
-    shareButton.setBackgroundResource(R.drawable.bg_btn_header_light);
+    HeaderButton shareButton = header.addForwardButton(menu, null, ColorId.headerButtonIcon);
+    shareButton.setBackgroundResource(R.drawable.bg_btn_header);
     shareButton.setVisibility(canShare() ? View.VISIBLE : View.GONE);
 
-    HeaderButton editButton = header.addEditButton(menu, null, ColorId.white);
+    HeaderButton editButton = header.addEditButton(menu, null, ColorId.headerButtonIcon);
     editButton.setImageResource(R.drawable.baseline_brush_24);
-    editButton.setBackgroundResource(R.drawable.bg_btn_header_light);
+    editButton.setBackgroundResource(R.drawable.bg_btn_header);
     editButton.setVisibility(canEdit() ? View.VISIBLE : View.GONE);
 
-    HeaderButton moreButton = header.addMoreButton(menu, null, ColorId.white);
-    moreButton.setBackgroundResource(R.drawable.bg_btn_header_light);
+    HeaderButton moreButton = header.addMoreButton(menu, null, ColorId.headerButtonIcon);
+    moreButton.setBackgroundResource(R.drawable.bg_btn_header);
   }
 
   private void openMoreMenu () {
@@ -1734,7 +1735,8 @@ public class MediaViewController extends ViewController<MediaViewController.Args
   }
   
   private ThemeDelegate getForcedTheme () { // TODO actually move this to ViewController?
-    return ThemeSet.getBuiltinTheme(ThemeId.NIGHT_BLACK);
+    // Inkgram: follow the global (locked EInk) theme instead of forcing night (e-ink)
+    return org.thunderdog.challegram.theme.ThemeManager.instance().currentTheme();
   }
 
   @Override
@@ -5140,7 +5142,8 @@ public class MediaViewController extends ViewController<MediaViewController.Args
         alpha *= (1f - pipFactor);
 
         if (alpha > 0f) {
-          int color = (int) (255f * alpha) << 24;
+          // Inkgram: white background instead of black (e-ink)
+          int color = ((int) (255f * alpha) << 24) | 0x00ffffff;
           c.drawColor(color);
         }
 
@@ -5279,7 +5282,12 @@ public class MediaViewController extends ViewController<MediaViewController.Args
 
         pipOverlayView = new PipOverlayView(context);
         pipOverlayView.setAlpha(0f);
-        pipOverlayView.setBackgroundColor(0x77000000);
+        // Inkgram: dithered overlay instead of dark scrim (e-ink)
+        if (FactorAnimator.FORCE_INSTANT) {
+          pipOverlayView.setBackground(DitherOverlay.getDrawable(context.getResources(), .47f));
+        } else {
+          pipOverlayView.setBackgroundColor(0x77000000);
+        }
         pipOverlayView.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         pipControlsWrap.addView(pipOverlayView);
 
@@ -5302,7 +5310,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
           }
         };
         captionView.setPadding(Screen.dp(14f), Screen.dp(14f), Screen.dp(14f), Screen.dp(14f));
-        captionView.setTextColorId(ColorId.white, true);
+        captionView.setTextColorId(ColorId.text, true); // Inkgram: black text on white (e-ink)
         captionView.setTextSize(Screen.dp(16f));
         captionView.setTextStyleProvider(TGMessage.getTextStyleProvider());
         captionView.setLinkColorId(ColorId.caption_textLink, ColorId.caption_textLinkPressHighlight);
@@ -6106,19 +6114,19 @@ public class MediaViewController extends ViewController<MediaViewController.Args
           qualitySlider.setAnchorMode(SliderView.ANCHOR_MODE_START);
           qualitySlider.setAddPaddingLeft(Screen.dp(18f));
           qualitySlider.setAddPaddingRight(Screen.dp(18f));
-          qualitySlider.setColorId(ColorId.white, false);
+          qualitySlider.setColorId(ColorId.sliderActive, false); // Inkgram: black on white (e-ink)
           qualityControlWrap.addView(qualitySlider);
 
-          TextView textView = Views.newTextView(context(), 14f, Theme.getColor(ColorId.white), Gravity.LEFT, Views.TEXT_FLAG_SINGLE_LINE);
+          TextView textView = Views.newTextView(context(), 14f, Theme.getColor(ColorId.text), Gravity.LEFT, Views.TEXT_FLAG_SINGLE_LINE);
           textView.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, Screen.dp(15f), Screen.dp(10f), Screen.dp(15f), 0));
           textView.setText(Lang.getString(R.string.QualityWorse));
           qualityControlWrap.addView(textView);
-          textView = Views.newTextView(context(), 14f, Theme.getColor(ColorId.white), Gravity.RIGHT, Views.TEXT_FLAG_SINGLE_LINE);
+          textView = Views.newTextView(context(), 14f, Theme.getColor(ColorId.text), Gravity.RIGHT, Views.TEXT_FLAG_SINGLE_LINE);
           textView.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.RIGHT | Gravity.TOP, Screen.dp(15f), Screen.dp(10f), Screen.dp(15f), 0));
           textView.setText(Lang.getString(R.string.QualityBetter));
           qualityControlWrap.addView(textView);
 
-          qualityInfo = Views.newTextView(context(), 15f, Theme.getColor(ColorId.white), Gravity.CENTER, Views.TEXT_FLAG_SINGLE_LINE);
+          qualityInfo = Views.newTextView(context(), 15f, Theme.getColor(ColorId.text), Gravity.CENTER, Views.TEXT_FLAG_SINGLE_LINE);
           qualityInfo.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, 0, 0, Screen.dp(8f)));
           qualityControlWrap.addView(qualityInfo);
         }
@@ -6223,7 +6231,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
           undoButton.setImageResource(R.drawable.baseline_undo_24);
           undoButton.setColorFilter(0xffffffff);
           Views.setClickable(undoButton);
-          undoButton.setBackgroundResource(R.drawable.bg_btn_header_light);
+          undoButton.setBackgroundResource(R.drawable.bg_btn_header);
           undoButton.setLayoutParams(params);
           paintControlsWrap.addView(undoButton);
 
@@ -8943,7 +8951,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
     setDefaultSendButtonIcon(false);
     sendButton.setOnClickListener(this);
     sendButton.setLayoutParams(FrameLayoutFix.newParams(Screen.dp(56f), ViewGroup.LayoutParams.MATCH_PARENT, Gravity.RIGHT));
-    sendButton.setBackgroundResource(R.drawable.bg_btn_header_light);
+    sendButton.setBackgroundResource(R.drawable.bg_btn_header);
     if (selectDelegate != null) {
       sendButton.getSlowModeCounterController(tdlib).setCurrentChat(selectDelegate.getOutputChatId());
     }
@@ -9058,7 +9066,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
 
     if (chat != null && chat.type.getConstructor() == TdApi.ChatTypePrivate.CONSTRUCTOR && !tdlib.isBotChat(chat) && !hasFlag(Args.FLAG_DISALLOW_SET_DESTRUCTION_TIMER)) {
       stopwatchButton = new StopwatchHeaderButton(context);
-      stopwatchButton.setBackgroundResource(R.drawable.bg_btn_header_light);
+      stopwatchButton.setBackgroundResource(R.drawable.bg_btn_header);
       stopwatchButton.forceValue(null, true);
       stopwatchButton.setId(R.id.menu_btn_stopwatch);
       stopwatchButton.setOnClickListener(this);
@@ -9326,7 +9334,12 @@ public class MediaViewController extends ViewController<MediaViewController.Args
       }
     };
     overlayView.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-    overlayView.setBackgroundColor(0xa0000000);
+    // Inkgram: dithered overlay instead of dark scrim (e-ink)
+    if (FactorAnimator.FORCE_INSTANT) {
+      overlayView.setBackground(DitherOverlay.getDrawable(context.getResources(), .63f));
+    } else {
+      overlayView.setBackgroundColor(0xa0000000);
+    }
     overlayView.setAlpha(0f);
     contentView.addView(overlayView);
     attachedViews.add(overlayView);

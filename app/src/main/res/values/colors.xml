@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="header_light_pressed">#88ffffff</color>
+  <color name="header_light_pressed">#00000000</color>
   <color name="swirl_ridgeColor">#ff000000</color>
   <color name="swirl_errorColor">#ff000000</color>
 

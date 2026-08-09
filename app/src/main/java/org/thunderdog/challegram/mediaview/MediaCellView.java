@@ -1343,7 +1343,8 @@ public class MediaCellView extends ViewGroup implements
       clearImage();
       avatarReceiver.clear();
     } else {
-      miniThumbnail.requestFile(media.getMiniThumbnail());
+      // Inkgram: skip blurry minithumbnail placeholder (e-ink)
+      miniThumbnail.requestFile(FactorAnimator.FORCE_INSTANT ? null : media.getMiniThumbnail());
       if (media.isVideo() && media.isGifType() && media.isLoaded() && !delayed) {
         preview = gifReceiver;
         gifReceiver.requestFile(media.getTargetGifFile());

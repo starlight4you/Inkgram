@@ -23,9 +23,11 @@ import android.view.View;
 import android.view.Window;
 
 import org.thunderdog.challegram.theme.Theme;
+import org.thunderdog.challegram.tool.DitherOverlay;
 import org.thunderdog.challegram.tool.UI;
 import org.thunderdog.challegram.util.Unlockable;
 
+import me.vkryl.android.animator.FactorAnimator;
 import me.vkryl.core.ColorUtils;
 import me.vkryl.core.util.ColorChanger;
 
@@ -94,10 +96,16 @@ public class OverlayView extends View {
     return unlockable != null || emptyUnlockable;
   }
 
+  // Inkgram: all dim overlays use the Kindle-style dither (e-ink); density encodes the dim factor
+  // so the dots stay 1-bit black (View alpha is kept at full by DrawerController).
   @Override
   protected void onDraw (Canvas canvas) {
     if (Color.alpha(color) > 0) {
-      canvas.drawColor(color);
+      if (FactorAnimator.FORCE_INSTANT) {
+        canvas.drawRect(0, 0, getWidth(), getHeight(), DitherOverlay.getPaint(barFactor));
+      } else {
+        canvas.drawColor(color);
+      }
     }
   }
 }

@@ -96,6 +96,10 @@ public class PageFlipTouchController {
       float slop = Screen.getTouchSlop();
       if (Math.abs(dy) > slop && Math.abs(dy) > Math.abs(dx)) {
         state = STATE_PAGING;
+        // Injected events (dispatchTouchEvent) skip onInterceptTouchEvent, so the RecyclerView may
+        // already be dragging from the consumed DOWN; reset it, or it stays stuck in DRAGGING
+        // because the upcoming UP is swallowed below.
+        recyclerView.stopScroll();
       } else if (Math.abs(dx) > slop) {
         state = STATE_PASSTHROUGH;
       } else {

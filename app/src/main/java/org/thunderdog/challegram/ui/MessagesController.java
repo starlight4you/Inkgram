@@ -1537,6 +1537,10 @@ public class MessagesController extends ViewController<MessagesController.Argume
       pagerContentView.setOverScrollMode(Config.HAS_NICE_OVER_SCROLL_EFFECT ? View.OVER_SCROLL_IF_CONTENT_SCROLLS : View.OVER_SCROLL_NEVER);
       pagerContentView.addOnPageChangeListener(this);
       pagerContentView.setAdapter(pagerContentAdapter);
+      // Inkgram: disable finger-swipe paging (e-ink); tab clicks still work
+      if (FactorAnimator.FORCE_INSTANT) {
+        pagerContentView.setPagingEnabled(false);
+      }
       pagerContentView.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
       FrameLayoutFix contentView = new FrameLayoutFix(context);
@@ -1732,13 +1736,13 @@ public class MessagesController extends ViewController<MessagesController.Argume
     }
     if (pagerContentView.getCurrentItem() != position) {
       pagerHeaderView.getTopView().setFromTo(pagerContentView.getCurrentItem(), position);
-      pagerContentView.setCurrentItem(position, true);
+      pagerContentView.setCurrentItem(position, !FactorAnimator.FORCE_INSTANT);
     }
   }
 
   private void showMessagesListIfNeeded () {
     if (pagerScrollPosition != 0 && pagerContentView != null) {
-      pagerContentView.setCurrentItem(0, true);
+      pagerContentView.setCurrentItem(0, !FactorAnimator.FORCE_INSTANT);
     }
   }
 
@@ -1752,7 +1756,7 @@ public class MessagesController extends ViewController<MessagesController.Argume
   @Override
   public void onLeaveSelectMode () {
     if (pagerContentView != null) {
-      pagerContentView.setPagingEnabled(true);
+      pagerContentView.setPagingEnabled(!FactorAnimator.FORCE_INSTANT);
     }
     if (exitOnTransformFinish)
       tdlib.ui().post(this::navigateBack);

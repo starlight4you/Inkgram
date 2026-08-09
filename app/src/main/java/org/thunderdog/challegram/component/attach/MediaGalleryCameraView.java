@@ -38,7 +38,8 @@ public class MediaGalleryCameraView extends FrameLayoutFix implements Destroyabl
     super(context);
     setId(R.id.btn_camera);
     setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-    setBackgroundColor(0xff000000);
+    // Inkgram: white tile instead of black (e-ink)
+    setBackgroundColor(org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.filling));
 
     FrameLayoutFix.LayoutParams params = FrameLayoutFix.newParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.RIGHT | Gravity.TOP);
     params.topMargin = Screen.dp(6f);
@@ -54,7 +55,7 @@ public class MediaGalleryCameraView extends FrameLayoutFix implements Destroyabl
     ImageView imageView = new ImageView(context);
     imageView.setScaleType(ImageView.ScaleType.CENTER);
     imageView.setImageResource(R.drawable.baseline_camera_alt_24);
-    imageView.setColorFilter(0xffffffff);
+    imageView.setColorFilter(org.thunderdog.challegram.theme.Theme.getColor(org.thunderdog.challegram.theme.ColorId.icon)); // Inkgram: black icon on white (e-ink)
     imageView.setLayoutParams(params);
     addView(imageView);
   }

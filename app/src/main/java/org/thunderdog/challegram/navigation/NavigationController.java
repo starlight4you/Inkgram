@@ -39,6 +39,7 @@ import org.thunderdog.challegram.theme.ColorState;
 import org.thunderdog.challegram.theme.ThemeChangeListener;
 import org.thunderdog.challegram.theme.ThemeListenerList;
 import org.thunderdog.challegram.theme.ThemeManager;
+import org.thunderdog.challegram.tool.DitherOverlay;
 import org.thunderdog.challegram.tool.UI;
 import org.thunderdog.challegram.tool.Views;
 import org.thunderdog.challegram.unsorted.Settings;
@@ -50,6 +51,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 
 import me.vkryl.android.AnimatorUtils;
+import me.vkryl.android.animator.FactorAnimator;
 import me.vkryl.android.widget.FrameLayoutFix;
 import me.vkryl.core.MathUtils;
 import me.vkryl.core.lambda.Future;
@@ -372,7 +374,12 @@ public class NavigationController implements Future<View>, ThemeChangeListener, 
 
     if (USE_PREVIEW_FADE) {
       fadeView = new View(context);
-      fadeView.setBackgroundColor(0xff000000);
+      if (FactorAnimator.FORCE_INSTANT) {
+        // Inkgram: Kindle-style dithered dim (e-ink)
+        fadeView.setBackground(DitherOverlay.getDrawable(context.getResources(), .6f));
+      } else {
+        fadeView.setBackgroundColor(0xff000000);
+      }
       fadeView.setVisibility(View.GONE);
       fadeView.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }

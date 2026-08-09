@@ -1874,7 +1874,8 @@ public abstract class BaseActivity extends FragmentActivity implements View.OnTo
       progressWrap.setScaleX(scale);
       progressWrap.setScaleY(scale);
       progressWrap.setAlpha(progress);
-      overlayView.setAlpha(.6f * progress);
+      // Inkgram: with dithered overlay, keep dots 1-bit black; density already encodes dim factor (e-ink)
+      overlayView.setAlpha(FactorAnimator.FORCE_INSTANT ? progress : .6f * progress);
     }
   }
 

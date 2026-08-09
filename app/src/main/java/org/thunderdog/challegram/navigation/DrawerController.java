@@ -1316,7 +1316,8 @@ public class DrawerController extends ViewController<Void> implements View.OnCli
       View overlay = context().getOverlayView();
       contentView.setTranslationX(translation);
       if (overlay != null) {
-        overlay.setAlpha(.6f * factor);
+        // Inkgram: with dithered overlay, keep dots 1-bit black; density already encodes dim factor (e-ink)
+        overlay.setAlpha(FactorAnimator.FORCE_INSTANT ? factor : .6f * factor);
       }
 
       /*float cx = currentWidth * factor;

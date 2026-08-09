@@ -143,7 +143,7 @@ public class MediaLocationMapView extends FrameLayoutFix implements OnMapReadyCa
     pinXView = new ImageView(getContext());
     pinXView.setScaleType(ImageView.ScaleType.CENTER);
     pinXView.setImageResource(R.drawable.baseline_close_18);
-    pinXView.setColorFilter(Theme.getColor(ColorId.icon, ThemeId.BLUE));
+    pinXView.setColorFilter(Theme.getColor(ColorId.icon)); // Inkgram: follow the current (locked EInk) theme instead of BLUE (e-ink)
     pinXView.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
     addView(pinXView);
 
