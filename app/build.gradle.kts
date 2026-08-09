@@ -202,7 +202,8 @@ android {
     val minorVersion = monthYears(now, then)
 
     versionCode = config.applicationVersion
-    versionName = "${config.majorVersion}.${minorVersion}"
+    // Inkgram: allow overriding the version name for store-style releases (e.g. INKGRAM_VERSION_NAME=1.0)
+    versionName = System.getenv("INKGRAM_VERSION_NAME") ?: "${config.majorVersion}.${minorVersion}"
   }
 
   sourceSets.getByName("main") {
