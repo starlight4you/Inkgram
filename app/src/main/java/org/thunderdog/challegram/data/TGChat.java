@@ -1580,7 +1580,8 @@ public class TGChat implements TdlibStatusManager.HelperTarget, ContentPreview.R
 
   @Override
   public boolean canLoop () {
-    return BitwiseUtils.hasFlag(flags, FLAG_ATTACHED);
+    // Inkgram: no typing-dots animation loop on e-ink
+    return !me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && BitwiseUtils.hasFlag(flags, FLAG_ATTACHED);
   }
 
   @Override

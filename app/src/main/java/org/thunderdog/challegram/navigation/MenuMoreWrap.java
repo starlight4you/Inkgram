@@ -18,8 +18,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -122,17 +124,41 @@ public class MenuMoreWrap extends MenuMoreWrapAbstract implements Animated {
     this.forcedTheme = forcedTheme;
 
     setMinimumWidth(Screen.dp(196f));
-    Drawable drawable;
-    if (forcedTheme != null) {
-      drawable = ViewSupport.getDrawableFilter(getContext(), R.drawable.bg_popup_fixed, new PorterDuffColorFilter(forcedTheme.getColor(ColorId.overlayFilling), PorterDuff.Mode.MULTIPLY));
-    } else {
-      drawable = ViewSupport.getDrawableFilter(getContext(), R.drawable.bg_popup_fixed, new PorterDuffColorFilter(Theme.headerFloatBackgroundColor(), PorterDuff.Mode.MULTIPLY));
-    }
-    ViewUtils.setBackground(this, drawable);
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
+      // Inkgram: replace the shadowed 9-patch popup background with a flat
+      // filling + black outline, better suited for e-ink. Content padding
+      // matches the bg_popup_fixed.9.png optical insets (8dp on each side).
+      final int fillingColor = forcedTheme != null ? forcedTheme.getColor(ColorId.overlayFilling) : Theme.headerFloatBackgroundColor();
+      final int outlineColor = forcedTheme != null ? forcedTheme.getColor(ColorId.text) : Theme.getColor(ColorId.text);
+      final int contentPadding = Screen.dp(PADDING);
+      GradientDrawable outlineDrawable = new GradientDrawable() {
+        @Override
+        public boolean getPadding (@androidx.annotation.NonNull Rect padding) {
+          padding.set(contentPadding, contentPadding, contentPadding, contentPadding);
+          return true;
+        }
+      };
+      outlineDrawable.setColor(fillingColor);
+      outlineDrawable.setStroke(Screen.dp(1f), outlineColor);
+      outlineDrawable.setCornerRadius(Screen.dp(8f));
+      ViewUtils.setBackground(this, outlineDrawable);
 
-    if (themeProvider != null && forcedTheme == null) {
-      themeProvider.addThemeSpecialFilterListener(drawable, ColorId.overlayFilling);
-      themeProvider.addThemeInvalidateListener(this);
+      if (themeProvider != null && forcedTheme == null) {
+        themeProvider.addThemeInvalidateListener(this);
+      }
+    } else {
+      Drawable drawable;
+      if (forcedTheme != null) {
+        drawable = ViewSupport.getDrawableFilter(getContext(), R.drawable.bg_popup_fixed, new PorterDuffColorFilter(forcedTheme.getColor(ColorId.overlayFilling), PorterDuff.Mode.MULTIPLY));
+      } else {
+        drawable = ViewSupport.getDrawableFilter(getContext(), R.drawable.bg_popup_fixed, new PorterDuffColorFilter(Theme.headerFloatBackgroundColor(), PorterDuff.Mode.MULTIPLY));
+      }
+      ViewUtils.setBackground(this, drawable);
+
+      if (themeProvider != null && forcedTheme == null) {
+        themeProvider.addThemeSpecialFilterListener(drawable, ColorId.overlayFilling);
+        themeProvider.addThemeInvalidateListener(this);
+      }
     }
 
     setOrientation(VERTICAL);

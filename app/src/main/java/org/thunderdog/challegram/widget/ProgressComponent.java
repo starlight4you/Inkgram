@@ -381,7 +381,9 @@ public class ProgressComponent implements Runnable, FactorAnimator.Target, Destr
       timerParticles.draw(c, color, strokeWidth, arcRect, 360f - sweepAngle, alpha);
     }
 
-    if (!scheduled && isActive()) {
+    // Inkgram: static spinner on e-ink — never run the perpetual redraw loop,
+    // otherwise even off-screen/clipped spinners keep the display refreshing.
+    if (!me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && !scheduled && isActive()) {
       scheduleInvalidateIfNeeded(true, true);
     }
   }

@@ -2961,6 +2961,19 @@ public class TdlibUi extends Handler {
     });
   }
 
+  // Inkgram: open web links in the internal WebView on e-ink (page-flip + volume keys)
+  // instead of Chrome Custom Tabs, which cannot be customized.
+  private boolean openLinkInternal (final TdlibDelegate context, final String url) {
+    if (me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT && context instanceof ViewController<?>) {
+      ViewController<?> c = (ViewController<?>) context;
+      @SuppressWarnings({"rawtypes", "unchecked"})
+      org.thunderdog.challegram.ui.WebkitController controller = new org.thunderdog.challegram.ui.WebkitController(c.context(), c.tdlib());
+      controller.setArguments(url);
+      return c.navigateTo(controller);
+    }
+    return Intents.openLink(url);
+  }
+
   private void openUrlImpl (final TdlibDelegate context, final String url, @Nullable UrlOpenParameters options, @Nullable RunnableBool after) {
     if (!UI.inUiThread()) {
       tdlib.ui().post(() -> openUrlImpl(context, url, options, after));
@@ -2996,7 +3009,7 @@ public class TdlibUi extends Handler {
     }
 
     if (uri == null) {
-      boolean result = Intents.openLink(url);
+      boolean result = openLinkInternal(context, url);
       if (after != null) {
         after.runWithBool(result);
       }
@@ -3043,7 +3056,7 @@ public class TdlibUi extends Handler {
     final String externalUrl = options == null || StringUtils.isEmpty(options.instantViewFallbackUrl) ? url : options.instantViewFallbackUrl;
     final Uri uriFinal = uri;
     if (instantViewMode == INSTANT_VIEW_DISABLED && embedViewMode == EMBED_VIEW_DISABLED) {
-      boolean result = Intents.openLink(url);
+      boolean result = openLinkInternal(context, url);
       if (after != null) {
         after.runWithBool(result);
       }
@@ -3132,7 +3145,7 @@ public class TdlibUi extends Handler {
           if (!externalUrl.equals(url) && !(options != null && externalUrl.equals(options.originalUrl))) {
             openUrl(context, externalUrl, new UrlOpenParameters(options).instantViewMode(INSTANT_VIEW_UNSPECIFIED), after);
           } else {
-            boolean result = Intents.openLink(externalUrl);
+            boolean result = openLinkInternal(context, externalUrl);
             if (after != null) {
               after.runWithBool(result);
             }

@@ -43,6 +43,20 @@ public class PageFlipHelper {
     return pageBy(rv, -1);
   }
 
+  /** Whole-page instant scroll for any View (e.g. WebView in the in-app browser). */
+  public static boolean pageByView (@Nullable android.view.View view, int direction) {
+    if (view == null || direction == 0) {
+      return false;
+    }
+    int viewport = view.getHeight() - view.getPaddingTop() - view.getPaddingBottom();
+    if (viewport <= 0) {
+      return false;
+    }
+    int delta = direction * Math.max(Screen.dp(MIN_PAGE_DP), viewport - Screen.dp(OVERLAP_DP));
+    view.scrollBy(0, delta);
+    return true;
+  }
+
   /**
    * Finds the first page-flip capable RecyclerView (CustomRecyclerView or MessagesRecyclerView)
    * visible on screen within the given view hierarchy.

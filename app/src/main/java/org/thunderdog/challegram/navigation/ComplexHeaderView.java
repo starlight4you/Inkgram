@@ -1297,7 +1297,8 @@ public class ComplexHeaderView extends BaseView implements RtlCheckListener, Sti
 
   @Override
   public boolean canLoop () {
-    return true;
+    // Inkgram: no typing-dots animation loop on e-ink (keeps the display in high-quality refresh mode)
+    return !me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT;
   }
 
   @Override

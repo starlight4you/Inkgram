@@ -3005,7 +3005,8 @@ public class MessagesManager implements Client.ResultHandler, MessagesSearchMana
   private void scrollToPositionWithOffset (final int index, final int offset, boolean smooth, boolean useRoundVideoScrollFix) {
     stopScroll();
 
-    if (smooth) {
+    // Inkgram: no smooth scrolling on e-ink; jump instantly.
+    if (smooth && !me.vkryl.android.animator.FactorAnimator.FORCE_INSTANT) {
       int scrollBy = calculateScrollBy(index, offset, useRoundVideoScrollFix);
       if (Math.abs(scrollBy) < controller.getMessagesView().getMeasuredHeight() * (useRoundVideoScrollFix ? 1.5f : 1f)) {
         controller.getMessagesView().smoothScrollBy(0, scrollBy);
