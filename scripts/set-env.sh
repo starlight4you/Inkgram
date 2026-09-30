@@ -6,7 +6,7 @@ STYLE_ERROR="$(tput bold)$(tput setaf 1)"
 STYLE_WARN="$(tput setaf 3)"
 STYLE_INFO="$(tput setaf 6)"
 
-test -f version.properties || (echo -e "${STYLE_ERROR}You must call this script from the root folder.${STYLE_END}" && exit 1)
+test -f version.properties || { echo -e "${STYLE_ERROR}You must call this script from the root folder.${STYLE_END}" >&2; exit 1; }
 
 PLATFORM="$(uname -s)"
 case "${PLATFORM}" in
@@ -15,21 +15,18 @@ case "${PLATFORM}" in
     BUILD_PLATFORM=darwin-x86_64
     CPU_COUNT=$(sysctl -n hw.logicalcpu_max)
     DEFAULT_ANDROID_SDK_ROOT=~/Library/Android/sdk
-    SED="gsed"
     ;;
   Linux*)
     PLATFORM=linux
     BUILD_PLATFORM=linux-x86_64
     CPU_COUNT=$(lscpu -p | grep -Evc '^#')
     DEFAULT_ANDROID_SDK_ROOT=~/Android/Sdk
-    SED="sed"
     ;;
   MINGW*|MSYS*)
     PLATFORM=windows
     BUILD_PLATFORM=windows-x86_64
     CPU_COUNT=$(nproc --all)
     DEFAULT_ANDROID_SDK_ROOT=~/AppData/Local/Android/Sdk
-    SED="sed"
     WIN_PATCH_REQUIRED=true
     ;;
   *)
@@ -90,8 +87,6 @@ export STYLE_END
 export STYLE_ERROR
 export STYLE_WARN
 export STYLE_INFO
-
-export SED
 
 THIRDPARTY_LIBRARIES="$(pwd)/app/jni/third_party"
 export THIRDPARTY_LIBRARIES

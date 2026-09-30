@@ -3874,4 +3874,17 @@ public abstract class BaseActivity extends FragmentActivity implements View.OnTo
       KonfettiBuilder.buildKonfettiParty(pivotX, pivotY)
     );
   }
+
+  private boolean activityReady;
+
+  public void markActivityReady () {
+    if (!activityReady) {
+      activityReady = true;
+      try {
+        reportFullyDrawn();
+      } catch (Throwable t) {
+        Log.i("Unable to call reportFullyDrawn()", t);
+      }
+    }
+  }
 }

@@ -14,7 +14,6 @@
  */
 package org.thunderdog.challegram.mediaview;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -52,7 +51,7 @@ import android.widget.Toast;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media3.common.MediaLibraryInfo;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.PlaybackException;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -6935,13 +6934,19 @@ public class MediaViewController extends ViewController<MediaViewController.Args
   private TooltipOverlayView.TooltipInfo brushToneHint;
 
   private void hidePaintEditor () {
-    paintView.setEditorVisible(false);
-    if (paintingItem.setPaintState(paintingItem.getPaintState(), false)) {
-      mediaView.getBaseReceiver().invalidate();
+    if (paintView != null) {
+      paintView.setEditorVisible(false);
     }
-    paintView.pause();
-    paintView.setScaleX(1f);
-    paintView.setScaleY(1f);
+    if (paintingItem != null && paintingItem.setPaintState(paintingItem.getPaintState(), false)) {
+      if (mediaView != null) {
+        mediaView.getBaseReceiver().invalidate();
+      }
+    }
+    if (paintView != null) {
+      paintView.pause();
+      paintView.setScaleX(1f);
+      paintView.setScaleY(1f);
+    }
     showDefaultBrushHint();
   }
 
@@ -8898,7 +8903,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
           private final int[] size = new int[2];
 
           @Override
-          @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+          @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
           public void getOutline (View view, android.graphics.Outline outline) {
             if (getPipSize(size)) {
               // size[0] /= view.getScaleX();
@@ -9076,7 +9081,7 @@ public class MediaViewController extends ViewController<MediaViewController.Args
 
     /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       editWrap.setOutlineProvider(new android.view.ViewOutlineProvider() {
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public void getOutline (View view, android.graphics.Outline outline) {
           int centerX = view.getMeasuredWidth() / 2;

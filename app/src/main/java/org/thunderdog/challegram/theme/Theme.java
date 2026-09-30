@@ -14,7 +14,6 @@
  */
 package org.thunderdog.challegram.theme;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Paint;
@@ -34,6 +33,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import org.thunderdog.challegram.FillingDrawable;
 import org.thunderdog.challegram.R;
@@ -61,6 +61,7 @@ public class Theme {
   public static final int EXPORT_FLAG_INCLUDE_DEFAULT_VALUES = 1;
   public static final int EXPORT_FLAG_JAVA = 1 << 1;
 
+  @SuppressWarnings("DiscouragedApi")
   public static int getIdResourceIdentifier (@NonNull String key) {
     try {
       Context context = UI.getAppContext();
@@ -560,7 +561,7 @@ public class Theme {
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable fillingRippleSelector (@ColorId int backgroundColorId, float radius) {
     return new android.graphics.drawable.RippleDrawable(
       new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {RIPPLE_COLOR}),
@@ -568,7 +569,7 @@ public class Theme {
     );
   }
 
-  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable fillingRippleSelector (@ColorId int backgroundColorId) {
     return new android.graphics.drawable.RippleDrawable(
       new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {RIPPLE_COLOR}),
@@ -776,7 +777,7 @@ public class Theme {
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable transparentRippleSelector (final int color) {
     return new android.graphics.drawable.RippleDrawable(
       new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {color}),
@@ -785,7 +786,7 @@ public class Theme {
     );
   }
 
-  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable transparentRippleSelector (final int color, final float radius) {
     return new android.graphics.drawable.RippleDrawable(
       new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {color}),
@@ -812,7 +813,7 @@ public class Theme {
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable customRippleSelector (Drawable drawable) {
     return new android.graphics.drawable.RippleDrawable(
       new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x00000000}), // Inkgram: no click effect (e-ink)
@@ -835,7 +836,7 @@ public class Theme {
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable circleRippleSelector (final float size, final @ColorId int colorId) {
     return new android.graphics.drawable.RippleDrawable(
       new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x00000000}), // Inkgram: no click effect (e-ink)
@@ -858,7 +859,7 @@ public class Theme {
     }
   }
 
-  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   private static Drawable rectRippleSelector (final float size, final float padding, final @ColorId int colorId) {
     return new android.graphics.drawable.RippleDrawable(
       new ColorStateList(new int[][] {StateSet.WILD_CARD}, new int[] {0x00000000}), // Inkgram: no click effect (e-ink)

@@ -487,6 +487,10 @@ public class NavigationController implements Future<View>, ThemeChangeListener, 
     if (!isAnimating && with != null) {
       NavigationStack stack = getStack();
 
+      with.postOnAnimationExecute(() ->
+        with.addOneShotFocusListener(with.context()::markActivityReady)
+      );
+
       with.getValue();
 
       stack.clear(this);
