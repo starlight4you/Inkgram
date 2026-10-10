@@ -90,8 +90,10 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0")
 endif()
 
 add_library(tdjni SHARED IMPORTED)
+# Inkgram: upstream tdlib repo ships fresh libtdjni.so under libs/<ndk>/libs/<abi>/,
+# while libs/<ndk>/<abi>/ holds a stale copy from an older TDLib build (upstream bug).
 set_target_properties(tdjni PROPERTIES IMPORTED_LOCATION
-  ${TDLIB_DIR}/src/main/libs/${ANDROID_NDK_REVISION}/${ANDROID_ABI}/libtdjni.so
+  ${TDLIB_DIR}/src/main/libs/${ANDROID_NDK_REVISION}/libs/${ANDROID_ABI}/libtdjni.so
 )
 target_link_libraries(tdjni INTERFACE crypto ssl)
 
