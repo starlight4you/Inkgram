@@ -106,8 +106,16 @@ public class BufferingProgressBarWrap extends View implements Destroyable {
   protected void onDraw (Canvas canvas) {
     super.onDraw(canvas);
 
+    final float visibility = progressVisible.getFloatValue();
+    // Inkgram: with zero visibility the original code still issued a drawRoundRect
+    // whose fully-transparent PorterDuff color filter renders as a solid black box
+    // on some devices (observed on iReader e-ink). Skip drawing entirely instead.
+    if (visibility == 0f) {
+      return;
+    }
+
     final int color = 0x4c000000;
-    final int bgColor = ColorUtils.color((int) ((float) Color.alpha(color) * progressVisible.getFloatValue()), color);
+    final int bgColor = ColorUtils.color((int) ((float) Color.alpha(color) * visibility), color);
 
     canvas.drawRoundRect(fakeDialogFrame, Screen.dp(12f), Screen.dp(12f), Paints.getPorterDuffPaint(bgColor));
     progressComponent.draw(canvas);
