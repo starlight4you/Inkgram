@@ -35,6 +35,7 @@ import org.thunderdog.challegram.navigation.ViewController;
 import org.thunderdog.challegram.support.ViewSupport;
 import org.thunderdog.challegram.telegram.Tdlib;
 import org.thunderdog.challegram.theme.ColorId;
+import org.thunderdog.challegram.tool.Keyboard;
 import org.thunderdog.challegram.tool.Screen;
 import org.thunderdog.challegram.util.PageFlipHelper;
 
@@ -238,6 +239,19 @@ public class WebkitController<T> extends ViewController<T> {
   protected void onPageProgress (float progress) {
     if (headerCell != null) {
       headerCell.animateProgress(progress);
+    }
+  }
+
+  // Inkgram: close the soft keyboard when the in-app browser gains focus (e-ink).
+  // WebView synchronously talks to the IME service on the main thread when its
+  // render process connects; with an IME session still active on a previous screen,
+  // a vendor IME blocking on this app can deadlock into an ANR (observed with the
+  // iReader stock keyboard).
+  @Override
+  public void onFocus () {
+    super.onFocus();
+    if (webView != null) {
+      Keyboard.hide(webView);
     }
   }
 
