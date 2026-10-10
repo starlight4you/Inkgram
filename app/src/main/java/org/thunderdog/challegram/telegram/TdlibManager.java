@@ -1703,16 +1703,20 @@ public class TdlibManager implements Iterable<TdlibAccount>, UI.StateListener {
   }
 
   public synchronized void checkDeviceToken (int retryCount, @Nullable RunnableBool after) {
+    // Inkgram: on devices with flaky GMS (e.g. e-ink readers) the FCM token task
+    // may never complete at all, which would leave callers (e.g. login) waiting
+    // forever. Proceed without a token if nothing comes back in time.
+    final RunnableBool tokenCallback = after != null ? withDeviceTokenTimeout(after) : null;
     if (this.tokenState == TokenState.OK) {
-      if (after != null) {
-        after.runWithBool(true);
+      if (tokenCallback != null) {
+        tokenCallback.runWithBool(true);
       }
       return;
     }
     if (BuildConfig.EXPERIMENTAL) {
       setTokenState(TokenState.ERROR, EXPERIMENTAL_BUILD_ERROR, null);
-      if (after != null) {
-        after.runWithBool(false);
+      if (tokenCallback != null) {
+        tokenCallback.runWithBool(false);
       }
       return;
     }
@@ -1722,8 +1726,8 @@ public class TdlibManager implements Iterable<TdlibAccount>, UI.StateListener {
       @Override
       public void onTokenRetrievalSuccess (TdApi.@NotNull DeviceToken token) {
         setDeviceToken(token);
-        if (after != null) {
-          after.runWithBool(true);
+        if (tokenCallback != null) {
+          tokenCallback.runWithBool(true);
         }
       }
 
@@ -1731,11 +1735,29 @@ public class TdlibManager implements Iterable<TdlibAccount>, UI.StateListener {
       public void onTokenRetrievalError (@NotNull String errorKey, @org.jetbrains.annotations.Nullable Throwable e) {
         TDLib.Tag.notifications("Failed to retrieve push token", e);
         setTokenState(TokenState.ERROR, errorKey, e);
-        if (after != null) {
-          after.runWithBool(false);
+        if (tokenCallback != null) {
+          tokenCallback.runWithBool(false);
         }
       }
     });
+  }
+
+  private static final long DEVICE_TOKEN_CHECK_TIMEOUT_MS = 10_000;
+
+  private static RunnableBool withDeviceTokenTimeout (@NonNull RunnableBool after) {
+    final AtomicBoolean completed = new AtomicBoolean(false);
+    final RunnableBool guarded = tokenVerified -> {
+      if (completed.compareAndSet(false, true)) {
+        after.runWithBool(tokenVerified);
+      }
+    };
+    UI.post(() -> {
+      if (completed.compareAndSet(false, true)) {
+        TDLib.Tag.notifications("Inkgram: device token check timed out, proceeding without push token");
+        after.runWithBool(false);
+      }
+    }, DEVICE_TOKEN_CHECK_TIMEOUT_MS);
+    return guarded;
   }
 
   private void dispatchDeviceToken (TdApi.DeviceToken token) {
