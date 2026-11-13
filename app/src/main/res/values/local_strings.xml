@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- DO NOT SYNC WITH TRANSLATIONS PLATFORM -->
+  <string name="UseExplicitDice">Use explicit dice</string>
+  <string name="suggested_language_code" />
+  <string name="suggested_language_code_base" />
+  <string name="suggested_language_code_plural" />
+  <string name="suggested_language_rtl" />
+
+  <string name="format_timestampWithTimeZone">%1$02d.%2$02d.%3$d, %4$d:%5$02d %6$s</string>
+
+  <string name="EmulatorDetectorReport_title">False-positive emulator detection warning on %1$s \`%2$s\`</string>
+  <string name="EmulatorDetectorReport_text">Hello. I use **Telegram X** on a real device, but it says I am running on an emulator.\n\n**My real device details:**\n\nName: %1$s \`%2$s\`\nProduct: \`%3$s\`\nDevice: \`%4$s\`\nHardware: \`%5$s\`\n\n**The app version I am using:**\n\n%6$s\n\n**Emulator detection result:** `%7$s`\n\nPlease take a look if this warning can be resolved for my device.\nThank you!</string>
+
+  <!-- Inkgram: "Invite Friends" message -->
+  <string name="InkgramInviteText">Try the best Telegram client in the universe for e-ink screens!\n%1$s</string>
+
+  <!-- Inkgram: e-ink water-ripple page refresh settings -->
+  <string name="InkgramEink">墨水屏</string>
+  <string name="EinkPageRipple">翻页水波纹刷新</string>
+  <string name="EinkPageRippleDirection">水波纹方向</string>
+  <string name="EinkPageRippleDirectionFollow">跟随翻页方向</string>
+  <string name="EinkPageRippleDirectionForward">始终正向</string>
+  <string name="EinkPageRippleDirectionBackward">始终反向</string>
+  <string name="EinkPageRippleSpeed">水波纹速度</string>
+  <string name="EinkPageRippleSpeedSlow">慢</string>
+  <string name="EinkPageRippleSpeedStandard">标准</string>
+  <string name="EinkPageRippleSpeedFast">快</string>
+</resources>

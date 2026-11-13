@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+  <!-- Inkgram: "Invite Friends" message -->
+  <string name="InkgramInviteText">Cuba klien Telegram terbaik di seluruh alam semesta untuk skrin dakwat elektronik!\n%1$s</string>
+</resources>

@@ -1,0 +1,10 @@
+# opusfile
+
+set(OPUSFILE_DIR "${THIRDPARTY_DIR}/opusfile")
+set(OP_DISABLE_HTTP ON)
+set(OP_DISABLE_DOCS ON)
+set(OP_DISABLE_EXAMPLES ON)
+
+add_subdirectory("${OPUSFILE_DIR}"
+  EXCLUDE_FROM_ALL
+)

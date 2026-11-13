@@ -1,0 +1,25 @@
+.DS_Store
+
+.gradle
+.kotlin
+.idea
+
+build
+.cxx
+.externalNativeBuild
+obj
+
+*.apk
+*.iml
+
+/builds
+
+/captures
+/local.properties
+
+/tests/*/checks
+
+libc++_shared.so
+# Local signing material
+/keystore/keystore.properties
+/keystore/*.keystore

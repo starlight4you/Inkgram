@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+  <!-- Inkgram: "Invite Friends" message -->
+  <string name="InkgramInviteText">Experimente o melhor cliente do Telegram do universo para telas de tinta eletrônica!\n%1$s</string>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+  <!-- Inkgram: "Invite Friends" message -->
+  <string name="InkgramInviteText">来试试全宇宙最适合墨水屏的Telegram客户端！\n%1$s</string>
+</resources>
