@@ -30,3 +30,9 @@ Inkgram 适合使用墨水屏手机、阅读器或平板，并希望在 Telegram
 Inkgram 是基于 Telegram X 的非官方定制项目，与 Telegram 官方没有隶属关系，也不代表 Telegram 官方立场。
 
 Telegram 是 Telegram FZ-LLC 的商标。本项目遵循 [GNU General Public License v3.0](LICENSE) 发布；相关授权说明请见 [LICENSE](LICENSE)。
+
+## 版本管理与构建
+
+Inkgram 使用独立的语义版本和递增构建号，配置统一维护在 `version.properties`。
+开发版本以该文件为准；已发布版本见 [Releases](https://github.com/starlight4you/Inkgram/releases)。
+更新内容见 [CHANGELOG.md](CHANGELOG.md)，升版、签名与发布步骤见 [版本管理说明](docs/VERSIONING.md)。

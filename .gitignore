@@ -23,3 +23,7 @@ libc++_shared.so
 # Local signing material
 /keystore/keystore.properties
 /keystore/*.keystore
+
+# Python release tools
+__pycache__/
+*.pyc

@@ -566,18 +566,10 @@ android {
 
     // Set application version
 
-    val timeZone = TimeZone.getTimeZone("UTC")
-    val then = Calendar.getInstance(timeZone)
-    then.timeInMillis = config.creationDateMillis
-    val now = Calendar.getInstance(timeZone)
-    now.timeInMillis = tgxGit.commitDate * 1000L
-    if (now.timeInMillis < then.timeInMillis)
-      fatal("Invalid commit time!")
-    val minorVersion = monthYears(now, then)
-
+    // Inkgram owns its public version; upstream dates and environment variables
+    // must not silently change the version of a release build.
     versionCode = config.applicationVersion
-    // Inkgram: allow overriding the version name for store-style releases (e.g. INKGRAM_VERSION_NAME=1.0)
-    versionName = System.getenv("INKGRAM_VERSION_NAME") ?: "${config.majorVersion}.${minorVersion}"
+    versionName = config.applicationVersionName
   }
 
   sourceSets.getByName("main") {
@@ -899,7 +891,7 @@ android {
         output.versionCode.set(modifiedVersionCode)
 
         baseVersionName = output.versionName.get()
-        val modifiedVersionName = "$baseVersionName.$baseVersionCode$flavorVersionNameSuffix$abiSuffix$buildTypeSuffix"
+        val modifiedVersionName = "$baseVersionName$flavorVersionNameSuffix$abiSuffix$buildTypeSuffix"
         output.versionName.set(modifiedVersionName)
 
         val cleanVersionName = modifiedVersionName.replace(Regex("-arm(?=-|$)"), "")
@@ -934,7 +926,7 @@ android {
           "int", baseVersionCode, null
         ))
         put("ORIGINAL_VERSION_NAME", BuildConfigField(
-          "String", "\"$baseVersionName.$baseVersionCode\"", null
+          "String", "\"$baseVersionName\"", null
         ))
 
         var openSslVersionFull = ""

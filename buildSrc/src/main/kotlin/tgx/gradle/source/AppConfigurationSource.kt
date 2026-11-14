@@ -149,21 +149,22 @@ abstract class AppConfigurationSource : ValueSource<ApplicationConfig, AppConfig
 
       // version.properties
       applicationVersion =
-        properties.getProperty("app.version", "0").toInt().takeIf { versionOverride ->
-          versionOverride > 0
-        } ?:
-        version.getOrThrow("version.app").toInt(),
+        version.getIntOrThrow("version.app").also {
+          require(it in 1824..2_099_999) { "version.app must be 1824..2099999" }
+        },
+      applicationVersionName =
+        version.getOrThrow("version.name").also {
+          require(it.matches(Regex("(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)"))) {
+            "version.name must be an Inkgram MAJOR.MINOR.PATCH version"
+          }
+        },
       build = BuildVersions(version),
-      majorVersion =
-        version.getOrThrow("version.major").toInt(),
       nativeLibraryVersion =
         version.getProperty("version.jni"),
       leveldbVersion =
         version.getProperty("version.leveldb"),
       emojiVersion =
         version.getIntOrThrow("version.emoji"),
-      creationDateMillis =
-        version.getOrThrow("version.creation").toLong(),
     )
   }
 }
