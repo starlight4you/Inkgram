@@ -34,9 +34,9 @@ jobs:
           git submodule foreach --recursive 'git lfs install --local || true'
           git submodule foreach --recursive 'git lfs fetch --all || true'
           git submodule foreach --recursive 'git lfs checkout || true'
-          curl -fsSL https://raw.githubusercontent.com/cisco/libsrtp/052aa2965e2c26f737087492d37a31c3ee09ddba/crypto/math/stat.c \
+          curl -fsSL https://raw.githubusercontent.com/cisco/libsrtp/860492290f7d1f25e2bd45da6471bfd4cd4d7add/crypto/math/stat.c \
             -o app/jni/tgvoip/third_party/libsrtp/crypto/math/stat.c
-          curl -fsSL https://raw.githubusercontent.com/xiph/rnnoise/70f1d256acd4b34a572f999a05c87bf00b67730d/src/rnn_data.c \
+          curl -fsSL https://raw.githubusercontent.com/xiph/rnnoise/master/src/rnn_data.c \
             -o app/jni/tgvoip/third_party/rnnoise/src/rnn_data.c
           git -C tdlib lfs fetch --all
           git -C tdlib lfs checkout
