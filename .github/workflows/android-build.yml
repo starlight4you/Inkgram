@@ -135,6 +135,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
+      - name: Checkout version metadata
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Download debug APK
         uses: actions/download-artifact@v4
         with:
