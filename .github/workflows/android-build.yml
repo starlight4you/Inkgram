@@ -26,6 +26,12 @@ jobs:
           distribution: temurin
           java-version: '25'
 
+      - name: Fetch Git LFS objects
+        run: |
+          git lfs install --local
+          git -C tdlib lfs fetch --all
+          git -C tdlib lfs checkout
+
       - name: Install Android SDK and NDK
         run: |
           SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
