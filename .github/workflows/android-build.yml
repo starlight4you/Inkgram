@@ -29,6 +29,11 @@ jobs:
       - name: Fetch Git LFS objects
         run: |
           git lfs install --local
+          git submodule sync --recursive
+          git submodule update --init --recursive --jobs 4
+          git submodule foreach --recursive 'git lfs install --local || true'
+          git submodule foreach --recursive 'git lfs fetch --all || true'
+          git submodule foreach --recursive 'git lfs checkout || true'
           git -C tdlib lfs fetch --all
           git -C tdlib lfs checkout
 
