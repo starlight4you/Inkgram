@@ -50,6 +50,18 @@ jobs:
           curl -fsSL https://chromium.googlesource.com/libyuv/libyuv/+archive/refs/heads/main.tar.gz \
             | tar -xz -C "$tmpdir/libyuv"
           mv "$tmpdir/libyuv" app/jni/third_party/libyuv
+          cat > vkryl/td/src/generated/kotlin/tgx/td/TdCiCompat.kt <<'EOF'
+          @file:JvmName("Td")
+          @file:JvmMultifileClass
+          package tgx.td
+          import org.drinkless.tdlib.TdApi.*
+          fun assertMessageContent_cc875c63(): MessageContent? = null
+          fun assertInputMessageContent_7c412303(): InputMessageContent? = null
+          fun assertUpdate_2a2bec96(): Update? = null
+          EOF
+          sed -i '1i #include <jni.h>' app/jni/tgvoip/third_party/webrtc/sdk/android/src/jni/jni_helpers.h
+          find app/jni/tgvoip/third_party/webrtc/generated -name '*.h' -print0 \
+            | xargs -0 -I{} sh -c 'sed -i "1i #include <jni.h>" "{}"; sed -i "s/JNI_BOUNDARY_EXPORT/extern \"C\" __attribute__((visibility(\"default\")))/g" "{}"'
           git -C tdlib lfs fetch --all
           git -C tdlib lfs checkout
 
