@@ -64,7 +64,6 @@ jobs:
             'platforms;android-37.2' \
             'build-tools;37.0.0' \
             'ndk;30.0.16248370' \
-            'ndk;23.2.8568313' \
             'cmake;3.22.1'
 
       - name: Set up Rust
