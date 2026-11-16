@@ -33,7 +33,7 @@ def read_version(root):
 
 def validate(root, tag=None):
     name, build = read_version(root)
-    if tag is not None and tag != f'v{name}':
+    if tag is not None and '-nightly.' not in tag and tag != f'v{name}':
         raise ValueError(f'Tag {tag} does not match v{name}')
     changelog = (root / 'CHANGELOG.md').read_text()
     if not re.search(rf'^## \[{re.escape(name)}\] - \d{{4}}-\d{{2}}-\d{{2}}$', changelog, re.M):

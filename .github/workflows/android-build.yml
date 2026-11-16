@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
 
+env:
+  TZ: UTC
+
 permissions:
   contents: write
 
@@ -148,14 +151,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          short_sha="${GITHUB_SHA:0:7}"
+          nightly_date="$(date -u +%Y%m%d)"
+          version_name="$(sed -n 's/^version.name=//p' version.properties)"
+          nightly_tag="v${version_name}-nightly.${nightly_date}.${short_sha}"
+          nightly_title="v${version_name} Nightly ${nightly_date} (${short_sha})"
           notes="Automated Inkgram nightly build from commit ${GITHUB_SHA}.\n\nThis is a separate prerelease channel and is not part of the formal version releases."
-          if gh release view nightly --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload nightly nightly/Inkgram-nightly-arm64-v8a.apk \
-              --repo "$GITHUB_REPOSITORY" --clobber
-            gh release edit nightly --repo "$GITHUB_REPOSITORY" \
-              --title "Inkgram Nightly" --notes "$notes" --prerelease --target "$GITHUB_SHA"
-          else
-            gh release create nightly nightly/Inkgram-nightly-arm64-v8a.apk \
-              --repo "$GITHUB_REPOSITORY" --title "Inkgram Nightly" \
-              --notes "$notes" --prerelease --target "$GITHUB_SHA"
-          fi
+          git tag "$nightly_tag" "$GITHUB_SHA"
+          git push origin "$nightly_tag"
+          gh release create "$nightly_tag" nightly/Inkgram-nightly-arm64-v8a.apk \
+            --repo "$GITHUB_REPOSITORY" --title "$nightly_title" \
+            --notes "$notes" --prerelease --latest=false --target "$GITHUB_SHA"
