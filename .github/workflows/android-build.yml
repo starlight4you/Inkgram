@@ -45,6 +45,11 @@ jobs:
           tar -xzf "$tmpdir/rnnoise.tar.gz" -C "$tmpdir"
           mv "$tmpdir/libsrtp-860492290f7d1f25e2bd45da6471bfd4cd4d7add" app/jni/tgvoip/third_party/libsrtp
           mv "$tmpdir/rnnoise-master" app/jni/tgvoip/third_party/rnnoise
+          rm -rf app/jni/third_party/libyuv
+          mkdir -p "$tmpdir/libyuv"
+          curl -fsSL https://chromium.googlesource.com/libyuv/libyuv/+archive/refs/heads/main.tar.gz \
+            | tar -xz -C "$tmpdir/libyuv"
+          mv "$tmpdir/libyuv" app/jni/third_party/libyuv
           git -C tdlib lfs fetch --all
           git -C tdlib lfs checkout
 
@@ -85,7 +90,8 @@ jobs:
           EOF
 
       - name: Build arm64 debug APK
-        run: ./gradlew :app:assembleLatestDebug -Pabi=arm64 --no-daemon --stacktrace -x validateGitSetup
+        run: ./gradlew :app:assembleLatestDebug -Pabi=arm64 --no-daemon --stacktrace \
+          -x validateGitSetup -x :vkryl:td:generateTdlibFunctions
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
