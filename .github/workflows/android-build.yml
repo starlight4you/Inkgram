@@ -34,10 +34,17 @@ jobs:
           git submodule foreach --recursive 'git lfs install --local || true'
           git submodule foreach --recursive 'git lfs fetch --all || true'
           git submodule foreach --recursive 'git lfs checkout || true'
-          curl -fsSL https://raw.githubusercontent.com/cisco/libsrtp/860492290f7d1f25e2bd45da6471bfd4cd4d7add/crypto/math/stat.c \
-            -o app/jni/tgvoip/third_party/libsrtp/crypto/math/stat.c
-          curl -fsSL https://raw.githubusercontent.com/xiph/rnnoise/master/src/rnn_data.c \
-            -o app/jni/tgvoip/third_party/rnnoise/src/rnn_data.c
+          tmpdir="${RUNNER_TEMP}/native-deps"
+          rm -rf "$tmpdir" app/jni/tgvoip/third_party/libsrtp app/jni/tgvoip/third_party/rnnoise
+          mkdir -p "$tmpdir"
+          curl -fsSL https://github.com/cisco/libsrtp/archive/860492290f7d1f25e2bd45da6471bfd4cd4d7add.tar.gz \
+            -o "$tmpdir/libsrtp.tar.gz"
+          curl -fsSL https://github.com/xiph/rnnoise/archive/refs/heads/master.tar.gz \
+            -o "$tmpdir/rnnoise.tar.gz"
+          tar -xzf "$tmpdir/libsrtp.tar.gz" -C "$tmpdir"
+          tar -xzf "$tmpdir/rnnoise.tar.gz" -C "$tmpdir"
+          mv "$tmpdir/libsrtp-860492290f7d1f25e2bd45da6471bfd4cd4d7add" app/jni/tgvoip/third_party/libsrtp
+          mv "$tmpdir/rnnoise-master" app/jni/tgvoip/third_party/rnnoise
           git -C tdlib lfs fetch --all
           git -C tdlib lfs checkout
 
