@@ -6,7 +6,11 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: inkgram-nightly-release
+  cancel-in-progress: false
 
 jobs:
   latest-debug:
@@ -121,3 +125,37 @@ jobs:
           name: inkgram-latest-debug-arm64
           path: app/build/outputs/apk/**/*.apk
           if-no-files-found: error
+
+  publish-nightly:
+    name: Publish nightly release
+    needs: latest-debug
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Download debug APK
+        uses: actions/download-artifact@v4
+        with:
+          name: inkgram-latest-debug-arm64
+          path: nightly
+
+      - name: Prepare stable nightly filename
+        run: |
+          apk="$(find nightly -type f -name '*.apk' -print -quit)"
+          test -n "$apk"
+          cp "$apk" nightly/Inkgram-nightly-arm64-v8a.apk
+
+      - name: Create or update nightly release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="Automated Inkgram nightly build from commit ${GITHUB_SHA}.\n\nThis is a separate prerelease channel and is not part of the formal version releases."
+          if gh release view nightly --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload nightly nightly/Inkgram-nightly-arm64-v8a.apk \
+              --repo "$GITHUB_REPOSITORY" --clobber
+            gh release edit nightly --repo "$GITHUB_REPOSITORY" \
+              --title "Inkgram Nightly" --notes "$notes" --prerelease --target "$GITHUB_SHA"
+          else
+            gh release create nightly nightly/Inkgram-nightly-arm64-v8a.apk \
+              --repo "$GITHUB_REPOSITORY" --title "Inkgram Nightly" \
+              --notes "$notes" --prerelease --target "$GITHUB_SHA"
+          fi
