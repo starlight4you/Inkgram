@@ -85,7 +85,7 @@ jobs:
           EOF
 
       - name: Build arm64 debug APK
-        run: ./gradlew :app:assembleLatestDebug -Pabi=arm64 --no-daemon --stacktrace
+        run: ./gradlew :app:assembleLatestDebug -Pabi=arm64 --no-daemon --stacktrace -x validateGitSetup
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
