@@ -2,4 +2,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <!-- Inkgram: "Invite Friends" message -->
   <string name="InkgramInviteText">Hãy dùng thử ứng dụng Telegram tốt nhất vũ trụ dành cho màn hình mực điện tử!\n%1$s</string>
+
+  <!-- Inkgram: e-ink water-ripple page refresh settings -->
+  <string name="InkgramEink">Tính năng đặc biệt Inkgram</string>
+  <string name="EinkPageRipple">Làm mới gợn sóng khi lật trang</string>
+  <string name="EinkPageRippleDirection">Hướng gợn sóng</string>
+  <string name="EinkPageRippleDirectionUp">Lên</string>
+  <string name="EinkPageRippleDirectionDown">Xuống</string>
+  <string name="EinkPageRippleDirectionLeft">Sang trái</string>
+  <string name="EinkPageRippleDirectionRight">Sang phải</string>
 </resources>

@@ -2,4 +2,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <!-- Inkgram: "Invite Friends" message -->
   <string name="InkgramInviteText">전자 잉크 화면에 가장 잘 어울리는, 우주 최고의 Telegram 클라이언트를 사용해 보세요!\n%1$s</string>
+
+  <!-- Inkgram: e-ink water-ripple page refresh settings -->
+  <string name="InkgramEink">Inkgram 특별 기능</string>
+  <string name="EinkPageRipple">페이지 넘김 물결 새로고침</string>
+  <string name="EinkPageRippleDirection">물결 방향</string>
+  <string name="EinkPageRippleDirectionUp">위</string>
+  <string name="EinkPageRippleDirectionDown">아래</string>
+  <string name="EinkPageRippleDirectionLeft">왼쪽</string>
+  <string name="EinkPageRippleDirectionRight">오른쪽</string>
 </resources>

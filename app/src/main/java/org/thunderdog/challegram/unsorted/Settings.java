@@ -2807,9 +2807,9 @@ public class Settings {
     putInt(KEY_EINK_PAGE_RIPPLE_SPEED, speedFlag);
   }
 
-  // One of EinkPageEffect.DIRECTION_FOLLOW / DIRECTION_FORWARD / DIRECTION_BACKWARD.
+  // One of EinkPageEffect.DIRECTION_UP / DIRECTION_DOWN / DIRECTION_LEFT / DIRECTION_RIGHT.
   public int getPageFlipRippleDirection () {
-    return getInt(KEY_EINK_PAGE_RIPPLE_DIRECTION, org.thunderdog.challegram.util.EinkPageEffect.DIRECTION_FOLLOW);
+    return getInt(KEY_EINK_PAGE_RIPPLE_DIRECTION, org.thunderdog.challegram.util.EinkPageEffect.DIRECTION_UP);
   }
 
   public void setPageFlipRippleDirection (int direction) {

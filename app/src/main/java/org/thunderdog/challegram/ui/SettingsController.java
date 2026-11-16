@@ -77,6 +77,7 @@ import org.thunderdog.challegram.unsorted.Settings;
 import org.thunderdog.challegram.unsorted.Size;
 import org.thunderdog.challegram.util.AppBuildInfo;
 import org.thunderdog.challegram.util.AppUpdater;
+import org.thunderdog.challegram.util.EinkPageEffect;
 import org.thunderdog.challegram.util.OptionDelegate;
 import org.thunderdog.challegram.util.PullRequest;
 import org.thunderdog.challegram.util.StringList;
@@ -528,6 +529,16 @@ public class SettingsController extends ViewController<Void> implements
           } else {
             view.setData(Lang.getCharSequence(R.string.format_signedInAppsOnDevices, Lang.pluralBold(R.string.part_SignedInXOtherApps, sessions.otherActiveSessions.length), Lang.pluralBold(R.string.part_SignedInXDevices, sessions.otherDevicesCount + 1)));
           }
+        } else if (itemId == R.id.btn_einkPageRipple) {
+          view.getToggler().setRadioEnabled(Settings.instance().needPageFlipRipple(), isUpdate);
+        } else if (itemId == R.id.btn_einkPageRippleDirection) {
+          switch (Settings.instance().getPageFlipRippleDirection()) {
+            case EinkPageEffect.DIRECTION_DOWN: view.setData(R.string.EinkPageRippleDirectionDown); break;
+            case EinkPageEffect.DIRECTION_LEFT: view.setData(R.string.EinkPageRippleDirectionLeft); break;
+            case EinkPageEffect.DIRECTION_RIGHT: view.setData(R.string.EinkPageRippleDirectionRight); break;
+            case EinkPageEffect.DIRECTION_UP:
+            default: view.setData(R.string.EinkPageRippleDirectionUp); break;
+          }
         } else if (itemId == R.id.btn_notificationSettings) {
           if (notificationErrorDescriptionRes != 0) {
             if (notificationErrorDescriptionRes == R.string.NotificationsErrorErrorChat) {
@@ -626,6 +637,13 @@ public class SettingsController extends ViewController<Void> implements
     if (addedActionItems > 0) {
       items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
     }
+
+    items.add(new ListItem(ListItem.TYPE_HEADER, 0, 0, R.string.InkgramEink));
+    items.add(new ListItem(ListItem.TYPE_SHADOW_TOP));
+    items.add(new ListItem(ListItem.TYPE_RADIO_SETTING, R.id.btn_einkPageRipple, 0, R.string.EinkPageRipple));
+    items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
+    items.add(new ListItem(ListItem.TYPE_VALUED_SETTING_COMPACT, R.id.btn_einkPageRippleDirection, 0, R.string.EinkPageRippleDirection));
+    items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
 
     items.add(new ListItem(ListItem.TYPE_SHADOW_TOP));
     items.add(new ListItem(ListItem.TYPE_VALUED_SETTING_COMPACT, R.id.btn_devices, R.drawable.baseline_devices_other_24, R.string.Devices));
@@ -1160,6 +1178,23 @@ public class SettingsController extends ViewController<Void> implements
       navigateTo(new SettingsNotificationController(context, tdlib));
     } else if (viewId == R.id.btn_devices) {
       navigateTo(new SettingsSessionsController(context, tdlib));
+    } else if (viewId == R.id.btn_einkPageRipple) {
+      Settings.instance().setPageFlipRipple(adapter.toggleView(v));
+    } else if (viewId == R.id.btn_einkPageRippleDirection) {
+      showOptions(Lang.boldify(Lang.getString(R.string.EinkPageRippleDirection)), new int[] {
+        R.id.btn_einkPageRippleDirectionUp, R.id.btn_einkPageRippleDirectionDown,
+        R.id.btn_einkPageRippleDirectionLeft, R.id.btn_einkPageRippleDirectionRight
+      }, new String[] {
+        Lang.getString(R.string.EinkPageRippleDirectionUp), Lang.getString(R.string.EinkPageRippleDirectionDown),
+        Lang.getString(R.string.EinkPageRippleDirectionLeft), Lang.getString(R.string.EinkPageRippleDirectionRight)
+      }, (optionView, optionId) -> {
+        int direction = optionId == R.id.btn_einkPageRippleDirectionDown ? EinkPageEffect.DIRECTION_DOWN
+          : optionId == R.id.btn_einkPageRippleDirectionLeft ? EinkPageEffect.DIRECTION_LEFT
+          : optionId == R.id.btn_einkPageRippleDirectionRight ? EinkPageEffect.DIRECTION_RIGHT : EinkPageEffect.DIRECTION_UP;
+        Settings.instance().setPageFlipRippleDirection(direction);
+        adapter.updateValuedSettingById(R.id.btn_einkPageRippleDirection);
+        return true;
+      });
     } else if (viewId == R.id.btn_checkUpdates) {
       openInstallerPage(((AppInstallationUtil.DownloadUrl) ((ListItem) v.getTag()).getData()));
     } else if (viewId == R.id.btn_subscribeToBeta) {

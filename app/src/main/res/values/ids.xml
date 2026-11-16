@@ -716,9 +716,10 @@
   <!-- Inkgram: e-ink water-ripple page refresh -->
   <item type="id" name="btn_einkPageRipple" />
   <item type="id" name="btn_einkPageRippleDirection" />
-  <item type="id" name="btn_einkPageRippleDirectionFollow" />
-  <item type="id" name="btn_einkPageRippleDirectionForward" />
-  <item type="id" name="btn_einkPageRippleDirectionBackward" />
+  <item type="id" name="btn_einkPageRippleDirectionUp" />
+  <item type="id" name="btn_einkPageRippleDirectionDown" />
+  <item type="id" name="btn_einkPageRippleDirectionLeft" />
+  <item type="id" name="btn_einkPageRippleDirectionRight" />
   <item type="id" name="btn_einkPageRippleSpeed" />
   <item type="id" name="btn_einkPageRippleSpeedSlow" />
   <item type="id" name="btn_einkPageRippleSpeedStandard" />

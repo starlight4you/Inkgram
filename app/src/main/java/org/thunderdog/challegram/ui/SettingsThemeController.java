@@ -58,7 +58,6 @@ import org.thunderdog.challegram.unsorted.AppContext;
 import org.thunderdog.challegram.unsorted.Settings;
 import org.thunderdog.challegram.util.AppUpdater;
 import org.thunderdog.challegram.util.DrawableModifier;
-import org.thunderdog.challegram.util.EinkPageEffect;
 import org.thunderdog.challegram.util.Permissions;
 import org.thunderdog.challegram.util.StringList;
 import org.thunderdog.challegram.v.CustomRecyclerView;
@@ -161,34 +160,6 @@ public class SettingsThemeController extends RecyclerViewController<SettingsThem
           v.getToggler().setRadioEnabled(Settings.instance().needReduceMotion(), isUpdate);
         } else if (itemId == R.id.btn_autoplayGIFs) {
           v.getToggler().setRadioEnabled(Settings.instance().needAutoplayGIFs(), isUpdate);
-        } else if (itemId == R.id.btn_einkPageRipple) {
-          v.getToggler().setRadioEnabled(Settings.instance().needPageFlipRipple(), isUpdate);
-        } else if (itemId == R.id.btn_einkPageRippleDirection) {
-          switch (Settings.instance().getPageFlipRippleDirection()) {
-            case EinkPageEffect.DIRECTION_FORWARD:
-              v.setData(R.string.EinkPageRippleDirectionForward);
-              break;
-            case EinkPageEffect.DIRECTION_BACKWARD:
-              v.setData(R.string.EinkPageRippleDirectionBackward);
-              break;
-            case EinkPageEffect.DIRECTION_FOLLOW:
-            default:
-              v.setData(R.string.EinkPageRippleDirectionFollow);
-              break;
-          }
-        } else if (itemId == R.id.btn_einkPageRippleSpeed) {
-          switch (Settings.instance().getPageFlipRippleSpeedFlag()) {
-            case EinkPageEffect.SPEED_SLOW:
-              v.setData(R.string.EinkPageRippleSpeedSlow);
-              break;
-            case EinkPageEffect.SPEED_FAST:
-              v.setData(R.string.EinkPageRippleSpeedFast);
-              break;
-            case EinkPageEffect.SPEED_STANDARD:
-            default:
-              v.setData(R.string.EinkPageRippleSpeedStandard);
-              break;
-          }
         } else if (itemId == R.id.btn_saveToGallery) {
           v.getToggler().setRadioEnabled(Settings.instance().needSaveEditedMediaToGallery(), isUpdate);
         } else if (itemId == R.id.btn_mosaic) {
@@ -466,16 +437,6 @@ public class SettingsThemeController extends RecyclerViewController<SettingsThem
         items.add(new SettingItem(SettingItem.TYPE_SEPARATOR_FULL));
         items.add(new SettingItem(SettingItem.TYPE_RADIO_SETTING, R.id.btn_systemEmoji, 0, R.string.AndroidEmoji));
       }*/
-      items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
-
-      // Inkgram: e-ink firmware water-ripple page refresh.
-      items.add(new ListItem(ListItem.TYPE_HEADER, 0, 0, R.string.InkgramEink));
-      items.add(new ListItem(ListItem.TYPE_SHADOW_TOP));
-      items.add(new ListItem(ListItem.TYPE_RADIO_SETTING, R.id.btn_einkPageRipple, 0, R.string.EinkPageRipple));
-      items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-      items.add(new ListItem(ListItem.TYPE_VALUED_SETTING_COMPACT, R.id.btn_einkPageRippleDirection, 0, R.string.EinkPageRippleDirection));
-      items.add(new ListItem(ListItem.TYPE_SEPARATOR_FULL));
-      items.add(new ListItem(ListItem.TYPE_VALUED_SETTING_COMPACT, R.id.btn_einkPageRippleSpeed, 0, R.string.EinkPageRippleSpeed));
       items.add(new ListItem(ListItem.TYPE_SHADOW_BOTTOM));
 
       if (AppInstallationUtil.isAppSideLoaded(AppContext.get())) {
@@ -914,52 +875,6 @@ public class SettingsThemeController extends RecyclerViewController<SettingsThem
       showEarpieceOptions(true);
     } else if (viewId == R.id.btn_autoplayGIFs) {
       Settings.instance().setAutoplayGIFs(adapter.toggleView(v));
-    } else if (viewId == R.id.btn_einkPageRipple) {
-      Settings.instance().setPageFlipRipple(adapter.toggleView(v));
-    } else if (viewId == R.id.btn_einkPageRippleDirection) {
-      showOptions(Lang.boldify(Lang.getString(R.string.EinkPageRippleDirection)), new int[] {
-        R.id.btn_einkPageRippleDirectionFollow,
-        R.id.btn_einkPageRippleDirectionForward,
-        R.id.btn_einkPageRippleDirectionBackward
-      }, new String[] {
-        Lang.getString(R.string.EinkPageRippleDirectionFollow),
-        Lang.getString(R.string.EinkPageRippleDirectionForward),
-        Lang.getString(R.string.EinkPageRippleDirectionBackward)
-      }, (optionView, optionId) -> {
-        int direction;
-        if (optionId == R.id.btn_einkPageRippleDirectionForward) {
-          direction = EinkPageEffect.DIRECTION_FORWARD;
-        } else if (optionId == R.id.btn_einkPageRippleDirectionBackward) {
-          direction = EinkPageEffect.DIRECTION_BACKWARD;
-        } else {
-          direction = EinkPageEffect.DIRECTION_FOLLOW;
-        }
-        Settings.instance().setPageFlipRippleDirection(direction);
-        adapter.updateValuedSettingById(R.id.btn_einkPageRippleDirection);
-        return true;
-      });
-    } else if (viewId == R.id.btn_einkPageRippleSpeed) {
-      showOptions(Lang.boldify(Lang.getString(R.string.EinkPageRippleSpeed)), new int[] {
-        R.id.btn_einkPageRippleSpeedSlow,
-        R.id.btn_einkPageRippleSpeedStandard,
-        R.id.btn_einkPageRippleSpeedFast
-      }, new String[] {
-        Lang.getString(R.string.EinkPageRippleSpeedSlow),
-        Lang.getString(R.string.EinkPageRippleSpeedStandard),
-        Lang.getString(R.string.EinkPageRippleSpeedFast)
-      }, (optionView, optionId) -> {
-        int speedFlag;
-        if (optionId == R.id.btn_einkPageRippleSpeedSlow) {
-          speedFlag = EinkPageEffect.SPEED_SLOW;
-        } else if (optionId == R.id.btn_einkPageRippleSpeedFast) {
-          speedFlag = EinkPageEffect.SPEED_FAST;
-        } else {
-          speedFlag = EinkPageEffect.SPEED_STANDARD;
-        }
-        Settings.instance().setPageFlipRippleSpeedFlag(speedFlag);
-        adapter.updateValuedSettingById(R.id.btn_einkPageRippleSpeed);
-        return true;
-      });
     } else if (viewId == R.id.btn_cameraSetting) {
       ListItem item = ((ListItem) v.getTag());
       Settings.instance().setNewSetting(item.getLongId(), item.getBoolValue() != adapter.toggleView(v));

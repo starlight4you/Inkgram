@@ -2,4 +2,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <!-- Inkgram: "Invite Friends" message -->
   <string name="InkgramInviteText">Evrenin en iyi e-mürekkep ekranlı Telegram istemcisini deneyin!\n%1$s</string>
+
+  <!-- Inkgram: e-ink water-ripple page refresh settings -->
+  <string name="InkgramEink">Inkgram özel özellikleri</string>
+  <string name="EinkPageRipple">Sayfa çevirme dalga yenilemesi</string>
+  <string name="EinkPageRippleDirection">Dalga yönü</string>
+  <string name="EinkPageRippleDirectionUp">Yukarı</string>
+  <string name="EinkPageRippleDirectionDown">Aşağı</string>
+  <string name="EinkPageRippleDirectionLeft">Sola</string>
+  <string name="EinkPageRippleDirectionRight">Sağa</string>
 </resources>

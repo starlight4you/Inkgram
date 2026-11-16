@@ -2,4 +2,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <!-- Inkgram: "Invite Friends" message -->
   <string name="InkgramInviteText">Prova il miglior client Telegram dell\'universo per schermi e-ink!\n%1$s</string>
+
+  <!-- Inkgram: e-ink water-ripple page refresh settings -->
+  <string name="InkgramEink">Funzioni speciali Inkgram</string>
+  <string name="EinkPageRipple">Aggiornamento a onda al cambio pagina</string>
+  <string name="EinkPageRippleDirection">Direzione dell’onda</string>
+  <string name="EinkPageRippleDirectionUp">Su</string>
+  <string name="EinkPageRippleDirectionDown">Giù</string>
+  <string name="EinkPageRippleDirectionLeft">Sinistra</string>
+  <string name="EinkPageRippleDirectionRight">Destra</string>
 </resources>

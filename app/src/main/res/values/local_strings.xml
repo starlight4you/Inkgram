@@ -16,14 +16,11 @@
   <string name="InkgramInviteText">Try the best Telegram client in the universe for e-ink screens!\n%1$s</string>
 
   <!-- Inkgram: e-ink water-ripple page refresh settings -->
-  <string name="InkgramEink">墨水屏</string>
+  <string name="InkgramEink">Inkgram特色功能</string>
   <string name="EinkPageRipple">翻页水波纹刷新</string>
   <string name="EinkPageRippleDirection">水波纹方向</string>
-  <string name="EinkPageRippleDirectionFollow">跟随翻页方向</string>
-  <string name="EinkPageRippleDirectionForward">始终正向</string>
-  <string name="EinkPageRippleDirectionBackward">始终反向</string>
-  <string name="EinkPageRippleSpeed">水波纹速度</string>
-  <string name="EinkPageRippleSpeedSlow">慢</string>
-  <string name="EinkPageRippleSpeedStandard">标准</string>
-  <string name="EinkPageRippleSpeedFast">快</string>
+  <string name="EinkPageRippleDirectionUp">向上</string>
+  <string name="EinkPageRippleDirectionDown">向下</string>
+  <string name="EinkPageRippleDirectionLeft">向左</string>
+  <string name="EinkPageRippleDirectionRight">向右</string>
 </resources>

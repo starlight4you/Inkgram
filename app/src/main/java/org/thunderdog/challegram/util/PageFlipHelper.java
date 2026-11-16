@@ -65,19 +65,7 @@ public class PageFlipHelper {
    */
   private static boolean armRipple (RecyclerView rv, int direction, int delta) {
     Settings settings = Settings.instance();
-    final boolean forward;
-    switch (settings.getPageFlipRippleDirection()) {
-      case EinkPageEffect.DIRECTION_FORWARD:
-        forward = true;
-        break;
-      case EinkPageEffect.DIRECTION_BACKWARD:
-        forward = false;
-        break;
-      case EinkPageEffect.DIRECTION_FOLLOW:
-      default:
-        forward = direction > 0;
-        break;
-    }
+    final int rippleDirection = settings.getPageFlipRippleDirection();
     final int speedFlag = settings.getPageFlipRippleSpeedFlag();
     final Context context = rv.getContext();
     if (!rv.isAttachedToWindow()) {
@@ -87,7 +75,7 @@ public class PageFlipHelper {
       @Override
       public void doFrame (long frameTimeNanos) {
         rv.scrollBy(0, delta);
-        EinkPageEffect.onPageTurn(context, forward, speedFlag);
+        EinkPageEffect.onPageTurn(context, rippleDirection, speedFlag);
       }
     });
     return true;

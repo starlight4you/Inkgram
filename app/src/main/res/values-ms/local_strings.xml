@@ -2,4 +2,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <!-- Inkgram: "Invite Friends" message -->
   <string name="InkgramInviteText">Cuba klien Telegram terbaik di seluruh alam semesta untuk skrin dakwat elektronik!\n%1$s</string>
+
+  <!-- Inkgram: e-ink water-ripple page refresh settings -->
+  <string name="InkgramEink">Ciri khas Inkgram</string>
+  <string name="EinkPageRipple">Muat semula riak ketika menukar halaman</string>
+  <string name="EinkPageRippleDirection">Arah riak</string>
+  <string name="EinkPageRippleDirectionUp">Atas</string>
+  <string name="EinkPageRippleDirectionDown">Bawah</string>
+  <string name="EinkPageRippleDirectionLeft">Kiri</string>
+  <string name="EinkPageRippleDirectionRight">Kanan</string>
 </resources>

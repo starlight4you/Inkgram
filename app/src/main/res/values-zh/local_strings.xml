@@ -2,4 +2,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
   <!-- Inkgram: "Invite Friends" message -->
   <string name="InkgramInviteText">来试试全宇宙最适合墨水屏的Telegram客户端！\n%1$s</string>
+
+  <!-- Inkgram: e-ink water-ripple page refresh settings -->
+  <string name="InkgramEink">Inkgram特色功能</string>
+  <string name="EinkPageRipple">翻页水波纹刷新</string>
+  <string name="EinkPageRippleDirection">水波纹方向</string>
+  <string name="EinkPageRippleDirectionUp">向上</string>
+  <string name="EinkPageRippleDirectionDown">向下</string>
+  <string name="EinkPageRippleDirectionLeft">向左</string>
+  <string name="EinkPageRippleDirectionRight">向右</string>
 </resources>

@@ -48,10 +48,13 @@ public final class EinkPageEffect {
   public static final int SPEED_STANDARD = 64;
   public static final int SPEED_FAST = 0;
 
-  // Direction modes (stored in Settings): how the ripple direction is chosen per flip.
-  public static final int DIRECTION_FOLLOW = 0;
-  public static final int DIRECTION_FORWARD = 1;
-  public static final int DIRECTION_BACKWARD = 2;
+  // Direction modes (stored in Settings), expressed in visual screen coordinates.
+  // Values intentionally avoid the former follow/forward/backward values (0/1/2),
+  // so an existing installation falls back to the new default (up) after the UI change.
+  public static final int DIRECTION_UP = 10;
+  public static final int DIRECTION_DOWN = 11;
+  public static final int DIRECTION_LEFT = 12;
+  public static final int DIRECTION_RIGHT = 13;
 
   private static final String EPDC_CLASS_NAME = "android.eink.EPDCDevice";
   private static final int FORCE_NEXT_POST_MODE_PAGE_TURN = 0x01000063;
@@ -61,6 +64,8 @@ public final class EinkPageEffect {
   // by the ireader.koplugin project.
   private static final int[] DIRECTIONS_FORWARD = {1, 3, 2, 4};
   private static final int[] DIRECTIONS_BACKWARD = {2, 4, 1, 3};
+  private static final int[] DIRECTIONS_LEFT = {3, 2, 4, 1};
+  private static final int[] DIRECTIONS_RIGHT = {4, 1, 3, 2};
 
   private static boolean probed;
   private static boolean available;
@@ -235,6 +240,11 @@ public final class EinkPageEffect {
    * @param speedFlag SPEED_SLOW, SPEED_STANDARD or SPEED_FAST
    */
   public static void onPageTurn (Context context, boolean forward, int speedFlag) {
+    onPageTurn(context, forward ? DIRECTION_UP : DIRECTION_DOWN, speedFlag);
+  }
+
+  /** Arms the water-ripple animation using a fixed visual direction. */
+  public static void onPageTurn (Context context, int directionMode, int speedFlag) {
     if (!probe()) {
       return;
     }
@@ -249,7 +259,22 @@ public final class EinkPageEffect {
         rotation = r;
       } catch (Throwable ignored) {}
     }
-    int direction = (forward ? DIRECTIONS_FORWARD : DIRECTIONS_BACKWARD)[rotation % 4];
+    int direction;
+    switch (directionMode) {
+      case DIRECTION_DOWN:
+        direction = DIRECTIONS_BACKWARD[rotation % 4];
+        break;
+      case DIRECTION_LEFT:
+        direction = DIRECTIONS_LEFT[rotation % 4];
+        break;
+      case DIRECTION_RIGHT:
+        direction = DIRECTIONS_RIGHT[rotation % 4];
+        break;
+      case DIRECTION_UP:
+      default:
+        direction = DIRECTIONS_FORWARD[rotation % 4];
+        break;
+    }
     int effect = direction | speedFlag;
 
     try {
