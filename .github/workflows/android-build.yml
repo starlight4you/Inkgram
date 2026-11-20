@@ -110,7 +110,17 @@ jobs:
 
       - name: Build arm64 debug APK
         run: |
-          ./gradlew :vkryl:td:generateTdlibFunctions --no-daemon
+          # Included annotation build otherwise only searches the plugin portal,
+          # whose Kotlin POM can reference a BOM available on Maven Central.
+          cat > "${RUNNER_TEMP}/inkgram-repositories.gradle" <<'EOF'
+          settingsEvaluated { settings ->
+            settings.pluginManagement.repositories {
+              mavenCentral()
+              gradlePluginPortal()
+            }
+          }
+          EOF
+          ./gradlew -I "${RUNNER_TEMP}/inkgram-repositories.gradle" :vkryl:td:generateTdlibFunctions --no-daemon
           cat > vkryl/td/src/generated/kotlin/tgx/td/TdCiCompat.kt <<'EOF'
           @file:JvmName("Td")
           @file:JvmMultifileClass
@@ -120,7 +130,7 @@ jobs:
           fun assertInputMessageContent_7c412303(): InputMessageContent? = null
           fun assertUpdate_2a2bec96(): Update? = null
           EOF
-          ./gradlew :app:assembleLatestDebug -Pabi=arm64 --no-daemon --stacktrace -x validateGitSetup
+          ./gradlew -I "${RUNNER_TEMP}/inkgram-repositories.gradle" :app:assembleLatestDebug -Pabi=arm64 --no-daemon --stacktrace -x validateGitSetup
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

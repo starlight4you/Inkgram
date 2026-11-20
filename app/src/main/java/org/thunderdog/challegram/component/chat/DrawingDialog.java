@@ -13,6 +13,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.Shader;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
+import org.thunderdog.challegram.util.IReaderPen;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
@@ -103,7 +105,7 @@ public final class DrawingDialog extends Dialog {
     board.addView(drawing, new FrameLayout.LayoutParams(-1, -1));
     content.addView(board, new LinearLayout.LayoutParams(-1, 0, 1));
     handwriting = IReaderHandwriting.create(context, board, new IReaderHandwriting.Listener() {
-      @Override public void onPoint (int action, float x, float y) { drawing.hardwarePoint(action, x, y); }
+      @Override public void onPoint (int action, float x, float y, long time, float pressure) { drawing.hardwarePoint(action, x, y, time, pressure); }
       @Override public void onDraw (Canvas canvas) { drawing.render(canvas); }
       @Override public void onAvailabilityChanged (boolean active) { drawing.hardwareActive = active; }
     });
@@ -114,10 +116,10 @@ public final class DrawingDialog extends Dialog {
       private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
       @Override protected void onDraw (Canvas canvas) {
         float radius = drawing.brushSize / 2;
-        paint.setColor(drawing.brushColor);
+        paint.setColor(drawing.erasing ? Color.WHITE : drawing.brushColor);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, radius, paint);
-        if (drawing.brushColor == Color.WHITE) {
+        if (drawing.erasing || drawing.brushColor == Color.WHITE) {
           paint.setColor(Color.BLACK);
           paint.setStyle(Paint.Style.STROKE);
           paint.setStrokeWidth(Screen.dp(1));
@@ -283,10 +285,12 @@ public final class DrawingDialog extends Dialog {
 
   private void setEraser (boolean enabled) {
     erasing = enabled;
-    drawing.brushColor = enabled ? Color.WHITE : penColor;
+    drawing.erasing = enabled;
+    drawing.brushColor = penColor;
     eraserButton.setSelected(enabled);
     eraserButton.invalidate();
     brushPreview.invalidate();
+    handwriting.setErasing(enabled);
     handwriting.setPen(drawing.brushSize, drawing.brushColor);
   }
 
@@ -294,8 +298,8 @@ public final class DrawingDialog extends Dialog {
     eraserButton.setEnabled(!saving);
     boolean hasDrawing = !drawing.strokes.isEmpty();
     sendButton.setEnabled(!saving && hasDrawing);
-    undoButton.setEnabled(!saving && hasDrawing);
-    redoButton.setEnabled(!saving && !drawing.undone.isEmpty());
+    undoButton.setEnabled(!saving && !drawing.undone.isEmpty());
+    redoButton.setEnabled(!saving && !drawing.redone.isEmpty());
     clearButton.setEnabled(!saving && hasDrawing);
   }
 
@@ -385,7 +389,11 @@ public final class DrawingDialog extends Dialog {
   private static final class Stroke {
     final Path path = new Path();
     final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    final ArrayList<float[]> samples = new ArrayList<>();
+    final IReaderPen nativePen;
+    Path outline;
     Stroke (int color, float size, float x, float y) {
+      nativePen = new IReaderPen(size, color);
       paint.setColor(color);
       paint.setStrokeWidth(size);
       paint.setStyle(Paint.Style.STROKE);
@@ -394,12 +402,38 @@ public final class DrawingDialog extends Dialog {
       path.moveTo(x, y);
       path.lineTo(x + .01f, y); // A tap draws a dot too.
     }
+    void point (int action, float x, float y, long time, float pressure) {
+      path.lineTo(x, y);
+      float p = Math.max(0.05f, Math.min(1f, pressure));
+      samples.add(new float[] {x, y, p});
+      nativePen.point(action, x, y, time, pressure);
+      if (action == MotionEvent.ACTION_UP) outline = nativePen.finish();
+    }
+    void draw (Canvas canvas) {
+      if (outline != null) {
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawPath(outline, paint);
+        return;
+      }
+      paint.setStyle(Paint.Style.STROKE);
+      float base = paint.getStrokeWidth();
+      for (int i = 0; i < samples.size(); i++) {
+        float[] b = samples.get(i), a = samples.get(Math.max(0, i - 1));
+        paint.setStrokeWidth(base * (0.25f + 0.75f * (a[2] + b[2]) / 2));
+        canvas.drawLine(a[0], a[1], b[0] + .01f, b[1], paint);
+      }
+      paint.setStrokeWidth(base);
+    }
   }
 
   private static final class DrawingView extends View {
     // Retain vector strokes, rather than a bitmap per undo step.
     final ArrayList<Stroke> strokes = new ArrayList<>();
-    final ArrayList<Stroke> undone = new ArrayList<>();
+    final ArrayList<ArrayList<Stroke>> undone = new ArrayList<>();
+    final ArrayList<ArrayList<Stroke>> redone = new ArrayList<>();
+    ArrayList<Stroke> before;
+    boolean erasing;
+    float lastEraseX, lastEraseY;
     IReaderHandwriting handwriting;
     boolean hardwareActive;
     final Paint border = new Paint();
@@ -454,7 +488,7 @@ public final class DrawingDialog extends Dialog {
     }
 
     private void drawStrokes (Canvas canvas) {
-      for (Stroke stroke : strokes) canvas.drawPath(stroke.path, stroke.paint);
+      for (Stroke stroke : strokes) stroke.draw(canvas);
     }
 
     @Override
@@ -468,26 +502,15 @@ public final class DrawingDialog extends Dialog {
         if (!viewport.contains(event.getX(), event.getY())) return false;
         getParent().requestDisallowInterceptTouchEvent(true);
         pointerId = event.getPointerId(0);
-        current = new Stroke(brushColor, brushSize / scale(), x(event.getX()), y(event.getY()));
-        strokes.add(current);
-        undone.clear();
-        onChanged.run();
-      } else if (action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP) {
-        int index = event.findPointerIndex(pointerId);
-        if (current != null && index >= 0) {
-          for (int i = 0; i < event.getHistorySize(); i++) {
-            current.path.lineTo(x(event.getHistoricalX(index, i)), y(event.getHistoricalY(index, i)));
-          }
-          current.path.lineTo(x(event.getX(index)), y(event.getY(index)));
-        }
       }
-      if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP ||
-          (action == MotionEvent.ACTION_POINTER_UP && event.getPointerId(event.getActionIndex()) == pointerId)) {
-        if (action == MotionEvent.ACTION_CANCEL && current != null) {
-          strokes.remove(current);
-          onChanged.run();
+      int index = event.findPointerIndex(pointerId);
+      if (index >= 0) {
+        for (int i = 0; action == MotionEvent.ACTION_MOVE && i < event.getHistorySize(); i++) {
+          point(MotionEvent.ACTION_MOVE, event.getHistoricalX(index, i), event.getHistoricalY(index, i), event.getHistoricalEventTime(i), tool == MotionEvent.TOOL_TYPE_FINGER ? 1 : event.getHistoricalPressure(index, i));
         }
-        current = null;
+        point(action, event.getX(index), event.getY(index), event.getEventTime(), tool == MotionEvent.TOOL_TYPE_FINGER ? 1 : event.getPressure(index));
+      }
+      if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_POINTER_UP) {
         pointerId = -1;
         getParent().requestDisallowInterceptTouchEvent(false);
       }
@@ -499,22 +522,66 @@ public final class DrawingDialog extends Dialog {
     private float x (float x) { return Math.max(0, Math.min(canvasWidth, (x - viewport.left) / scale())); }
     private float y (float y) { return Math.max(0, Math.min(canvasHeight, (y - viewport.top) / scale())); }
 
-    void hardwarePoint (int action, float px, float py) {
+    void hardwarePoint (int action, float px, float py, long time, float pressure) {
+      point(action, px, py, time, pressure);
+    }
+
+    private void point (int action, float px, float py, long time, float pressure) {
       if (!isEnabled() || viewport.isEmpty()) return;
-      if (action == MotionEvent.ACTION_DOWN && !viewport.contains(px, py)) return;
+      float x = x(px), y = y(py);
       if (action == MotionEvent.ACTION_DOWN) {
-        current = new Stroke(brushColor, brushSize / scale(), x(px), y(py));
-        strokes.add(current);
-        undone.clear();
+        if (!viewport.contains(px, py)) return;
+        before = new ArrayList<>(strokes);
+        redone.clear();
+        if (!erasing) {
+          current = new Stroke(brushColor, brushSize / scale(), x, y);
+          strokes.add(current);
+        }
+        lastEraseX = x; lastEraseY = y;
+      }
+      if (before == null) return;
+      if (erasing) {
+        erase(lastEraseX, lastEraseY, x, y);
+        lastEraseX = x; lastEraseY = y;
+        changed();
       } else if (current != null) {
-        current.path.lineTo(x(px), y(py));
+        current.point(action, x, y, time, pressure);
       }
       if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-        if (action == MotionEvent.ACTION_CANCEL && current != null) strokes.remove(current);
+        if (action == MotionEvent.ACTION_CANCEL) {
+          strokes.clear(); strokes.addAll(before);
+        } else {
+          undone.add(before);
+          if (undone.size() > 100) undone.remove(0);
+        }
+        before = null;
         current = null;
-        invalidate();
-        onChanged.run();
-        if (handwriting != null) handwriting.render();
+        changed();
+      }
+    }
+
+    private void erase (float ax, float ay, float bx, float by) {
+      float radius = brushSize / (2 * scale());
+      float[] xy = new float[2];
+      for (int i = strokes.size() - 1; i >= 0; i--) {
+        Stroke stroke = strokes.get(i);
+        float tolerance = radius + stroke.paint.getStrokeWidth() / 2;
+        RectF bounds = new RectF();
+        stroke.path.computeBounds(bounds, true);
+        bounds.inset(-tolerance, -tolerance);
+        if (Math.max(ax, bx) < bounds.left || Math.min(ax, bx) > bounds.right ||
+            Math.max(ay, by) < bounds.top || Math.min(ay, by) > bounds.bottom) continue;
+        PathMeasure measure = new PathMeasure(stroke.path, false);
+        float length = measure.getLength();
+        for (float d = 0; d <= length + 1; d += Math.max(1, Math.min(4, tolerance / 2))) {
+          measure.getPosTan(Math.min(d, length), xy, null);
+          float dx = bx - ax, dy = by - ay;
+          float t = dx * dx + dy * dy == 0 ? 0 : Math.max(0, Math.min(1, ((xy[0] - ax) * dx + (xy[1] - ay) * dy) / (dx * dx + dy * dy)));
+          if (Math.hypot(xy[0] - ax - t * dx, xy[1] - ay - t * dy) <= tolerance) {
+            strokes.remove(i);
+            break;
+          }
+        }
       }
     }
 
@@ -525,18 +592,24 @@ public final class DrawingDialog extends Dialog {
     }
 
     void undo () {
-      if (!strokes.isEmpty()) undone.add(strokes.remove(strokes.size() - 1));
+      if (undone.isEmpty()) return;
+      redone.add(new ArrayList<>(strokes));
+      strokes.clear(); strokes.addAll(undone.remove(undone.size() - 1));
       changed();
     }
 
     void redo () {
-      if (!undone.isEmpty()) strokes.add(undone.remove(undone.size() - 1));
+      if (redone.isEmpty()) return;
+      undone.add(new ArrayList<>(strokes));
+      strokes.clear(); strokes.addAll(redone.remove(redone.size() - 1));
       changed();
     }
 
     void clear () {
+      if (strokes.isEmpty()) return;
+      undone.add(new ArrayList<>(strokes));
+      redone.clear();
       strokes.clear();
-      undone.clear();
       changed();
     }
 

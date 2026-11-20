@@ -19,7 +19,7 @@ import java.lang.reflect.Proxy;
  * No vendor classes are linked on devices that do not provide the API. */
 public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoCloseable {
   public interface Listener {
-    void onPoint (int action, float x, float y);
+    void onPoint (int action, float x, float y, long time, float pressure);
     void onDraw (Canvas canvas);
     void onAvailabilityChanged (boolean active);
   }
@@ -33,6 +33,8 @@ public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoClo
   private boolean ready, focused, closed, failed;
   private float width = 4;
   private int color = Color.BLACK;
+  private boolean erasing;
+  public static final int PRESSURE_PEN = 4;
 
   public static IReaderHandwriting create (Context context, FrameLayout host, Listener listener) {
     IReaderHandwriting bridge = new IReaderHandwriting(host, listener);
@@ -53,8 +55,10 @@ public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoClo
             // Vendor callbacks can arrive off the UI thread; copy values before enqueueing.
             int action = ((Number) args[0]).intValue();
             float x = ((Number) args[1]).floatValue(), y = ((Number) args[2]).floatValue();
+            long time = ((Number) args[3]).longValue();
+            float pressure = ((Number) args[4]).floatValue();
             host.post(() -> {
-              if (bridge.ready && bridge.focused && !bridge.closed && !bridge.failed) listener.onPoint(action, x, y);
+              if (bridge.ready && bridge.focused && !bridge.closed && !bridge.failed) listener.onPoint(action, x, y, time, pressure);
             });
             break;
         }
@@ -89,9 +93,15 @@ public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoClo
     this.color = color;
     if (surface == null || failed || closed) return;
     try {
-      // Type 2 is the firmware's constant-width pen, used by FBHandSurface by default.
-      call("setAhwPen", new Class<?>[] {int.class, float.class, int.class}, 2, width, color);
+      // Use the same pressure-sensitive fountain pen for live ink and replay.
+      // Transparent live ink keeps whole-stroke erasing from painting white patches.
+      call("setAhwPen", new Class<?>[] {int.class, float.class, int.class}, PRESSURE_PEN, width, erasing ? Color.TRANSPARENT : color);
     } catch (Throwable error) { fail(error); }
+  }
+
+  public void setErasing (boolean erasing) {
+    this.erasing = erasing;
+    setPen(width, color);
   }
 
   public void setActive (boolean active) {
