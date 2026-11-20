@@ -22,4 +22,5 @@
   <string name="DrawingBlue">蓝色</string>
   <string name="DrawingPurple">紫色</string>
   <string name="DrawingSaveError">绘图保存失败，请重试。</string>
+  <string name="DrawingRedo">重做</string>
 </resources>

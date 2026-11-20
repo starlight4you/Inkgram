@@ -9,6 +9,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Shader;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -19,7 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -31,6 +33,7 @@ import org.thunderdog.challegram.core.Lang;
 import org.thunderdog.challegram.core.Media;
 import org.thunderdog.challegram.tool.Screen;
 import org.thunderdog.challegram.tool.UI;
+import org.thunderdog.challegram.util.IReaderHandwriting;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,7 +47,9 @@ public final class DrawingDialog extends Dialog {
   }
 
   private final DrawingView drawing;
-  private final Button sendButton, undoButton, clearButton;
+  private final IconButton sendButton, undoButton, redoButton, clearButton;
+  private final View brushPreview;
+  private final IReaderHandwriting handwriting;
   private boolean saving;
   private final ArrayList<File> exports = new ArrayList<>();
 
@@ -53,41 +58,86 @@ public final class DrawingDialog extends Dialog {
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     setCanceledOnTouchOutside(false);
 
+    FrameLayout backdrop = new FrameLayout(context);
+    int cell = Screen.dp(3);
+    Bitmap tile = Bitmap.createBitmap(cell * 2, cell * 2, Bitmap.Config.ARGB_8888);
+    Canvas tileCanvas = new Canvas(tile);
+    Paint tilePaint = new Paint();
+    tilePaint.setColor(Color.BLACK);
+    tileCanvas.drawRect(0, 0, cell, cell, tilePaint);
+    tileCanvas.drawRect(cell, cell, cell * 2, cell * 2, tilePaint);
+    BitmapDrawable mosaic = new BitmapDrawable(context.getResources(), tile);
+    mosaic.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+    mosaic.setFilterBitmap(false);
+    backdrop.setBackground(mosaic);
+    int margin = Screen.dp(16);
+    backdrop.setPadding(margin, margin, margin, margin);
+    setContentView(backdrop);
+
     LinearLayout content = new LinearLayout(context);
     content.setOrientation(LinearLayout.VERTICAL);
-    content.setPadding(Screen.dp(8), Screen.dp(8), Screen.dp(8), Screen.dp(8));
-    content.setBackgroundColor(Color.WHITE);
-    setContentView(content);
+    content.setPadding(Screen.dp(12), Screen.dp(8), Screen.dp(12), Screen.dp(12));
+    GradientDrawable panel = new GradientDrawable();
+    panel.setColor(Color.WHITE);
+    panel.setCornerRadius(Screen.dp(8));
+    panel.setStroke(Screen.dp(2), Color.BLACK);
+    content.setBackground(panel);
+    backdrop.addView(content, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
     LinearLayout header = row(context);
-    Button cancel = button(context, R.string.Cancel);
+    IconButton cancel = new IconButton(context, IconButton.CLOSE, R.string.Cancel);
     cancel.setOnClickListener(v -> dismiss());
     header.addView(cancel);
     TextView title = label(context, Lang.getString(R.string.DrawingTitle));
     title.setGravity(Gravity.CENTER);
-    header.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-    sendButton = button(context, R.string.Send);
-    header.addView(sendButton);
+    title.setTextSize(22);
+    header.addView(title, new LinearLayout.LayoutParams(0, Screen.dp(52), 1));
+    View balance = new View(context);
+    header.addView(balance, new LinearLayout.LayoutParams(Screen.dp(48), 1));
     content.addView(header);
 
     drawing = new DrawingView(context);
-    content.addView(drawing, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
+    FrameLayout board = new FrameLayout(context);
+    board.setBackgroundColor(Color.WHITE);
+    board.addView(drawing, new FrameLayout.LayoutParams(-1, -1));
+    content.addView(board, new LinearLayout.LayoutParams(-1, 0, 1));
+    handwriting = IReaderHandwriting.create(context, board, new IReaderHandwriting.Listener() {
+      @Override public void onPoint (int action, float x, float y) { drawing.hardwarePoint(action, x, y); }
+      @Override public void onDraw (Canvas canvas) { drawing.render(canvas); }
+      @Override public void onAvailabilityChanged (boolean active) { drawing.hardwareActive = active; }
+    });
+    drawing.handwriting = handwriting;
 
     LinearLayout sizeRow = row(context);
-    TextView sizeLabel = label(context, "");
-    sizeRow.addView(sizeLabel);
+    brushPreview = new View(context) {
+      private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+      @Override protected void onDraw (Canvas canvas) {
+        float radius = drawing.brushSize / 2;
+        paint.setColor(drawing.brushColor);
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, radius, paint);
+        if (drawing.brushColor == Color.WHITE) {
+          paint.setColor(Color.BLACK);
+          paint.setStyle(Paint.Style.STROKE);
+          paint.setStrokeWidth(Screen.dp(1));
+          canvas.drawCircle(getWidth() / 2f, getHeight() / 2f, radius, paint);
+        }
+      }
+    };
+    sizeRow.addView(brushPreview, new LinearLayout.LayoutParams(Screen.dp(52), Screen.dp(52)));
     SeekBar size = new SeekBar(context);
     size.setMax(39);
     size.setProgress(3);
+    size.setProgressTintList(android.content.res.ColorStateList.valueOf(Color.BLACK));
+    size.setThumbTintList(android.content.res.ColorStateList.valueOf(Color.BLACK));
     size.setContentDescription(Lang.getString(R.string.BrushSize, "4"));
-    sizeLabel.setText(Lang.getString(R.string.BrushSize, "4"));
-    sizeRow.addView(size, new LinearLayout.LayoutParams(0, Screen.dp(48), 1));
+    sizeRow.addView(size, new LinearLayout.LayoutParams(0, Screen.dp(52), 1));
     size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
       @Override public void onProgressChanged (SeekBar bar, int progress, boolean fromUser) {
         drawing.brushSize = Screen.dp(progress + 1);
-        String text = Lang.getString(R.string.BrushSize, Integer.toString(progress + 1));
-        sizeLabel.setText(text);
-        size.setContentDescription(text);
+        size.setContentDescription(Lang.getString(R.string.BrushSize, Integer.toString(progress + 1)));
+        brushPreview.invalidate();
+        handwriting.setPen(drawing.brushSize, drawing.brushColor);
       }
       @Override public void onStartTrackingTouch (SeekBar bar) { }
       @Override public void onStopTrackingTouch (SeekBar bar) { }
@@ -95,6 +145,7 @@ public final class DrawingDialog extends Dialog {
     content.addView(sizeRow);
 
     HorizontalScrollView paletteScroll = new HorizontalScrollView(context);
+    paletteScroll.setHorizontalScrollBarEnabled(false);
     LinearLayout palette = row(context);
     paletteScroll.addView(palette);
     int[] colors = {Color.BLACK, Color.WHITE, 0xffd32f2f, 0xffef6c00, 0xff2e7d32, 0xff1565c0, 0xff7b1fa2};
@@ -108,6 +159,7 @@ public final class DrawingDialog extends Dialog {
       swatch.setContentDescription(Lang.getString(R.string.DrawingColor) + ": " + Lang.getString(names[i]));
       GradientDrawable background = new GradientDrawable();
       background.setColor(color);
+      background.setCornerRadius(Screen.dp(5));
       background.setStroke(Screen.dp(1), Color.BLACK);
       swatch.setBackground(background);
       LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(Screen.dp(44), Screen.dp(44));
@@ -116,6 +168,8 @@ public final class DrawingDialog extends Dialog {
       swatch.setSelected(color == Color.BLACK);
       swatch.setOnClickListener(v -> {
         drawing.brushColor = color;
+        brushPreview.invalidate();
+        handwriting.setPen(drawing.brushSize, color);
         for (int j = 0; j < palette.getChildCount(); j++) {
           TextView item = (TextView) palette.getChildAt(j);
           item.setText(item == swatch ? "✓" : "");
@@ -126,13 +180,19 @@ public final class DrawingDialog extends Dialog {
     content.addView(paletteScroll);
 
     LinearLayout actions = row(context);
-    undoButton = button(context, R.string.DrawingUndo);
-    clearButton = button(context, R.string.ClearDrawing);
+    undoButton = new IconButton(context, IconButton.UNDO, R.string.DrawingUndo);
+    redoButton = new IconButton(context, IconButton.REDO, R.string.DrawingRedo);
+    clearButton = new IconButton(context, IconButton.CLEAR, R.string.ClearDrawing);
+    sendButton = new IconButton(context, IconButton.SEND, R.string.Send);
     actions.addView(undoButton);
+    actions.addView(redoButton);
     actions.addView(clearButton);
+    actions.addView(new View(context), new LinearLayout.LayoutParams(0, 1, 1));
+    actions.addView(sendButton, new LinearLayout.LayoutParams(Screen.dp(56), Screen.dp(56)));
     content.addView(actions);
     drawing.onChanged = this::updateButtons;
     undoButton.setOnClickListener(v -> drawing.undo());
+    redoButton.setOnClickListener(v -> drawing.redo());
     clearButton.setOnClickListener(v -> drawing.clear());
     sendButton.setOnClickListener(v -> {
       if (saving || drawing.strokes.isEmpty()) return;
@@ -145,6 +205,7 @@ public final class DrawingDialog extends Dialog {
       }
       saving = true;
       drawing.setEnabled(false);
+      handwriting.setActive(false);
       updateButtons();
       Media.instance().post(() -> {
         File file = null;
@@ -164,6 +225,7 @@ public final class DrawingDialog extends Dialog {
         UI.post(() -> {
           saving = false;
           drawing.setEnabled(true);
+          handwriting.setActive(isShowing() && getWindow() != null && getWindow().getDecorView().hasWindowFocus());
           updateButtons();
           if (!isShowing() || !saved) {
             if (result != null) result.delete();
@@ -183,13 +245,24 @@ public final class DrawingDialog extends Dialog {
     super.onStart();
     Window window = getWindow();
     if (window != null) {
+      window.setBackgroundDrawableResource(android.R.color.transparent);
+      window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+      window.setDimAmount(0f);
+      window.setWindowAnimations(0);
       window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
       window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
   }
 
   @Override
+  public void onWindowFocusChanged (boolean hasFocus) {
+    super.onWindowFocusChanged(hasFocus);
+    handwriting.setActive(hasFocus && !saving);
+  }
+
+  @Override
   public void dismiss () {
+    handwriting.close();
     for (File file : exports) file.delete();
     exports.clear();
     super.dismiss();
@@ -209,6 +282,7 @@ public final class DrawingDialog extends Dialog {
     boolean hasDrawing = !drawing.strokes.isEmpty();
     sendButton.setEnabled(!saving && hasDrawing);
     undoButton.setEnabled(!saving && hasDrawing);
+    redoButton.setEnabled(!saving && !drawing.undone.isEmpty());
     clearButton.setEnabled(!saving && hasDrawing);
   }
 
@@ -226,12 +300,60 @@ public final class DrawingDialog extends Dialog {
     return label;
   }
 
-  private static Button button (Context context, int text) {
-    Button button = new Button(context);
-    button.setText(Lang.getString(text));
-    button.setTextColor(Color.BLACK);
-    button.setAllCaps(false);
-    return button;
+  /** Monochrome symbols drawn without tinted framework button backgrounds. */
+  private static final class IconButton extends View {
+    static final int CLOSE = 0, UNDO = 1, REDO = 2, CLEAR = 3, SEND = 4;
+    private final int icon;
+    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    IconButton (Context context, int icon, int label) {
+      super(context);
+      this.icon = icon;
+      setContentDescription(Lang.getString(label));
+      setLayoutParams(new LinearLayout.LayoutParams(Screen.dp(48), Screen.dp(52)));
+      setClickable(true);
+      setFocusable(true);
+    }
+    @Override public void setEnabled (boolean enabled) { super.setEnabled(enabled); invalidate(); }
+    @Override protected void onDraw (Canvas canvas) {
+      super.onDraw(canvas);
+      canvas.save();
+      canvas.translate(getWidth() / 2f, getHeight() / 2f);
+      canvas.scale(Screen.dp(1), Screen.dp(1));
+      paint.setColor(Color.BLACK);
+      paint.setStrokeWidth(2.4f);
+      paint.setStrokeCap(Paint.Cap.ROUND);
+      paint.setStrokeJoin(Paint.Join.ROUND);
+      paint.setStyle(Paint.Style.STROKE);
+      if (icon == SEND) {
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(0, 0, 24, paint);
+        paint.setColor(Color.WHITE);
+        Path arrow = new Path();
+        arrow.moveTo(-9, -10); arrow.lineTo(12, 0); arrow.lineTo(-9, 10); arrow.lineTo(-5, 0); arrow.close();
+        canvas.drawPath(arrow, paint);
+      } else if (icon == CLOSE) {
+        canvas.drawLine(-8, -8, 8, 8, paint); canvas.drawLine(-8, 8, 8, -8, paint);
+      } else if (icon == CLEAR) {
+        canvas.drawLine(-10, -7, 10, -7, paint);
+        canvas.drawLine(-4, -11, 4, -11, paint);
+        canvas.drawRect(-7, -7, 7, 11, paint);
+        canvas.drawLine(-2, -2, -2, 6, paint); canvas.drawLine(2, -2, 2, 6, paint);
+      } else {
+        if (icon == REDO) canvas.scale(-1, 1);
+        Path arrow = new Path();
+        arrow.moveTo(-10, -2); arrow.cubicTo(3, -13, 14, -2, 8, 9);
+        canvas.drawPath(arrow, paint);
+        canvas.drawLine(-10, -2, -10, -10, paint); canvas.drawLine(-10, -2, -2, -2, paint);
+      }
+      // Disabled controls stay black; a small slash distinguishes unavailable actions.
+      if (!isEnabled()) {
+        paint.setColor(icon == SEND ? Color.WHITE : Color.BLACK);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(1);
+        canvas.drawLine(-12, 14, 12, 14, paint);
+      }
+      canvas.restore();
+    }
   }
 
   private static final class Stroke {
@@ -251,6 +373,9 @@ public final class DrawingDialog extends Dialog {
   private static final class DrawingView extends View {
     // Retain vector strokes, rather than a bitmap per undo step.
     final ArrayList<Stroke> strokes = new ArrayList<>();
+    final ArrayList<Stroke> undone = new ArrayList<>();
+    IReaderHandwriting handwriting;
+    boolean hardwareActive;
     final Paint border = new Paint();
     final RectF viewport = new RectF();
     Stroke current;
@@ -287,6 +412,11 @@ public final class DrawingDialog extends Dialog {
     @Override
     protected void onDraw (Canvas canvas) {
       super.onDraw(canvas);
+      render(canvas);
+    }
+
+    void render (Canvas canvas) {
+      canvas.drawColor(Color.WHITE);
       if (canvasWidth == 0 || viewport.isEmpty()) return;
       int save = canvas.save();
       canvas.clipRect(viewport);
@@ -304,6 +434,9 @@ public final class DrawingDialog extends Dialog {
     @Override
     public boolean onTouchEvent (MotionEvent event) {
       if (!isEnabled() || viewport.isEmpty()) return false;
+      int tool = event.getToolType(event.getActionIndex());
+      if (hardwareActive && (tool == MotionEvent.TOOL_TYPE_STYLUS || tool == MotionEvent.TOOL_TYPE_ERASER)) return true;
+      if (event.getActionMasked() == MotionEvent.ACTION_DOWN && android.os.Build.VERSION.SDK_INT >= 21) requestUnbufferedDispatch(event);
       int action = event.getActionMasked();
       if (action == MotionEvent.ACTION_DOWN) {
         if (!viewport.contains(event.getX(), event.getY())) return false;
@@ -311,6 +444,7 @@ public final class DrawingDialog extends Dialog {
         pointerId = event.getPointerId(0);
         current = new Stroke(brushColor, brushSize / scale(), x(event.getX()), y(event.getY()));
         strokes.add(current);
+        undone.clear();
         onChanged.run();
       } else if (action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP) {
         int index = event.findPointerIndex(pointerId);
@@ -332,22 +466,52 @@ public final class DrawingDialog extends Dialog {
         getParent().requestDisallowInterceptTouchEvent(false);
       }
       invalidate();
+      if (handwriting != null && hardwareActive) handwriting.render();
       return true;
     }
 
     private float x (float x) { return Math.max(0, Math.min(canvasWidth, (x - viewport.left) / scale())); }
     private float y (float y) { return Math.max(0, Math.min(canvasHeight, (y - viewport.top) / scale())); }
 
-    void undo () {
-      if (!strokes.isEmpty()) strokes.remove(strokes.size() - 1);
+    void hardwarePoint (int action, float px, float py) {
+      if (!isEnabled() || viewport.isEmpty()) return;
+      if (action == MotionEvent.ACTION_DOWN && !viewport.contains(px, py)) return;
+      if (action == MotionEvent.ACTION_DOWN) {
+        current = new Stroke(brushColor, brushSize / scale(), x(px), y(py));
+        strokes.add(current);
+        undone.clear();
+      } else if (current != null) {
+        current.path.lineTo(x(px), y(py));
+      }
+      if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+        if (action == MotionEvent.ACTION_CANCEL && current != null) strokes.remove(current);
+        current = null;
+        invalidate();
+        onChanged.run();
+        if (handwriting != null) handwriting.render();
+      }
+    }
+
+    private void changed () {
       invalidate();
       onChanged.run();
+      if (handwriting != null) handwriting.render();
+    }
+
+    void undo () {
+      if (!strokes.isEmpty()) undone.add(strokes.remove(strokes.size() - 1));
+      changed();
+    }
+
+    void redo () {
+      if (!undone.isEmpty()) strokes.add(undone.remove(undone.size() - 1));
+      changed();
     }
 
     void clear () {
       strokes.clear();
-      invalidate();
-      onChanged.run();
+      undone.clear();
+      changed();
     }
 
     Bitmap export () {

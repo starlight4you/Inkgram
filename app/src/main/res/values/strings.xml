@@ -5921,4 +5921,5 @@
   <string name="DrawingBlue">Blue</string>
   <string name="DrawingPurple">Purple</string>
   <string name="DrawingSaveError">Could not save drawing. Please try again.</string>
+  <string name="DrawingRedo">Redo</string>
 </resources>
