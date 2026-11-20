@@ -95,8 +95,8 @@ public final class DrawingDialog extends Dialog {
     title.setGravity(Gravity.CENTER);
     title.setTextSize(22);
     header.addView(title, new LinearLayout.LayoutParams(0, Screen.dp(52), 1));
-    View balance = new View(context);
-    header.addView(balance, new LinearLayout.LayoutParams(Screen.dp(48), 1));
+    sendButton = new IconButton(context, IconButton.SEND, R.string.Send);
+    header.addView(sendButton);
     content.addView(header);
 
     drawing = new DrawingView(context);
@@ -206,13 +206,10 @@ public final class DrawingDialog extends Dialog {
     redoButton = new IconButton(context, IconButton.REDO, R.string.DrawingRedo);
     clearButton = new IconButton(context, IconButton.CLEAR, R.string.ClearDrawing);
     eraserButton = new IconButton(context, IconButton.ERASER, R.string.DrawingEraser);
-    sendButton = new IconButton(context, IconButton.SEND, R.string.Send);
     actions.addView(undoButton);
     actions.addView(redoButton);
     actions.addView(clearButton);
     actions.addView(eraserButton);
-    actions.addView(new View(context), new LinearLayout.LayoutParams(0, 1, 1));
-    actions.addView(sendButton, new LinearLayout.LayoutParams(Screen.dp(56), Screen.dp(56)));
     content.addView(actions);
     drawing.onChanged = this::updateButtons;
     undoButton.setOnClickListener(v -> drawing.undo());
@@ -320,6 +317,7 @@ public final class DrawingDialog extends Dialog {
     sendButton.setEnabled(!saving && hasDrawing);
     undoButton.setEnabled(!saving && !drawing.undone.isEmpty());
     redoButton.setEnabled(!saving && !drawing.redone.isEmpty());
+    redoButton.setVisibility(redoButton.isEnabled() ? View.VISIBLE : View.GONE);
     clearButton.setEnabled(!saving && hasDrawing);
   }
 
@@ -337,72 +335,45 @@ public final class DrawingDialog extends Dialog {
     return label;
   }
 
-  /** Monochrome symbols drawn without tinted framework button backgrounds. */
+  /** Google Material Symbols Rounded, using monochrome MD3 icon-button states. */
   private static final class IconButton extends View {
     static final int CLOSE = 0, UNDO = 1, REDO = 2, CLEAR = 3, SEND = 4, ERASER = 5;
     private final int icon;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final android.graphics.drawable.Drawable symbol;
     IconButton (Context context, int icon, int label) {
       super(context);
       this.icon = icon;
+      int[] resources = {R.drawable.drawing_md3_close, R.drawable.drawing_md3_undo,
+        R.drawable.drawing_md3_redo, R.drawable.drawing_md3_delete,
+        R.drawable.drawing_md3_send, R.drawable.drawing_md3_ink_eraser};
+      symbol = context.getResources().getDrawable(resources[icon], context.getTheme()).mutate();
       setContentDescription(Lang.getString(label));
-      setLayoutParams(new LinearLayout.LayoutParams(Screen.dp(48), Screen.dp(52)));
+      setLayoutParams(new LinearLayout.LayoutParams(Screen.dp(52), Screen.dp(52)));
       setClickable(true);
       setFocusable(true);
     }
     @Override public void setEnabled (boolean enabled) { super.setEnabled(enabled); invalidate(); }
+    @Override public void setSelected (boolean selected) { super.setSelected(selected); invalidate(); }
     @Override protected void onDraw (Canvas canvas) {
       super.onDraw(canvas);
-      canvas.save();
-      canvas.translate(getWidth() / 2f, getHeight() / 2f);
-      canvas.scale(Screen.dp(1), Screen.dp(1));
+      float cx = getWidth() / 2f, cy = getHeight() / 2f;
+      boolean filled = icon == SEND || isSelected();
       paint.setColor(Color.BLACK);
-      paint.setStrokeWidth(2.4f);
-      paint.setStrokeCap(Paint.Cap.ROUND);
-      paint.setStrokeJoin(Paint.Join.ROUND);
-      paint.setStyle(Paint.Style.STROKE);
-      if (icon == SEND) {
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(0, 0, 24, paint);
+      paint.setStyle(Paint.Style.FILL);
+      float radius = Screen.dp(22);
+      if (filled) canvas.drawCircle(cx, cy, radius, paint);
+      int half = Screen.dp(12);
+      symbol.setBounds(Math.round(cx) - half, Math.round(cy) - half, Math.round(cx) + half, Math.round(cy) + half);
+      symbol.setColorFilter(filled ? Color.WHITE : Color.BLACK, android.graphics.PorterDuff.Mode.SRC_IN);
+      symbol.draw(canvas);
+      // Keep disabled controls monochrome on e-ink; use an outline instead of a gray tint.
+      if (icon == SEND && !isEnabled()) {
         paint.setColor(Color.WHITE);
-        Path arrow = new Path();
-        arrow.moveTo(-9, -10); arrow.lineTo(12, 0); arrow.lineTo(-9, 10); arrow.lineTo(-5, 0); arrow.close();
-        canvas.drawPath(arrow, paint);
-      } else if (icon == CLOSE) {
-        canvas.drawLine(-8, -8, 8, 8, paint); canvas.drawLine(-8, 8, 8, -8, paint);
-      } else if (icon == ERASER) {
-        if (isSelected()) {
-          paint.setStyle(Paint.Style.FILL);
-          canvas.drawRoundRect(-20, -20, 20, 20, 5, 5, paint);
-          paint.setColor(Color.WHITE);
-          paint.setStyle(Paint.Style.STROKE);
-        }
-        Path eraser = new Path();
-        eraser.moveTo(-11, 3); eraser.lineTo(2, -10); eraser.lineTo(12, 0);
-        eraser.lineTo(1, 11); eraser.lineTo(-4, 11); eraser.close();
-        canvas.drawPath(eraser, paint);
-        canvas.drawLine(-5, -3, 5, 7, paint);
-        canvas.drawLine(-4, 11, 12, 11, paint);
-      } else if (icon == CLEAR) {
-        canvas.drawLine(-10, -7, 10, -7, paint);
-        canvas.drawLine(-4, -11, 4, -11, paint);
-        canvas.drawRect(-7, -7, 7, 11, paint);
-        canvas.drawLine(-2, -2, -2, 6, paint); canvas.drawLine(2, -2, 2, 6, paint);
-      } else {
-        if (icon == REDO) canvas.scale(-1, 1);
-        Path arrow = new Path();
-        arrow.moveTo(-10, -2); arrow.cubicTo(3, -13, 14, -2, 8, 9);
-        canvas.drawPath(arrow, paint);
-        canvas.drawLine(-10, -2, -10, -10, paint); canvas.drawLine(-10, -2, -2, -2, paint);
-      }
-      // Disabled controls stay black; a small slash distinguishes unavailable actions.
-      if (!isEnabled()) {
-        paint.setColor(icon == SEND ? Color.WHITE : Color.BLACK);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(1);
-        canvas.drawLine(-12, 14, 12, 14, paint);
+        paint.setStrokeWidth(Screen.dp(1));
+        canvas.drawCircle(cx, cy, radius - Screen.dp(2), paint);
       }
-      canvas.restore();
     }
   }
 
