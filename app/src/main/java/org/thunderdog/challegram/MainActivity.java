@@ -143,7 +143,6 @@ public class MainActivity extends BaseActivity implements GlobalAccountListener,
       SettingsBugController c = new SettingsBugController(this, tdlib);
       c.setArguments(new SettingsBugController.Args(crash));
       navigation.initController(c);
-      showExperimentalAlert();
     } else {
       initController(account.tdlib(), account.tdlib().authorizationStatus());
     }
@@ -555,25 +554,6 @@ public class MainActivity extends BaseActivity implements GlobalAccountListener,
       case Tdlib.Status.READY:
         initAuthorizedController();
         break;
-    }
-    showExperimentalAlert();
-  }
-
-  private void showExperimentalAlert () {
-    // Builds of tests are experimental too, and the alert would stop UI tests at launch
-    if (BuildConfig.EXPERIMENTAL && !BuildConfig.DEBUG && !Config.ENABLE_TEST_HOOKS) {
-      ViewController<?> c = navigation.getCurrentStackItem();
-      if (c != null) {
-        c.openAlert(R.string.ExperimentalBuildTitle,
-          Strings.buildMarkdown(c, Lang.getStringSecure(R.string.ExperimentalBuildInfo), (view, span, clickedText) -> {
-            TD.handleLegacyClick(c, clickedText, span);
-            return true;
-          }),
-          Lang.getOK(),
-          (dialog, which) -> dialog.dismiss(),
-          ViewController.ALERT_HAS_LINKS | ViewController.ALERT_NO_CANCEL | ViewController.ALERT_NO_CANCELABLE
-        );
-      }
     }
   }
 

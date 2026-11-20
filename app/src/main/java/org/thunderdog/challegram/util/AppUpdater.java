@@ -60,6 +60,8 @@ import me.vkryl.core.reference.ReferenceList;
 import tgx.td.Td;
 
 public class AppUpdater implements InstallStateUpdatedListener, FileUpdateListener, ConnectionListener {
+  public static final String INKGRAM_RELEASES_URL = "https://github.com/starlight4you/Inkgram/releases/latest";
+  private static final boolean UPSTREAM_UPDATES_ENABLED = false;
   public interface Listener {
     void onAppUpdateStateChanged (@State int state, @State int oldState, boolean isApk);
     default void onAppUpdateDownloadProgress (long bytesDownloaded, long totalBytesToDownload) { }
@@ -122,7 +124,7 @@ public class AppUpdater implements InstallStateUpdatedListener, FileUpdateListen
     this.context = context;
     this.listeners = new ReferenceList<>();
     AppUpdateManager appUpdateManager = null;
-    if (AppInstallationUtil.allowInAppGooglePlayUpdates(context)) {
+    if (UPSTREAM_UPDATES_ENABLED && AppInstallationUtil.allowInAppGooglePlayUpdates(context)) {
       try {
         appUpdateManager = AppUpdateManagerFactory.create(context);
       } catch (Throwable t) {
@@ -169,6 +171,8 @@ public class AppUpdater implements InstallStateUpdatedListener, FileUpdateListen
   }
 
   public void checkForUpdates () {
+    // Inkgram versions are independent of Telegram X's APKs and build numbers.
+    if (!UPSTREAM_UPDATES_ENABLED) return;
     if (state == State.NONE) {
       if (preferTelegramChannelFlow()) {
         checkForTelegramChannelUpdates();
@@ -189,19 +193,12 @@ public class AppUpdater implements InstallStateUpdatedListener, FileUpdateListen
   }
 
   public static AppInstallationUtil.PublicMarketUrls publicMarketUrls () {
-    return new AppInstallationUtil.PublicMarketUrls(
-      BuildConfig.DOWNLOAD_URL,
-      BuildConfig.GOOGLE_PLAY_URL,
-      BuildConfig.GALAXY_STORE_URL,
-      BuildConfig.HUAWEI_APPGALLERY_URL,
-      BuildConfig.AMAZON_APPSTORE_URL
-    );
+    return new AppInstallationUtil.PublicMarketUrls(INKGRAM_RELEASES_URL, "", "", "", "");
   }
 
   public static AppInstallationUtil.DownloadUrl getDownloadUrl (@Nullable String serverSuggestedDownloadUrl) {
-    @AppInstallationUtil.InstallerId int installerId = AppInstallationUtil.getInstallerId(AppContext.get());
-    AppInstallationUtil.PublicMarketUrls publicMarketUrls = publicMarketUrls();
-    return publicMarketUrls.toDownloadUrl(installerId, serverSuggestedDownloadUrl);
+    // Ignore installer/server URLs that refer to Telegram X stores or channels.
+    return new AppInstallationUtil.DownloadUrl(AppInstallationUtil.InstallerId.UNKNOWN, INKGRAM_RELEASES_URL);
   }
 
   private void setState (@State int state) {
@@ -322,6 +319,7 @@ public class AppUpdater implements InstallStateUpdatedListener, FileUpdateListen
   }
 
   private void checkForTelegramChannelUpdates () {
+    if (!UPSTREAM_UPDATES_ENABLED) return;
     setState(State.CHECKING);
     Tdlib tdlib = context.hasTdlib() ? context.currentTdlib() : null;
     if (tdlib == null || tdlib.context().inRecoveryMode() || !tdlib.isAuthorized()) {

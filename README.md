@@ -2,7 +2,9 @@
 
 > 为墨水屏而生的 Telegram 客户端。
 
-Inkgram 基于 Telegram X 定制，为搭载 Android 的墨水屏设备带来更安静、清晰、专注的聊天与阅读体验。
+Inkgram 基于 Telegram X 源码独立维护，为搭载 Android 的墨水屏设备带来更安静、清晰、专注的聊天与阅读体验。
+
+Inkgram 使用独立的版本与发布周期，不跟随 Telegram X 自动更新，不检查或安装其商店、频道中的 APK。更新统一通过 [Inkgram Releases](https://github.com/starlight4you/Inkgram/releases/latest) 获取。
 
 ## 为阅读留白
 

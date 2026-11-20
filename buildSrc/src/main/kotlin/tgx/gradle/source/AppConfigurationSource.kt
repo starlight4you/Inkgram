@@ -43,7 +43,7 @@ abstract class AppConfigurationSource : ValueSource<ApplicationConfig, AppConfig
     ))
     val isExperimentalBuild =
       isExampleBuild ||
-      keystoreFilePath == null ||
+      (keystoreFilePath == null && applicationId != "com.inkgram.app") ||
       properties.getProperty("app.experimental", "false") == "true"
     val applicationExtension = getOrDefault(properties, "tgx.extension", defaults).also {
       require(it == "none" || it == "hms")

@@ -432,11 +432,11 @@ android {
     buildConfigString("PROJECT_NAME", config.applicationName)
     buildConfigString("SAFETYNET_API_KEY", config.safetyNetToken)
 
-    buildConfigString("DOWNLOAD_URL", config.appDownloadUrl)
-    buildConfigString("GOOGLE_PLAY_URL", config.googlePlayUrl)
-    buildConfigString("GALAXY_STORE_URL", config.galaxyStoreUrl)
-    buildConfigString("HUAWEI_APPGALLERY_URL", config.huaweiAppGalleryUrl)
-    buildConfigString("AMAZON_APPSTORE_URL", config.amazonAppStoreUrl)
+    buildConfigString("DOWNLOAD_URL", "https://github.com/starlight4you/Inkgram/releases/latest")
+    buildConfigString("GOOGLE_PLAY_URL", "")
+    buildConfigString("GALAXY_STORE_URL", "")
+    buildConfigString("HUAWEI_APPGALLERY_URL", "")
+    buildConfigString("AMAZON_APPSTORE_URL", "")
 
     buildConfigString("TGX_EXTENSION", config.extension)
 

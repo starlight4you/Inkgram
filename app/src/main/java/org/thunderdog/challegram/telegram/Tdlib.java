@@ -6205,7 +6205,8 @@ public class Tdlib implements TdlibProvider, Settings.SettingsChangeListener, Da
   }
 
   public boolean hasUrgentInAppUpdate () {
-    return options.forceInAppUpdate;
+    // Telegram X's server version policy does not govern Inkgram releases.
+    return false;
   }
 
   public String language () {
@@ -10927,53 +10928,8 @@ public class Tdlib implements TdlibProvider, Settings.SettingsChangeListener, Da
   }
 
   public void findUpdateFile (@NonNull RunnableData<UpdateFileInfo> onDone) {
-    final String abiFlavor = U.getPreferredAbiFlavor();
-    if (abiFlavor == null) {
-      onDone.runWithData(null);
-      return;
-    }
-    final String hashtag;
-    if (!BuildConfig.LATEST_FLAVOR) {
-      hashtag = abiFlavor + StringUtils.ucfirst(BuildConfig.FLAVOR);
-    } else {
-      hashtag = abiFlavor;
-    }
-    final String query = "#apk " +
-      (Settings.instance().getNewSetting(Settings.SETTING_FLAG_DOWNLOAD_BETAS) ? "" : "#stable ") +
-      "#" + hashtag;
-    clientHolder().updates.findResource(message -> {
-      if (message != null && Td.isDocument(message.content)) {
-        TdApi.Document document = ((TdApi.MessageDocument) message.content).document;
-        TdApi.FormattedText caption = ((TdApi.MessageDocument) message.content).caption;
-        boolean ok = false;
-        int buildNo = 0;
-        String version = null;
-        String commit = null;
-        final String prefix = "Telegram-X-";
-        if (!StringUtils.isEmpty(document.fileName) && document.fileName.startsWith(prefix)) {
-          int i = document.fileName.indexOf('-', prefix.length());
-          version = document.fileName.substring(prefix.length(), i == -1 ? document.fileName.length() : i);
-          if (version.matches("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$")) {
-            buildNo = StringUtils.parseInt(version.substring(version.lastIndexOf('.') + 1));
-            if (buildNo > BuildConfig.ORIGINAL_VERSION_CODE) {
-              ok = true;
-            }
-          }
-        }
-        //noinspection UnsafeOptInUsageError
-        if (!Td.isEmpty(caption)) {
-          Pattern pattern = Pattern.compile("(?<=Commit:)\\s*([a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE);
-          Matcher matcher = pattern.matcher(caption.text);
-          if (matcher.find()) {
-            commit = matcher.group(1);
-            if (StringUtils.isEmpty(commit)) {
-              commit = null;
-            }
-          }
-        }
-        onDone.runWithData(ok ? new UpdateFileInfo(document, buildNo, version, commit) : null);
-      }
-    }, query, BuildConfig.COMMIT_DATE);
+    // Never download Telegram X APKs into this independently versioned fork.
+    onDone.runWithData(null);
   }
 
   public <T extends Settings.CloudSetting> void fetchCloudSettings (@NonNull RunnableData<List<T>> callback, String requiredHashtag, @NonNull Future<T> currentSettingProvider, @NonNull Future<T> builtinItemProvider, @NonNull WrapperProvider<T, TdApi.Message> instanceProvider) {
