@@ -2,11 +2,18 @@ name: Android build
 
 on:
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: APK build type
+        type: choice
+        options: [debug, release]
+        default: debug
   push:
     branches: [main]
 
 env:
   TZ: UTC
+  INKGRAM_BUILD_TYPE: ${{ inputs.build_type || 'debug' }}
 
 permissions:
   contents: write
@@ -108,7 +115,7 @@ jobs:
           tgx.extension=none
           EOF
 
-      - name: Build arm64 debug APK
+      - name: Build arm64 APK
         run: |
           # Included annotation build otherwise only searches the plugin portal,
           # whose Kotlin POM can reference a BOM available on Maven Central.
@@ -130,17 +137,30 @@ jobs:
           fun assertInputMessageContent_7c412303(): InputMessageContent? = null
           fun assertUpdate_2a2bec96(): Update? = null
           EOF
-          ./gradlew -I "${RUNNER_TEMP}/inkgram-repositories.gradle" :app:assembleLatestDebug -Pabi=arm64 --no-daemon --stacktrace -x validateGitSetup
+          if [ "$INKGRAM_BUILD_TYPE" = release ]; then
+            apk_task=:app:assembleLatestRelease
+          else
+            apk_task=:app:assembleLatestDebug
+          fi
+          ./gradlew -I "${RUNNER_TEMP}/inkgram-repositories.gradle" "$apk_task" -Pabi=arm64 --no-daemon --stacktrace -x validateGitSetup
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: inkgram-latest-debug-arm64
+          name: inkgram-latest-${{ env.INKGRAM_BUILD_TYPE }}-arm64
           path: app/build/outputs/apk/**/*.apk
           if-no-files-found: error
 
+      - name: Upload release mappings
+        if: env.INKGRAM_BUILD_TYPE == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: inkgram-release-mappings
+          path: app/build/outputs/mapping/latestRelease/
+          if-no-files-found: error
+
   publish-nightly:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (inputs.build_type == '' || inputs.build_type == 'debug')
     name: Publish nightly release
     needs: latest-debug
     runs-on: ubuntu-24.04
