@@ -11,4 +11,15 @@
   <string name="EinkPageRippleDirectionDown">向下</string>
   <string name="EinkPageRippleDirectionLeft">向左</string>
   <string name="EinkPageRippleDirectionRight">向右</string>
+  <string name="DrawingTitle">绘图</string>
+  <string name="DrawingUndo">撤销</string>
+  <string name="DrawingColor">颜色</string>
+  <string name="DrawingBlack">黑色</string>
+  <string name="DrawingWhite">白色 / 橡皮擦</string>
+  <string name="DrawingRed">红色</string>
+  <string name="DrawingOrange">橙色</string>
+  <string name="DrawingGreen">绿色</string>
+  <string name="DrawingBlue">蓝色</string>
+  <string name="DrawingPurple">紫色</string>
+  <string name="DrawingSaveError">绘图保存失败，请重试。</string>
 </resources>

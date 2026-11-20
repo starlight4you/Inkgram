@@ -130,6 +130,7 @@ jobs:
           if-no-files-found: error
 
   publish-nightly:
+    if: github.ref == 'refs/heads/main'
     name: Publish nightly release
     needs: latest-debug
     runs-on: ubuntu-24.04

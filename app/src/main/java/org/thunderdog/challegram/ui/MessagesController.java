@@ -90,6 +90,7 @@ import org.thunderdog.challegram.component.attach.MediaToReplacePickerManager;
 import org.thunderdog.challegram.component.attach.SponsoredMessagesInfoController;
 import org.thunderdog.challegram.component.base.SettingView;
 import org.thunderdog.challegram.component.chat.AttachLinearLayout;
+import org.thunderdog.challegram.component.chat.DrawingDialog;
 import org.thunderdog.challegram.component.chat.AudioFile;
 import org.thunderdog.challegram.component.chat.ChatBottomBarView;
 import org.thunderdog.challegram.component.chat.ChatHeaderView;
@@ -367,6 +368,7 @@ public class MessagesController extends ViewController<MessagesController.Argume
   private HapticMenuHelper sendMenu;
   private CameraAccessImageView mediaButton;
   private InvisibleImageView cameraButton, scheduleButton;
+  private DrawingDialog drawingDialog;
   private InvisibleImageView commandButton;
   private @Nullable SilentButton silentButton;
 
@@ -1236,6 +1238,16 @@ public class MessagesController extends ViewController<MessagesController.Argume
     if (scheduleButton != null) {
       attachButtons.addView(scheduleButton);
     }
+    InvisibleImageView drawingButton = new InvisibleImageView(context);
+    drawingButton.setId(R.id.msg_draw);
+    drawingButton.setScaleType(ImageView.ScaleType.CENTER);
+    drawingButton.setImageResource(R.drawable.baseline_brush_24);
+    drawingButton.setColorFilter(Theme.iconColor());
+    addThemeFilterListener(drawingButton, ColorId.icon);
+    drawingButton.setContentDescription(Lang.getString(R.string.DrawingTitle));
+    drawingButton.setOnClickListener(this);
+    drawingButton.setLayoutParams(new LinearLayout.LayoutParams(Screen.dp(ATTACH_BUTTONS_WIDTH), Screen.dp(49f)));
+    attachButtons.addView(drawingButton);
     if (cameraButton != null) {
       attachButtons.addView(cameraButton);
     }
@@ -2028,7 +2040,11 @@ public class MessagesController extends ViewController<MessagesController.Argume
         scrollToUnreadOrStartMessage();
       }
     }
-    if (viewId == R.id.btn_camera) {
+    if (viewId == R.id.msg_draw) {
+      if (chat != null && !showSlowModeRestriction(v, null) && !showRestriction(v, RightId.SEND_PHOTOS)) {
+        pickDateOrProceed(Td.newSendOptions(), (options, disableMarkdown) -> openDrawingBoard(options));
+      }
+    } else if (viewId == R.id.btn_camera) {
       if (!showPhotoVideoRestriction(v)) {
         openInAppCamera(new CameraOpenOptions().anchor(v).noTrace(isSecretChat()));
       }
@@ -4278,6 +4294,10 @@ public class MessagesController extends ViewController<MessagesController.Argume
 
   @Override
   public void destroy () {
+    if (drawingDialog != null) {
+      drawingDialog.dismiss();
+      drawingDialog = null;
+    }
     resetSelectableControl();
 
     discardAttachedFiles(false);
@@ -10334,8 +10354,33 @@ public class MessagesController extends ViewController<MessagesController.Argume
     });
   }
 
+  private void openDrawingBoard (TdApi.MessageSendOptions options) {
+    if (drawingDialog != null) {
+      return;
+    }
+    hideKeyboard(false);
+    closeEmojiKeyboard();
+    final long drawingChatId = getChatId();
+    drawingDialog = new DrawingDialog(context, (file, onSent) -> {
+      if (isDestroyed() || getChatId() != drawingChatId) {
+        return;
+      }
+      if (drawingDialog != null && drawingDialog.isShowing() && file.exists() &&
+          !showSlowModeRestriction(null, options) && !showRestriction(null, RightId.SEND_PHOTOS)) {
+        sendPhotoCompressed(file.getAbsolutePath(), null, true, options);
+        onSent.run();
+      }
+    });
+    drawingDialog.setOnDismissListener(dialog -> drawingDialog = null);
+    drawingDialog.show();
+  }
+
   public void sendPhotoCompressed (final String path, final @Nullable TdApi.MessageSelfDestructType selfDestructType, final boolean allowReply) {
-    if (showSlowModeRestriction(mediaButton, null) || showRestriction(mediaButton, RightId.SEND_PHOTOS)) {
+    sendPhotoCompressed(path, selfDestructType, allowReply, Td.newSendOptions());
+  }
+
+  private void sendPhotoCompressed (final String path, final @Nullable TdApi.MessageSelfDestructType selfDestructType, final boolean allowReply, TdApi.MessageSendOptions options) {
+    if (showSlowModeRestriction(mediaButton, options) || showRestriction(mediaButton, RightId.SEND_PHOTOS)) {
       return;
     }
     if (StringUtils.isEmpty(path)) {
@@ -10347,6 +10392,7 @@ public class MessagesController extends ViewController<MessagesController.Argume
       TdApi.InputMessageReplyTo replyTo = replyInfo != null ? replyInfo.toInputMessageReply() : null;
       TdApi.MessageTopic topicId = getMessageTopicId(replyInfo);
       TdApi.MessageSendOptions sendOptions = Td.newSendOptions(
+        options,
         getInputSuggestedPostInfo(replyInfo),
         obtainSilentMode()
       );

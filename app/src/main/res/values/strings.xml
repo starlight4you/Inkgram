@@ -5910,4 +5910,15 @@
   <string name="RestrictedContent">Restricted Content</string>
   <string name="SensitiveContent">Sensitive Content</string>
 
+  <string name="DrawingTitle">Draw</string>
+  <string name="DrawingUndo">Undo</string>
+  <string name="DrawingColor">Color</string>
+  <string name="DrawingBlack">Black</string>
+  <string name="DrawingWhite">White / eraser</string>
+  <string name="DrawingRed">Red</string>
+  <string name="DrawingOrange">Orange</string>
+  <string name="DrawingGreen">Green</string>
+  <string name="DrawingBlue">Blue</string>
+  <string name="DrawingPurple">Purple</string>
+  <string name="DrawingSaveError">Could not save drawing. Please try again.</string>
 </resources>
