@@ -12,7 +12,9 @@ public final class IReaderPen {
     try {
       Class<?> type = Class.forName("android.eink.view.HandPen");
       pen = type.getConstructor(int.class, boolean.class).newInstance(IReaderHandwriting.PRESSURE_PEN, true);
-      type.getMethod("setStrokeWidth", float.class).invoke(pen, width);
+      // The framebuffer's monochrome live pass appears slightly narrower than
+      // the antialiased saved outline; compensate during replay, retaining pressure.
+      type.getMethod("setStrokeWidth", float.class).invoke(pen, width * 0.9f);
       type.getMethod("setStrokeColor", int.class).invoke(pen, color);
       touch = type.getMethod("onTouchEvent", int.class, float.class, float.class, long.class, float.class);
       track = type.getMethod("getTrack");

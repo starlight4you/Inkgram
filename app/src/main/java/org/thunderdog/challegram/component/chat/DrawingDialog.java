@@ -128,7 +128,23 @@ public final class DrawingDialog extends Dialog {
       }
     };
     sizeRow.addView(brushPreview, new LinearLayout.LayoutParams(Screen.dp(52), Screen.dp(52)));
-    SeekBar size = new SeekBar(context);
+    SeekBar size = new SeekBar(context) {
+      private final Paint rail = new Paint(Paint.ANTI_ALIAS_FLAG);
+      @Override protected synchronized void onDraw (Canvas canvas) {
+        rail.setColor(Color.BLACK);
+        rail.setStrokeWidth(Screen.dp(2));
+        rail.setStrokeCap(Paint.Cap.ROUND);
+        canvas.drawLine(getPaddingLeft(), getHeight() / 2f, getWidth() - getPaddingRight(), getHeight() / 2f, rail);
+        super.onDraw(canvas);
+      }
+    };
+    size.setProgressDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+    GradientDrawable thumb = new GradientDrawable();
+    thumb.setShape(GradientDrawable.OVAL);
+    thumb.setColor(Color.BLACK);
+    thumb.setSize(Screen.dp(14), Screen.dp(14));
+    size.setThumb(thumb);
+    size.setSplitTrack(false);
     size.setMax(39);
     size.setProgress(3);
     size.setProgressTintList(android.content.res.ColorStateList.valueOf(Color.BLACK));
@@ -155,17 +171,19 @@ public final class DrawingDialog extends Dialog {
     int[] names = {R.string.DrawingBlack, R.string.DrawingWhite, R.string.DrawingRed, R.string.DrawingOrange, R.string.DrawingGreen, R.string.DrawingBlue, R.string.DrawingPurple};
     for (int i = 0; i < colors.length; i++) {
       final int color = colors[i];
-      TextView swatch = label(context, color == Color.BLACK ? "✓" : "");
-      swatch.setTextColor(color == Color.BLACK || color == 0xff1565c0 || color == 0xff7b1fa2 ? Color.WHITE : Color.BLACK);
-      swatch.setTextSize(24);
+      TextView swatch = label(context, Lang.getString(names[i]));
+      swatch.setTextColor(color == Color.WHITE || color == 0xffef6c00 ? Color.BLACK : Color.WHITE);
+      swatch.setTextSize(14);
+      swatch.setSingleLine(true);
+      swatch.setTypeface(null, color == Color.BLACK ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
       swatch.setGravity(Gravity.CENTER);
       swatch.setContentDescription(Lang.getString(R.string.DrawingColor) + ": " + Lang.getString(names[i]));
       GradientDrawable background = new GradientDrawable();
       background.setColor(color);
       background.setCornerRadius(Screen.dp(5));
-      background.setStroke(Screen.dp(1), Color.BLACK);
+      background.setStroke(Screen.dp(color == Color.BLACK ? 3 : 1), Color.BLACK);
       swatch.setBackground(background);
-      LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(Screen.dp(44), Screen.dp(44));
+      LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(Screen.dp(56), Screen.dp(44));
       params.setMargins(Screen.dp(3), Screen.dp(4), Screen.dp(3), Screen.dp(4));
       palette.addView(swatch, params);
       swatch.setSelected(color == Color.BLACK);
@@ -174,7 +192,9 @@ public final class DrawingDialog extends Dialog {
         setEraser(false);
         for (int j = 0; j < palette.getChildCount(); j++) {
           TextView item = (TextView) palette.getChildAt(j);
-          item.setText(item == swatch ? "✓" : "");
+          item.setTypeface(null, item == swatch ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+          item.setPaintFlags(item == swatch ? item.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG : item.getPaintFlags() & ~Paint.UNDERLINE_TEXT_FLAG);
+          ((GradientDrawable) item.getBackground()).setStroke(Screen.dp(item == swatch ? 3 : 1), Color.BLACK);
           item.setSelected(item == swatch);
         }
       });
@@ -435,7 +455,7 @@ public final class DrawingDialog extends Dialog {
     boolean erasing;
     float lastEraseX, lastEraseY;
     IReaderHandwriting handwriting;
-    boolean hardwareActive;
+    boolean hardwareActive, stylusUsed;
     final Paint border = new Paint();
     final RectF viewport = new RectF();
     Stroke current;
@@ -479,12 +499,14 @@ public final class DrawingDialog extends Dialog {
       canvas.drawColor(Color.WHITE);
       if (canvasWidth == 0 || viewport.isEmpty()) return;
       int save = canvas.save();
-      canvas.clipRect(viewport);
+      Path clip = new Path();
+      clip.addRoundRect(viewport, Screen.dp(8), Screen.dp(8), Path.Direction.CW);
+      canvas.clipPath(clip);
       canvas.translate(viewport.left, viewport.top);
       canvas.scale(scale(), scale());
       drawStrokes(canvas);
       canvas.restoreToCount(save);
-      canvas.drawRect(viewport.left + 1, viewport.top + 1, viewport.right - 1, viewport.bottom - 1, border);
+      canvas.drawRoundRect(new RectF(viewport.left + 1, viewport.top + 1, viewport.right - 1, viewport.bottom - 1), Screen.dp(8), Screen.dp(8), border);
     }
 
     private void drawStrokes (Canvas canvas) {
@@ -495,7 +517,10 @@ public final class DrawingDialog extends Dialog {
     public boolean onTouchEvent (MotionEvent event) {
       if (!isEnabled() || viewport.isEmpty()) return false;
       int tool = event.getToolType(event.getActionIndex());
-      if (hardwareActive && (tool == MotionEvent.TOOL_TYPE_STYLUS || tool == MotionEvent.TOOL_TYPE_ERASER)) return true;
+      boolean pen = tool == MotionEvent.TOOL_TYPE_STYLUS || tool == MotionEvent.TOOL_TYPE_ERASER;
+      if (pen && event.getActionMasked() == MotionEvent.ACTION_DOWN) lockToStylus();
+      if (stylusUsed && !pen) return true;
+      if (hardwareActive && pen) return true;
       if (event.getActionMasked() == MotionEvent.ACTION_DOWN && android.os.Build.VERSION.SDK_INT >= 21) requestUnbufferedDispatch(event);
       int action = event.getActionMasked();
       if (action == MotionEvent.ACTION_DOWN) {
@@ -522,7 +547,19 @@ public final class DrawingDialog extends Dialog {
     private float x (float x) { return Math.max(0, Math.min(canvasWidth, (x - viewport.left) / scale())); }
     private float y (float y) { return Math.max(0, Math.min(canvasHeight, (y - viewport.top) / scale())); }
 
+    private void lockToStylus () {
+      if (stylusUsed) return;
+      stylusUsed = true;
+      // Roll back any finger gesture already in flight when the pen arrives.
+      if (pointerId != -1 && before != null) {
+        strokes.clear(); strokes.addAll(before);
+        before = null; current = null; pointerId = -1;
+        changed();
+      }
+    }
+
     void hardwarePoint (int action, float px, float py, long time, float pressure) {
+      if (action == MotionEvent.ACTION_DOWN) lockToStylus();
       point(action, px, py, time, pressure);
     }
 

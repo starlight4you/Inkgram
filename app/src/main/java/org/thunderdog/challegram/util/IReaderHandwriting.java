@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -146,7 +147,8 @@ public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoClo
     if (closed || failed) return;
     try {
       Path clip = new Path();
-      clip.addRect(0, 0, w, h, Path.Direction.CW);
+      float radius = 8 * host.getResources().getDisplayMetrics().density;
+      clip.addRoundRect(new RectF(1, 1, w - 1, h - 1), radius, radius, Path.Direction.CW);
       call("setClip", new Class<?>[] {Path.class}, clip);
       render();
     } catch (Throwable error) { fail(error); }
