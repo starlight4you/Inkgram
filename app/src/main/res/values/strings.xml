@@ -5914,7 +5914,7 @@
   <string name="DrawingUndo">Undo</string>
   <string name="DrawingColor">Color</string>
   <string name="DrawingBlack">Black</string>
-  <string name="DrawingWhite">White / eraser</string>
+  <string name="DrawingWhite">White</string>
   <string name="DrawingRed">Red</string>
   <string name="DrawingOrange">Orange</string>
   <string name="DrawingGreen">Green</string>
@@ -5922,4 +5922,5 @@
   <string name="DrawingPurple">Purple</string>
   <string name="DrawingSaveError">Could not save drawing. Please try again.</string>
   <string name="DrawingRedo">Redo</string>
+  <string name="DrawingEraser">Eraser</string>
 </resources>

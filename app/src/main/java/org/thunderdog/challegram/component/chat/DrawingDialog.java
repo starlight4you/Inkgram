@@ -47,10 +47,11 @@ public final class DrawingDialog extends Dialog {
   }
 
   private final DrawingView drawing;
-  private final IconButton sendButton, undoButton, redoButton, clearButton;
+  private final IconButton sendButton, undoButton, redoButton, clearButton, eraserButton;
   private final View brushPreview;
   private final IReaderHandwriting handwriting;
-  private boolean saving;
+  private boolean saving, erasing;
+  private int penColor = Color.BLACK;
   private final ArrayList<File> exports = new ArrayList<>();
 
   public DrawingDialog (Context context, SendListener listener) {
@@ -167,9 +168,8 @@ public final class DrawingDialog extends Dialog {
       palette.addView(swatch, params);
       swatch.setSelected(color == Color.BLACK);
       swatch.setOnClickListener(v -> {
-        drawing.brushColor = color;
-        brushPreview.invalidate();
-        handwriting.setPen(drawing.brushSize, color);
+        penColor = color;
+        setEraser(false);
         for (int j = 0; j < palette.getChildCount(); j++) {
           TextView item = (TextView) palette.getChildAt(j);
           item.setText(item == swatch ? "✓" : "");
@@ -183,10 +183,12 @@ public final class DrawingDialog extends Dialog {
     undoButton = new IconButton(context, IconButton.UNDO, R.string.DrawingUndo);
     redoButton = new IconButton(context, IconButton.REDO, R.string.DrawingRedo);
     clearButton = new IconButton(context, IconButton.CLEAR, R.string.ClearDrawing);
+    eraserButton = new IconButton(context, IconButton.ERASER, R.string.DrawingEraser);
     sendButton = new IconButton(context, IconButton.SEND, R.string.Send);
     actions.addView(undoButton);
     actions.addView(redoButton);
     actions.addView(clearButton);
+    actions.addView(eraserButton);
     actions.addView(new View(context), new LinearLayout.LayoutParams(0, 1, 1));
     actions.addView(sendButton, new LinearLayout.LayoutParams(Screen.dp(56), Screen.dp(56)));
     content.addView(actions);
@@ -194,6 +196,7 @@ public final class DrawingDialog extends Dialog {
     undoButton.setOnClickListener(v -> drawing.undo());
     redoButton.setOnClickListener(v -> drawing.redo());
     clearButton.setOnClickListener(v -> drawing.clear());
+    eraserButton.setOnClickListener(v -> setEraser(!erasing));
     sendButton.setOnClickListener(v -> {
       if (saving || drawing.strokes.isEmpty()) return;
       final Bitmap bitmap;
@@ -278,7 +281,17 @@ public final class DrawingDialog extends Dialog {
     Toast.makeText(getContext(), Lang.getString(R.string.DrawingSaveError), Toast.LENGTH_SHORT).show();
   }
 
+  private void setEraser (boolean enabled) {
+    erasing = enabled;
+    drawing.brushColor = enabled ? Color.WHITE : penColor;
+    eraserButton.setSelected(enabled);
+    eraserButton.invalidate();
+    brushPreview.invalidate();
+    handwriting.setPen(drawing.brushSize, drawing.brushColor);
+  }
+
   private void updateButtons () {
+    eraserButton.setEnabled(!saving);
     boolean hasDrawing = !drawing.strokes.isEmpty();
     sendButton.setEnabled(!saving && hasDrawing);
     undoButton.setEnabled(!saving && hasDrawing);
@@ -302,7 +315,7 @@ public final class DrawingDialog extends Dialog {
 
   /** Monochrome symbols drawn without tinted framework button backgrounds. */
   private static final class IconButton extends View {
-    static final int CLOSE = 0, UNDO = 1, REDO = 2, CLEAR = 3, SEND = 4;
+    static final int CLOSE = 0, UNDO = 1, REDO = 2, CLEAR = 3, SEND = 4, ERASER = 5;
     private final int icon;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     IconButton (Context context, int icon, int label) {
@@ -333,6 +346,19 @@ public final class DrawingDialog extends Dialog {
         canvas.drawPath(arrow, paint);
       } else if (icon == CLOSE) {
         canvas.drawLine(-8, -8, 8, 8, paint); canvas.drawLine(-8, 8, 8, -8, paint);
+      } else if (icon == ERASER) {
+        if (isSelected()) {
+          paint.setStyle(Paint.Style.FILL);
+          canvas.drawRoundRect(-20, -20, 20, 20, 5, 5, paint);
+          paint.setColor(Color.WHITE);
+          paint.setStyle(Paint.Style.STROKE);
+        }
+        Path eraser = new Path();
+        eraser.moveTo(-11, 3); eraser.lineTo(2, -10); eraser.lineTo(12, 0);
+        eraser.lineTo(1, 11); eraser.lineTo(-4, 11); eraser.close();
+        canvas.drawPath(eraser, paint);
+        canvas.drawLine(-5, -3, 5, 7, paint);
+        canvas.drawLine(-4, 11, 12, 11, paint);
       } else if (icon == CLEAR) {
         canvas.drawLine(-10, -7, 10, -7, paint);
         canvas.drawLine(-4, -11, 4, -11, paint);

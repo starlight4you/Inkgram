@@ -15,7 +15,7 @@
   <string name="DrawingUndo">撤销</string>
   <string name="DrawingColor">颜色</string>
   <string name="DrawingBlack">黑色</string>
-  <string name="DrawingWhite">白色 / 橡皮擦</string>
+  <string name="DrawingWhite">白色</string>
   <string name="DrawingRed">红色</string>
   <string name="DrawingOrange">橙色</string>
   <string name="DrawingGreen">绿色</string>
@@ -23,4 +23,5 @@
   <string name="DrawingPurple">紫色</string>
   <string name="DrawingSaveError">绘图保存失败，请重试。</string>
   <string name="DrawingRedo">重做</string>
+  <string name="DrawingEraser">橡皮擦</string>
 </resources>
