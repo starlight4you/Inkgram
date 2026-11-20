@@ -20,7 +20,8 @@ import java.lang.reflect.Proxy;
  * No vendor classes are linked on devices that do not provide the API. */
 public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoCloseable {
   public interface Listener {
-    void onPoint (int action, float x, float y, long time, float pressure);
+    void onPoint (int action, float x, float y, long time, float pressure, boolean stylus);
+    void onStylusUsed ();
     void onDraw (Canvas canvas);
     void onAvailabilityChanged (boolean active);
   }
@@ -34,7 +35,7 @@ public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoClo
   private boolean ready, focused, closed, failed;
   private float width = 4;
   private int color = Color.BLACK;
-  private boolean erasing;
+  private boolean erasing, stylusUsed;
   public static final int PRESSURE_PEN = 4;
 
   public static IReaderHandwriting create (Context context, FrameLayout host, Listener listener) {
@@ -59,7 +60,7 @@ public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoClo
             long time = ((Number) args[3]).longValue();
             float pressure = ((Number) args[4]).floatValue();
             host.post(() -> {
-              if (bridge.ready && bridge.focused && !bridge.closed && !bridge.failed) listener.onPoint(action, x, y, time, pressure);
+              if (bridge.ready && bridge.focused && !bridge.closed && !bridge.failed) listener.onPoint(action, x, y, time, pressure, bridge.stylusUsed);
             });
             break;
         }
@@ -67,11 +68,23 @@ public final class IReaderHandwriting implements SurfaceHolder.Callback, AutoClo
       });
       bridge.call("setAutoHandWrite", new Class<?>[] {boolean.class}, false);
       bridge.call("setAhwTouchListener", new Class<?>[] {callbackType}, bridge.callback);
-      bridge.call("setAhwToolTypes", new Class<?>[] {int[].class}, (Object) new int[] {MotionEvent.TOOL_TYPE_STYLUS});
+      bridge.call("setAhwToolTypes", new Class<?>[] {int[].class}, (Object) new int[] {MotionEvent.TOOL_TYPE_FINGER, MotionEvent.TOOL_TYPE_STYLUS});
       bridge.call("setNeedAddDownEvent", new Class<?>[] {boolean.class}, true);
       bridge.view.getHolder().addCallback(bridge);
-      // Stylus points come from the native listener. Let fingers use the normal canvas below.
-      bridge.view.setOnTouchListener((v, event) -> event.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS);
+      // Both tools use the native incremental ink pipeline: posting a complete
+      // Surface buffer on every finger move triggers visible e-ink refresh flashes.
+      bridge.view.setOnTouchListener((v, event) -> {
+        int tool = event.getToolType(event.getActionIndex());
+        if (event.getActionMasked() == MotionEvent.ACTION_DOWN &&
+            (tool == MotionEvent.TOOL_TYPE_STYLUS || tool == MotionEvent.TOOL_TYPE_ERASER) && !bridge.stylusUsed) {
+          bridge.stylusUsed = true;
+          listener.onStylusUsed();
+          try {
+            bridge.call("setAhwToolTypes", new Class<?>[] {int[].class}, (Object) new int[] {MotionEvent.TOOL_TYPE_STYLUS});
+          } catch (Throwable error) { bridge.fail(error); }
+        }
+        return true;
+      });
       host.addView(bridge.view, new FrameLayout.LayoutParams(-1, -1));
       Log.i("IReaderHandwriting: HWSurfaceView initialized");
     } catch (Throwable error) {

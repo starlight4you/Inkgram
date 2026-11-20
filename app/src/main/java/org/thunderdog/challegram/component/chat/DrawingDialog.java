@@ -105,7 +105,8 @@ public final class DrawingDialog extends Dialog {
     board.addView(drawing, new FrameLayout.LayoutParams(-1, -1));
     content.addView(board, new LinearLayout.LayoutParams(-1, 0, 1));
     handwriting = IReaderHandwriting.create(context, board, new IReaderHandwriting.Listener() {
-      @Override public void onPoint (int action, float x, float y, long time, float pressure) { drawing.hardwarePoint(action, x, y, time, pressure); }
+      @Override public void onPoint (int action, float x, float y, long time, float pressure, boolean stylus) { drawing.hardwarePoint(action, x, y, time, pressure, stylus); }
+      @Override public void onStylusUsed () { drawing.lockToStylus(); }
       @Override public void onDraw (Canvas canvas) { drawing.render(canvas); }
       @Override public void onAvailabilityChanged (boolean active) { drawing.hardwareActive = active; }
     });
@@ -358,7 +359,7 @@ public final class DrawingDialog extends Dialog {
     @Override protected void onDraw (Canvas canvas) {
       super.onDraw(canvas);
       float cx = getWidth() / 2f, cy = getHeight() / 2f;
-      boolean filled = icon == SEND || isSelected();
+      boolean filled = isSelected();
       paint.setColor(Color.BLACK);
       paint.setStyle(Paint.Style.FILL);
       float radius = Screen.dp(22);
@@ -367,13 +368,7 @@ public final class DrawingDialog extends Dialog {
       symbol.setBounds(Math.round(cx) - half, Math.round(cy) - half, Math.round(cx) + half, Math.round(cy) + half);
       symbol.setColorFilter(filled ? Color.WHITE : Color.BLACK, android.graphics.PorterDuff.Mode.SRC_IN);
       symbol.draw(canvas);
-      // Keep disabled controls monochrome on e-ink; use an outline instead of a gray tint.
-      if (icon == SEND && !isEnabled()) {
-        paint.setColor(Color.WHITE);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(Screen.dp(1));
-        canvas.drawCircle(cx, cy, radius - Screen.dp(2), paint);
-      }
+
     }
   }
 
@@ -491,7 +486,7 @@ public final class DrawingDialog extends Dialog {
       boolean pen = tool == MotionEvent.TOOL_TYPE_STYLUS || tool == MotionEvent.TOOL_TYPE_ERASER;
       if (pen && event.getActionMasked() == MotionEvent.ACTION_DOWN) lockToStylus();
       if (stylusUsed && !pen) return true;
-      if (hardwareActive && pen) return true;
+      if (hardwareActive) return true;
       if (event.getActionMasked() == MotionEvent.ACTION_DOWN && android.os.Build.VERSION.SDK_INT >= 21) requestUnbufferedDispatch(event);
       int action = event.getActionMasked();
       if (action == MotionEvent.ACTION_DOWN) {
@@ -529,8 +524,9 @@ public final class DrawingDialog extends Dialog {
       }
     }
 
-    void hardwarePoint (int action, float px, float py, long time, float pressure) {
-      if (action == MotionEvent.ACTION_DOWN) lockToStylus();
+    void hardwarePoint (int action, float px, float py, long time, float pressure, boolean stylus) {
+      if (stylus && action == MotionEvent.ACTION_DOWN) lockToStylus();
+      if (stylusUsed && !stylus) return;
       point(action, px, py, time, pressure);
     }
 
