@@ -8,12 +8,18 @@ on:
         type: choice
         options: [debug, release]
         default: debug
+      abi:
+        description: Target architecture
+        type: choice
+        options: [arm64, arm32]
+        default: arm64
   push:
     branches: [main]
 
 env:
   TZ: UTC
   INKGRAM_BUILD_TYPE: ${{ inputs.build_type || 'debug' }}
+  INKGRAM_ABI: ${{ inputs.abi || 'arm64' }}
 
 permissions:
   contents: write
@@ -115,7 +121,7 @@ jobs:
           tgx.extension=none
           EOF
 
-      - name: Build arm64 APK
+      - name: Build ${{ env.INKGRAM_ABI }} APK
         run: |
           # Included annotation build otherwise only searches the plugin portal,
           # whose Kotlin POM can reference a BOM available on Maven Central.
@@ -142,12 +148,12 @@ jobs:
           else
             apk_task=:app:assembleLatestDebug
           fi
-          ./gradlew -I "${RUNNER_TEMP}/inkgram-repositories.gradle" "$apk_task" -Pabi=arm64 --no-daemon --stacktrace -x validateGitSetup
+          ./gradlew -I "${RUNNER_TEMP}/inkgram-repositories.gradle" "$apk_task" -Pabi="$INKGRAM_ABI" --no-daemon --stacktrace -x validateGitSetup
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: inkgram-latest-${{ env.INKGRAM_BUILD_TYPE }}-arm64
+          name: inkgram-latest-${{ env.INKGRAM_BUILD_TYPE }}-${{ env.INKGRAM_ABI }}
           path: app/build/outputs/apk/**/*.apk
           if-no-files-found: error
 
@@ -160,7 +166,7 @@ jobs:
           if-no-files-found: error
 
   publish-nightly:
-    if: github.ref == 'refs/heads/main' && (inputs.build_type == '' || inputs.build_type == 'debug')
+    if: github.ref == 'refs/heads/main' && (inputs.build_type == '' || inputs.build_type == 'debug') && (inputs.abi == '' || inputs.abi == 'arm64')
     name: Publish nightly release
     needs: latest-debug
     runs-on: ubuntu-24.04
