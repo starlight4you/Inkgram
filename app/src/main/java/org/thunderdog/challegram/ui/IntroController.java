@@ -1919,17 +1919,10 @@ public class IntroController extends ViewController<Void> implements GLSurfaceVi
     int size = Screen.dp(220f);
     bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
     Canvas c = new Canvas(bitmap);
-    // Reuse the launcher artwork, with its white background made transparent.
-    Bitmap logo = BitmapFactory.decodeResource(context.getResources(), R.mipmap.app_launcher);
-    int[] pixels = new int[logo.getWidth() * logo.getHeight()];
-    logo.getPixels(pixels, 0, logo.getWidth(), 0, 0, logo.getWidth(), logo.getHeight());
-    int inkColor = Theme.getColor(ColorId.text) & 0x00ffffff;
-    for (int i = 0; i < pixels.length; i++) {
-      pixels[i] = ((255 - Color.red(pixels[i])) << 24) | inkColor;
-    }
-    Bitmap ink = Bitmap.createBitmap(pixels, logo.getWidth(), logo.getHeight(), Bitmap.Config.ARGB_8888);
-    c.drawBitmap(ink, null, new RectF(0, 0, size, size), Paints.getBitmapPaint());
-    ink.recycle();
+    Bitmap logo = BitmapFactory.decodeResource(context.getResources(), R.drawable.inkgram_intro);
+    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+    paint.setColorFilter(new PorterDuffColorFilter(Theme.getColor(ColorId.text), PorterDuff.Mode.SRC_IN));
+    c.drawBitmap(logo, null, new RectF(0, 0, size, size), paint);
     logo.recycle();
     U.recycle(c);
     synchronized (icons) {
