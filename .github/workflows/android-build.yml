@@ -13,6 +13,11 @@ on:
         type: choice
         options: [arm64, arm32]
         default: arm64
+      sdk_flavor:
+        description: Android compatibility (qrs supports Android 10+)
+        type: choice
+        options: [latest, qrs]
+        default: latest
   push:
     branches: [main]
 
@@ -20,6 +25,7 @@ env:
   TZ: UTC
   INKGRAM_BUILD_TYPE: ${{ inputs.build_type || 'debug' }}
   INKGRAM_ABI: ${{ inputs.abi || 'arm64' }}
+  INKGRAM_SDK_FLAVOR: ${{ inputs.sdk_flavor || 'latest' }}
 
 permissions:
   contents: write
@@ -143,17 +149,18 @@ jobs:
           fun assertInputMessageContent_7c412303(): InputMessageContent? = null
           fun assertUpdate_2a2bec96(): Update? = null
           EOF
+          sdk_flavor="${INKGRAM_SDK_FLAVOR^}"
           if [ "$INKGRAM_BUILD_TYPE" = release ]; then
-            apk_task=:app:assembleLatestRelease
+            apk_task=":app:assemble${sdk_flavor}Release"
           else
-            apk_task=:app:assembleLatestDebug
+            apk_task=":app:assemble${sdk_flavor}Debug"
           fi
           ./gradlew -I "${RUNNER_TEMP}/inkgram-repositories.gradle" "$apk_task" -Pabi="$INKGRAM_ABI" --no-daemon --stacktrace -x validateGitSetup
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: inkgram-latest-${{ env.INKGRAM_BUILD_TYPE }}-${{ env.INKGRAM_ABI }}
+          name: inkgram-${{ env.INKGRAM_SDK_FLAVOR }}-${{ env.INKGRAM_BUILD_TYPE }}-${{ env.INKGRAM_ABI }}
           path: app/build/outputs/apk/**/*.apk
           if-no-files-found: error
 
@@ -162,11 +169,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: inkgram-release-mappings
-          path: app/build/outputs/mapping/latestRelease/
+          path: app/build/outputs/mapping/${{ env.INKGRAM_SDK_FLAVOR }}Release/
           if-no-files-found: error
 
   publish-nightly:
-    if: github.ref == 'refs/heads/main' && (inputs.build_type == '' || inputs.build_type == 'debug') && (inputs.abi == '' || inputs.abi == 'arm64')
+    if: github.ref == 'refs/heads/main' && (inputs.build_type == '' || inputs.build_type == 'debug') && (inputs.abi == '' || inputs.abi == 'arm64') && (inputs.sdk_flavor == '' || inputs.sdk_flavor == 'latest')
     name: Publish nightly release
     needs: latest-debug
     runs-on: ubuntu-24.04
