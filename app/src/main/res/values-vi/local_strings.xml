@@ -11,4 +11,6 @@
   <string name="EinkPageRippleDirectionDown">Xuống</string>
   <string name="EinkPageRippleDirectionLeft">Sang trái</string>
   <string name="EinkPageRippleDirectionRight">Sang phải</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">Ứng dụng nhắn tin **phù hợp nhất thế giới cho màn hình mực điện tử**.\n**Miễn phí** và **an toàn**.</string>
 </resources>

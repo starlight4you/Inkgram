@@ -23,4 +23,7 @@
   <string name="EinkPageRippleDirectionDown">向下</string>
   <string name="EinkPageRippleDirectionLeft">向左</string>
   <string name="EinkPageRippleDirectionRight">向右</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroTitle" translatable="false">Inkgram</string>
+  <string name="InkgramIntroMessage">The world\'s **best messaging app for e-ink screens**.\nIt is **free** and **secure**.</string>
 </resources>

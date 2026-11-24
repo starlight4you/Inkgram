@@ -11,4 +11,6 @@
   <string name="EinkPageRippleDirectionDown">아래</string>
   <string name="EinkPageRippleDirectionLeft">왼쪽</string>
   <string name="EinkPageRippleDirectionRight">오른쪽</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">세계에서 **전자잉크 화면에 가장 적합한 메신저**.\n**무료**이며 **안전**합니다.</string>
 </resources>

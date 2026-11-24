@@ -11,4 +11,6 @@
   <string name="EinkPageRippleDirectionDown">Omlaag</string>
   <string name="EinkPageRippleDirectionLeft">Naar links</string>
   <string name="EinkPageRippleDirectionRight">Naar rechts</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">De **beste chatapp ter wereld voor e-inkschermen**.\n**Gratis** en **veilig**.</string>
 </resources>

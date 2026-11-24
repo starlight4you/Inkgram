@@ -11,4 +11,6 @@
   <string name="EinkPageRippleDirectionDown">Bawah</string>
   <string name="EinkPageRippleDirectionLeft">Kiri</string>
   <string name="EinkPageRippleDirectionRight">Kanan</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">Aplikasi pesan **terbaik di dunia untuk layar e-ink**.\n**Gratis** dan **aman**.</string>
 </resources>

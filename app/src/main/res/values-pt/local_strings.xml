@@ -11,4 +11,6 @@
   <string name="EinkPageRippleDirectionDown">Para baixo</string>
   <string name="EinkPageRippleDirectionLeft">Para a esquerda</string>
   <string name="EinkPageRippleDirectionRight">Para a direita</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">A **melhor aplicação de mensagens do mundo para ecrãs de tinta eletrónica**.\nÉ **gratuita** e **segura**.</string>
 </resources>

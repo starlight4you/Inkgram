@@ -24,4 +24,6 @@
   <string name="DrawingSaveError">绘图保存失败，请重试。</string>
   <string name="DrawingRedo">重做</string>
   <string name="DrawingEraser">橡皮擦</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">世界上**最适合墨水屏的聊天工具**。\n**免费**且**安全**。</string>
 </resources>

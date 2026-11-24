@@ -83,6 +83,7 @@ import org.thunderdog.challegram.widget.ProgressComponent;
 import org.thunderdog.challegram.widget.ViewPager;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -1150,6 +1151,18 @@ public class IntroController extends ViewController<Void> implements GLSurfaceVi
   private BoolAnimator progressAnimator, continueAnimator;
 
   public String getString (int resId) {
+    // Resolve our brand copy against the intro preview language, independently of cloud strings.
+    if (resId == R.string.Page1Title || resId == R.string.Page1Message) {
+      TdApi.LanguagePackInfo language = displayLanguage.packInfo;
+      String code = language.id;
+      if (StringUtils.isEmpty(code) || code.charAt(0) == 'X') {
+        code = !StringUtils.isEmpty(language.baseLanguagePackId) ? language.baseLanguagePackId : language.pluralCode;
+      }
+      Configuration configuration = new Configuration(context.getResources().getConfiguration());
+      configuration.setLocale(Locale.forLanguageTag(StringUtils.isEmpty(code) ? "en" : code.replace('_', '-')));
+      return context.createConfigurationContext(configuration).getString(
+        resId == R.string.Page1Title ? R.string.InkgramIntroTitle : R.string.InkgramIntroMessage);
+    }
     return Lang.getString(displayLanguage.packInfo, resId);
   }
 
@@ -1895,7 +1908,7 @@ public class IntroController extends ViewController<Void> implements GLSurfaceVi
     return mValue[0];
   }
 
-  private Bitmap getSphereBitmap () {
+  private Bitmap getBrandBitmap () {
     Bitmap bitmap;
     synchronized (icons) {
       bitmap = iconsSpecial.get(0);
@@ -1906,12 +1919,34 @@ public class IntroController extends ViewController<Void> implements GLSurfaceVi
     int size = Screen.dp(220f);
     bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
     Canvas c = new Canvas(bitmap);
-    c.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, Paints.fillingPaint(0xff35a6de));
+    // Reuse the launcher artwork, with its white background made transparent.
+    Bitmap logo = BitmapFactory.decodeResource(context.getResources(), R.mipmap.app_launcher);
+    int[] pixels = new int[logo.getWidth() * logo.getHeight()];
+    logo.getPixels(pixels, 0, logo.getWidth(), 0, 0, logo.getWidth(), logo.getHeight());
+    int inkColor = Theme.getColor(ColorId.text) & 0x00ffffff;
+    for (int i = 0; i < pixels.length; i++) {
+      pixels[i] = ((255 - Color.red(pixels[i])) << 24) | inkColor;
+    }
+    Bitmap ink = Bitmap.createBitmap(pixels, logo.getWidth(), logo.getHeight(), Bitmap.Config.ARGB_8888);
+    c.drawBitmap(ink, null, new RectF(0, 0, size, size), Paints.getBitmapPaint());
+    ink.recycle();
+    logo.recycle();
     U.recycle(c);
     synchronized (icons) {
       iconsSpecial.put(0, bitmap);
     }
     return bitmap;
+  }
+
+  private Bitmap getEmptyBrandOverlay () {
+    synchronized (icons) {
+      Bitmap bitmap = iconsSpecial.get(2);
+      if (bitmap == null) {
+        bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        iconsSpecial.put(2, bitmap);
+      }
+      return bitmap;
+    }
   }
 
   private Bitmap getPowerfulMask () {
@@ -1955,8 +1990,9 @@ public class IntroController extends ViewController<Void> implements GLSurfaceVi
     );
 
     N.setTelegramTextures(
-      loadTexture(gl, getSphereBitmap()),
-      loadTexture(gl, R.drawable.intro_tg_plane)
+      loadTexture(gl, getBrandBitmap()),
+      // The complete Inkgram mark replaces both layers of the old Telegram logo.
+      loadTexture(gl, getEmptyBrandOverlay())
     );
 
     N.setPowerfulTextures(

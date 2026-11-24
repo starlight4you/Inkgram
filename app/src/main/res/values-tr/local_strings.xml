@@ -11,4 +11,6 @@
   <string name="EinkPageRippleDirectionDown">Aşağı</string>
   <string name="EinkPageRippleDirectionLeft">Sola</string>
   <string name="EinkPageRippleDirectionRight">Sağa</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">Dünyanın **e-mürekkep ekranlara en uygun mesajlaşma uygulaması**.\n**Ücretsiz** ve **güvenli**.</string>
 </resources>

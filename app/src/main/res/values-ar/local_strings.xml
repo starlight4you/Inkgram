@@ -11,4 +11,6 @@
   <string name="EinkPageRippleDirectionDown">أسفل</string>
   <string name="EinkPageRippleDirectionLeft">يسار</string>
   <string name="EinkPageRippleDirectionRight">يمين</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">تطبيق المراسلة **الأنسب لشاشات الحبر الإلكتروني** في العالم.\nإنه **مجاني** و**آمن**.</string>
 </resources>

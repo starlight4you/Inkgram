@@ -11,4 +11,6 @@
   <string name="EinkPageRippleDirectionDown">Вниз</string>
   <string name="EinkPageRippleDirectionLeft">Вліво</string>
   <string name="EinkPageRippleDirectionRight">Вправо</string>
+  <!-- Inkgram intro: kept local so cloud packs cannot restore Telegram X branding. -->
+  <string name="InkgramIntroMessage">**Найкращий у світі месенджер для екранів з електронним чорнилом**.\n**Безкоштовний** і **безпечний**.</string>
 </resources>
