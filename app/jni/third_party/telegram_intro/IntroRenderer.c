@@ -1828,10 +1828,7 @@ JNIEXPORT void Java_org_thunderdog_challegram_N_onDrawFrame(JNIEnv *env, jclass 
         float alpha = 1;
         if (direct == 0) {
             alpha = t(0, 1, 0, duration_const, Linear);
-
-            fast_body.params.alpha = 1;
-            fast_body.params.scale = xyzMake(scale, scale, 1);
-            draw_textured_shape(&fast_body, main_matrix, NORMAL);
+            // Inkgram's transparent mark has no circular backdrop on the welcome page.
         }
 
         telegram_sphere.params.alpha = alpha;
